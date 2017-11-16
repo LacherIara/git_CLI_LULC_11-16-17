@@ -1,0 +1,152 @@
+# PROPOSED ORGANIZATIONAL STRUCTURE FOR READ FILES CLI STUDY AREA SCRIPT
+# INCLUDES FINAL AND INTERMEDIATE DATA PRODUCED FROM DINAMICA AND R CODE
+# FOR THE MODEL, TABLES INCLUDING BUFFER DATA ARE USED. FOR COMMUNICATING RESULTS, TABLES THAT INCLUDE DATA FOR ONLY THE STUDY AREA ARE USED. 
+	# THUS, HAVE BOTH THE BUFFER DATA AND DATA CLIPPED TO THE 15 COUNTY STUDY AREA LISTED HERE.
+# IF THERE IS AN UNKOWN FOR WHERE TO PLACE SOMETHING, JUST FILL OUT WHAT YOU CAN/KNOW AND MAKE A NOTE IN THE IMPORTANT SECTION OF THE HEADER. 
+
+HEADER INFORMATION
+
+PACKAGES NEEDED
+
+TEMPORARY DIRECTORY LOCATION
+
+FILE PATHS USED IN READING FILES
+
+
+################################################
+################################################
+# RAW INPUTS AND MODEL PARAMETERS
+################################################
+################################################
+
+################################################
+# *TABLES* 
+################################################
+
+# ----------------------------------------------
+# COUNTIES/ REGIONS TABLES
+# ----------------------------------------------
+
+
+
+# ----------------------------------------------
+# PARAMETER TABLES
+# ----------------------------------------------
+
+# ----------------------------------------------
+# LAND USE TRANSITIONS
+
+COMBINE TABLE
+
+ZONAL HISTOGRAM
+
+COMBINE HISTOGRAM 
+
+TRANSITION RATES
+
+
+# ----------------------------------------------
+# PATCH STATS
+
+EXPANSION STATS
+
+NEW PATCH STATS
+
+PERCENT EXPANSION
+
+# ----------------------------------------------
+# WEIGHTS OF EVIDENCE * VERSION SPECIFIC EDITS MUST BE MADE*
+
+INDIVIDUAL WOE FILES
+
+COMPILED WOE FILES
+
+
+
+
+################################################
+# *RASTERS*
+################################################
+
+# ----------------------------------------------
+# COUNTIES/ REGIONS RASTERS
+# ----------------------------------------------
+
+ALL COUNTIES RASTER (1)
+
+INDIVIDUAL COUNTY RASTERS (MANY)
+
+
+
+# ----------------------------------------------
+# VARIABLE RASTERS
+# ----------------------------------------------
+
+# ----------------------------------------------
+# LAND COVER
+
+* VERSION USED IS NLCD RCC
+
+WITHOUT PROTECTED LANDS
+WITH PROTECTED LANDS
+
+
+# ----------------------------------------------
+# DISTANCE to landcover class
+
+# ----------------------------------------------
+# PHYSIOGRAPHY
+
+# ----------------------------------------------
+# ENERGY
+
+# ----------------------------------------------
+# DEVELOPMENT
+
+# ---------------------------------------------- 
+#  ECOLOGY
+ 
+# ---------------------------------------------- 
+#  ECONOMIC
+
+# ---------------------------------------------- 
+#  SOCIAL
+
+################################################
+################################################
+# MODEL OUTPUTS
+################################################
+################################################
+
+# ---------------------------------------------- 
+#  PROJECTED LANDSCAPES BY YEAR
+# ---------------------------------------------- 
+
+# ---------------------------------------------- 
+INCLUDING BUFFER
+
+
+# ---------------------------------------------- 
+CLIPPED TO STUDY AREA
+
+
+
+# ---------------------------------------------- 
+#  PROBABILITY OF CONVERSION (WOE FOR EACH LANDUSE/COUNTY)
+# ---------------------------------------------- 
+
+# ---------------------------------------------- 
+INCLUDING BUFFER
+
+
+# ---------------------------------------------- 
+CLIPPED TO STUDY AREA
+
+
+
+################################################
+################################################
+# ANALYSIS RESULTS * DON'T HAVE THIS YET.
+################################################
+################################################
+

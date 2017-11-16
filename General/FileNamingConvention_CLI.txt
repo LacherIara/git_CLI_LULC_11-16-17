@@ -1,0 +1,31 @@
+############################
+Changing Landscapes Initiative
+############################ 
+#PURPOSE: File Naming Convention for R script
+#DEVELOPED: Iara Lacher 1/16/15 
+#CONTACT: LacherI@si.edu
+#NOTES: 
+
+##### NEXT STEPS #####
+
+# COMBINE RASTERS AND BUILDING ZONAL HISTOGRAMS
+
+#File naming conventions to use:
+
+#RASTERS
+# lnlcomb_0111
+# lv1comb_10
+# lv3comb_10
+# lv5comb_10
+# lv100comb_10
+
+#TABLES
+# Lnlcomb_0111.txt
+# MiniGEOID.csv
+# Lnl_01_hist.txt
+# Lnl_11_hist.txt
+# Lnlcomb_0111_hist.txt
+# Lv1comb_10_hist.txt
+# Lv3comb_10_hist.txt
+# Lv5comb_10_hist.txt
+# Lv100comb_10_hist.txt
