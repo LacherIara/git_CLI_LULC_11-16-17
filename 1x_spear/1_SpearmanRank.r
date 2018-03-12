@@ -26,11 +26,8 @@ library(corrplot) # visualize the correlation matrix
 
 # ----------------------------------------------
 # READ OUTPUT FILES:
-# SpearRank <- read.csv("Y:/Lacher/Dinamica_Runs/PatchesTransitions_SA/BasicDataAnalyses/SpearmanRank/SpearRank.csv")
 
 # READ INPUT FILES:
-# rand_vals <- read.csv("Y:/Lacher/Dinamica_Runs/PatchesTransitions_SA/BasicDataAnalyses/SpearmanRank/Random_cells_vals.csv")
-
 
 
 ############################################################################################
@@ -46,11 +43,11 @@ library(corrplot) # visualize the correlation matrix
 
 # ----------------------------------------------
 # Read random cells values
-rand_vals <- read.csv("Y:/Lacher/Dinamica_Runs/PatchesTransitions_SA/BasicDataAnalyses/SpearmanRank/Random_cells_vals.csv")
+rand_vals <- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/Spearman/Random_cells_vals.csv")
 
 # ----------------------------------------------
-# Create correlation matrix for columns 2:20 #**!! Make sure you have captured all the variables we have in our current version.
-Rcorr <- rcorr(as.matrix(rand_vals[,2:20]), type=c("spearman"))
+# Create correlation matrix for columns 2:13 #**!! Make sure you have captured all the variables we have in our current version.
+Rcorr <- rcorr(as.matrix(rand_vals[,2:13]), type=c("spearman"))
 
 
 # ----------------------------------------------
@@ -78,9 +75,9 @@ SpearRank <- flattenCorrMatrix(Rcorr$r, Rcorr$P, Rcorr$n)
 
 # ----------------------------------------------
 # Write to file
-write.csv(SpearRank, "Y:/Lacher/Dinamica_Runs/PatchesTransitions_SA/BasicDataAnalyses/SpearmanRank/SpearRank.csv", row.names = FALSE)
+write.csv(SpearRank, "V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/Spearman/SpearRank.csv", row.names = FALSE)
 
-SpearRank <- read.csv("Y:/Lacher/Dinamica_Runs/PatchesTransitions_SA/BasicDataAnalyses/SpearmanRank/SpearRank.csv")
+SpearRank <- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/Spearman/SpearRank.csv")
 
 
 # ----------------------------------------------
