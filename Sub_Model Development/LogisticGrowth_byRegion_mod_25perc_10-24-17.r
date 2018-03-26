@@ -1,48 +1,20 @@
-############################ 
-#PURPOSE: Calculate the development density per class and zone. 
-#INPUT: 
-#OUTPUT: 
-#DEVELOPED: 
-#CONTACT: LacherI@si.edu
-#NOTES:
-# Saved workspace here: > save.image("V:/IaraSpatialLayers/Dinamica_Runs/AAA_RScript/JAGS_Workspace_10-20-17.RData")
+R version 3.4.1 (2017-06-30) -- "Single Candle"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64 (64-bit)
 
-#IMPORTANT: 
-##### NEXT STEPS #####
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
 
-############################
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
 
-# SET WORKING DIRECTORY
-# setwd("Y:/Lacher/...") #Harvard CLUSTER
-# setwd("Y:/Lacher/VarInSDM") #Harvard CLUSTER
-# setwd("I:/...") #I Drive 
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
 
-# ----------------------------------------------
-###########################################
-
-
-# PACKAGES NEEDED
-
-# Header for what grouped packages are for
-
-
-# SET TEMP DIRECTORY
-rasterOptions(tmpdir = "Y:/Lacher/rtempCLEARME/")
-
-
-# ----------------------------------------------
-# FILE LOCATIONS: 
-
-# ----------------------------------------------
-# READ OUTPUT FILES:
-
-# ----------------------------------------------
-# READ INPUT FILES:
-
-
-###########################################
-# ~~~ CODE BEGINS ~~~ #
-###########################################
+[Workspace loaded from ~/.RData]
 
  
  # PACKAGES NEEDED
@@ -148,9 +120,12 @@ rasterOptions(tmpdir = "Y:/Lacher/rtempCLEARME/")
  
  # Population Estimates:
  # **!! Where are these population estimates from? **
- PopProj<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/RegionalPopProjections_10-19-17.csv")
- prPopo <- as.numeric(PopProj$prPop)
- Pop <- prPop[1:8] # Population for 2001. 
+ # PopProj<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/RegionalPopProjections_10-19-17.csv")
+  # PopProj<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/RegionalPopProjections_15perc_10-24-17.csv")
+    PopProj<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/RegionalPopProjections_25perc_10-24-17.csv")
+   # PopProj<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/RegionalPopProjections_1stdev_10-24-17.csv")
+ prPops <- as.numeric(PopProj$prPop)
+ Pop <- prPops[1:8] # Population for 2001. 
  
  # # QC:
  # str(CLI_Urban);str(N2001);str(N2011);str(dat);str(Region);str(Nregion);str(Nzones);str(Dist);str(dt);str(PopA);str(PopA)
@@ -261,17 +236,10 @@ inits <- function(){list(mu.K=runif(1,0.8,1),
 parameters <- c("sd", "mu.Rm", "sd.Rm", "alpha.Rm", "beta1.Rm", "beta2.Rm",
                 "beta3.Rm","beta4.Rm","mu.K", "sd.K", "K", "beta.Rm")
 
-# # Markov Chain settings to submit to JAGS # See notes in Stats One note
-# ni <- 25000   # Number of iterations per chain
-# nt <- 50      # Thinning rate (keep 1 in every nt posterior samples)
-# nb <- 15000   # Number of samples to discard as burn-in (discard pre-convergence samples)
-# nc <- 3       # Number of independent Markov Chains to run
-
-# ** NOTE: Edited to improve model fit and convergence **
 # Markov Chain settings to submit to JAGS # See notes in Stats One note
-ni <- 80000   # Number of iterations per chain
+ni <- 25000   # Number of iterations per chain
 nt <- 50      # Thinning rate (keep 1 in every nt posterior samples)
-nb <- 50000   # Number of samples to discard as burn-in (discard pre-convergence samples)
+nb <- 15000   # Number of samples to discard as burn-in (discard pre-convergence samples)
 nc <- 3       # Number of independent Markov Chains to run
 
 # Call JAGS from R (Approximate run time = 17 minutes)
@@ -294,43 +262,41 @@ system.time(out <- jags(jdata, inits, parameters, "lg.txt", parallel = T, #codaO
  Rm <- as.numeric()
  
  
-# # ----------------------------------------------
-# # CAN UPDATE THE MODEL IF IT HASN'T CONVERGED
-# # ----------------------------------------------
+# ----------------------------------------------
+# CAN UPDATE THE MODEL IF IT HASN'T CONVERGED
+# ----------------------------------------------
 
-# ** NOTE: Used this on 10-20 to get model to converge **
+out1 <- update(out,n.iter = 25000,nt=50,nb=10000)
+out2 <- update(out1,n.iter = 30000,nt=100,nb=10000)
+#out3 <- update(out1,n.iter = 20000,nt=10,nb=10000)
 
-# out1 <- update(out,n.iter = 25000,nt=50,nb=10000)
-# out2 <- update(out1,n.iter = 30000,nt=100,nb=10000)
-# #out3 <- update(out1,n.iter = 20000,nt=10,nb=10000)
-
-# # Look at all the output/parameter estimates
-# print(out1, digits = 3)
+# Look at all the output/parameter estimates
+print(out1, digits = 3)
  
  
- # # Generating predictions from the model output
- # alpha.Rm=out1$mean$alpha.Rm         # Extract log-scale city-specific growth rate intercepts from JAGS object
- # beta1.Rm=out1$mean$beta1.Rm         # Extract log-scale coefficient for distance zone effects on growth rate
- # beta2.Rm=out1$mean$beta2.Rm         # Extract log-scale coefficient for population size effect on growth rate
- # beta3.Rm=out1$mean$beta3.Rm         # Extract log-scale coefficient for intercept change for metro
- # beta4.Rm=out1$mean$beta4.Rm         # Extract log-scale coefficient for intercept change for town
- # K=out1$mean$K        # Extract city-specific percent development asymptote
- # log.Rm <- as.numeric()
- # Rm <- as.numeric()
+ # Generating predictions from the model output
+ alpha.Rm=out1$mean$alpha.Rm         # Extract log-scale city-specific growth rate intercepts from JAGS object
+ beta1.Rm=out1$mean$beta1.Rm         # Extract log-scale coefficient for distance zone effects on growth rate
+ beta2.Rm=out1$mean$beta2.Rm         # Extract log-scale coefficient for population size effect on growth rate
+ beta3.Rm=out1$mean$beta3.Rm         # Extract log-scale coefficient for intercept change for metro
+ beta4.Rm=out1$mean$beta4.Rm         # Extract log-scale coefficient for intercept change for town
+ K=out1$mean$K        # Extract city-specific percent development asymptote
+ log.Rm <- as.numeric()
+ Rm <- as.numeric()
  
- # # Look at all the output/parameter estimates
-# print(out2, digits = 3)
+ # Look at all the output/parameter estimates
+print(out2, digits = 3)
  
  
- # # Generating predictions from the model output
- # alpha.Rm=out2$mean$alpha.Rm         # Extract log-scale city-specific growth rate intercepts from JAGS object
- # beta1.Rm=out2$mean$beta1.Rm         # Extract log-scale coefficient for distance zone effects on growth rate
- # beta2.Rm=out2$mean$beta2.Rm         # Extract log-scale coefficient for population size effect on growth rate
- # beta3.Rm=out2$mean$beta3.Rm         # Extract log-scale coefficient for intercept change for metro
- # beta4.Rm=out2$mean$beta4.Rm         # Extract log-scale coefficient for intercept change for town
- # K=out2$mean$K        # Extract city-specific percent development asymptote
- # log.Rm <- as.numeric()
- # Rm <- as.numeric()
+ # Generating predictions from the model output
+ alpha.Rm=out2$mean$alpha.Rm         # Extract log-scale city-specific growth rate intercepts from JAGS object
+ beta1.Rm=out2$mean$beta1.Rm         # Extract log-scale coefficient for distance zone effects on growth rate
+ beta2.Rm=out2$mean$beta2.Rm         # Extract log-scale coefficient for population size effect on growth rate
+ beta3.Rm=out2$mean$beta3.Rm         # Extract log-scale coefficient for intercept change for metro
+ beta4.Rm=out2$mean$beta4.Rm         # Extract log-scale coefficient for intercept change for town
+ K=out2$mean$K        # Extract city-specific percent development asymptote
+ log.Rm <- as.numeric()
+ Rm <- as.numeric()
  
  
  
@@ -366,7 +332,7 @@ colnames(bind) <- c("Region", "Urb_Class", "ZoneID","LogGrRate", "OrigGrRate", "
 bind2 <- bind[!duplicated(bind), ]
 bind2$Year <- "2011"
 
- write.csv(bind2, "V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs00_10-20-17.csv", row.names = F)
+ # write.csv(bind2, "V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs00_10-20-17.csv", row.names = F)
  
  # PLOT 
 Actual <- (N2011-N2001)   # Calculate true difference between 2001 and 2011
@@ -384,35 +350,19 @@ text(0.04,.2,labels=paste0("R-squared =",round(R2,2)),cex=1.2)   # Add R-squared
 # ----------------------------------------------
 # ----------------------------------------------
 
- #### Create Yearly Population Predictions (includes value for each region) ##Pop for 2001 is loaded above as just Pop
- # # Each population projection provides information for the following year.
- # Pop10 <- prPop[9:16] # 10 years out - Population for 2011. 
- # Pop20 <- prPop[17:24]# 20 years out - Population for 2021. 
- # Pop30 <- prPop[25:32]# 30 years out - Population for 2031. 
- # Pop40 <- prPop[33:40]# 40 years out - Population for 2041.  
- # Pop50 <- prPop[41:48]# 50 years out - Population for 2051.  
- # # Pop60 <- prPop[49:56]# 50 years out - Population for 2061.  # not needed.
-  
-# s_prPop=as.numeric(scale(prPop[9:48]))
-# # Each population projection provides information for the following year.
- # Pop10 <- s_prPop[1:8] # 10 years out - Population for 2011. 
- # Pop20 <- s_prPop[9:16]# 20 years out - Population for 2021. 
- # Pop30 <- s_prPop[17:24]# 30 years out - Population for 2031. 
- # Pop40 <- s_prPop[25:32]# 40 years out - Population for 2041.  
- # Pop50 <- s_prPop[33:40]# 50 years out - Population for 2051.   
 
 
  #10
  Nin<- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs00_10-20-17.csv") #Grab previous years output to form new baseline
+
  NinD<- Nin$PredPercDev
  Nt <- Nt1 <- NinD  # Create new data objects to overwrite with predicted data
  
 # ----------------------------------------------
 # ----------------------------------------------
-### *** START ON ACTUAL 2011 PERCENT DEV.***
+ ### *** START ON ACTUAL 2011 PERCENT DEV.***
 # ----------------------------------------------
 # ----------------------------------------------
-
 
  # Population=as.numeric(scale(Pop10))  # Scale total population data (as done for the JAGS analysis)
 Nt <- Nt1 <- N2011  # Create new data objects to overwrite with predicted data
@@ -437,13 +387,12 @@ Nt <- Nt1 <- N2011  # Create new data objects to overwrite with predicted data
  bind2 <- bind[!duplicated(bind), ]
  bind2$Year <- "2021"
  
- write.csv(bind2, "V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs10Aadj_10-20-17.csv", row.names = F)
- 
+ write.csv(bind2, "V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs10A_25perc_10-24-17.csv", row.names = F)
  
  
  #20
  # Population=as.numeric(scale(Pop20))  # Scale total population data (as done for the JAGS analysis)
- Nin<- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs10Aadj_10-20-17.csv") #Grab previous years output to form new baseline
+ Nin<- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs10A_25perc_10-24-17.csv") #Grab previous years output to form new baseline
  NinD<- Nin$PredPercDev
  Nt <- Nt1 <- NinD  # Create new data objects to overwrite with predicted data
  
@@ -465,11 +414,11 @@ Nt <- Nt1 <- N2011  # Create new data objects to overwrite with predicted data
  bind2 <- bind[!duplicated(bind), ]
  bind2$Year <- "2031"
  
- write.csv(bind2, "V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs20Aadj_10-20-17.csv", row.names = F)
+ write.csv(bind2, "V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs20A_25perc_10-24-17.csv", row.names = F)
  
  #30
  # Population=as.numeric(scale(Pop30))  # Scale total population data (as done for the JAGS analysis)
- Nin<- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs20Aadj_10-20-17.csv") #Grab previous years output to form new baseline
+ Nin<- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs20A_25perc_10-24-17.csv") #Grab previous years output to form new baseline
  NinD<- Nin$PredPercDev
  Nt <- Nt1 <- NinD  # Create new data objects to overwrite with predicted data
  
@@ -491,12 +440,12 @@ Nt <- Nt1 <- N2011  # Create new data objects to overwrite with predicted data
  bind2 <- bind[!duplicated(bind), ]
  bind2$Year <- "2041"
  
- write.csv(bind2, "V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs30Aadj_10-20-17.csv", row.names = F)
+ write.csv(bind2, "V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs30A_25perc_10-24-17.csv", row.names = F)
  
  
  #40
  # Population=as.numeric(scale(Pop40))  # Scale total population data (as done for the JAGS analysis)
- Nin<- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs30Aadj_10-20-17.csv") #Grab previous years output to form new baseline
+ Nin<- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs30A_25perc_10-24-17.csv") #Grab previous years output to form new baseline
  NinD<- Nin$PredPercDev
  Nt <- Nt1 <- NinD  # Create new data objects to overwrite with predicted data
  
@@ -518,12 +467,12 @@ Nt <- Nt1 <- N2011  # Create new data objects to overwrite with predicted data
  bind2 <- bind[!duplicated(bind), ]
  bind2$Year <- "2051"
  
- write.csv(bind2, "V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs40Aadj_10-20-17.csv", row.names = F)
+ write.csv(bind2, "V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs40A_25perc_10-24-17.csv", row.names = F)
  
  
  #50
  # Population=as.numeric(scale(Pop50))  # Scale total population data (as done for the JAGS analysis)
- Nin<- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs40Aadj_10-20-17.csv") #Grab previous years output to form new baseline
+ Nin<- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs40A_25perc_10-24-17.csv") #Grab previous years output to form new baseline
  NinD<- Nin$PredPercDev
  Nt <- Nt1 <- NinD  # Create new data objects to overwrite with predicted data
  
@@ -545,7 +494,7 @@ Nt <- Nt1 <- N2011  # Create new data objects to overwrite with predicted data
  bind2 <- bind[!duplicated(bind), ]
  bind2$Year <- "2061"
  
- write.csv(bind2, "V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs50Aadj_10-20-17.csv", row.names = F)
+ write.csv(bind2, "V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs50A_25perc_10-24-17.csv", row.names = F)
  
  
 
