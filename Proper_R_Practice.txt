@@ -1,0 +1,15 @@
+﻿PROPER R PRACTICE
+
+From now on: Always format data for R and then provide tables as needed.
+
+Naming files:
+        - Maintain same # characters (including numerical)
+        - Unique identifiers in same location in name
+        - If all file names need to be called at once, and each have unique nomenclature, put all in same file, not subfiles. (easier in R)
+
+Formatting R Tables
+        • All columns must have a name
+        • Column names cannot start with a #
+        • Value must be the column name header. 
+        • If calling in values from 2 distinct tables, any values you want to relate must have the exact same column name, including capitalization and underscores.
+        • UNIT!: If it isn’t self-explanatory, the unit should be included in the column name without using numerals, e.g.  “thing_sqm”. 
