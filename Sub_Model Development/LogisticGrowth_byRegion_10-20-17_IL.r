@@ -55,7 +55,7 @@
  # Join separate tables together:
  CLI_Urb_sum <- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/CLI_Urb_sum.csv")
  
- # CLI_Urb <- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/CLI_Urb.csv")
+ CLI_Urb <- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/CLI_Urb.csv")
  
  CLI_Urban <- full_join(CLI_Urb, CLI_Urb_sum)
  # str(CLI_Urban)
@@ -129,7 +129,7 @@
  # Population Estimates:
  # **!! Where are these population estimates from? **
  PopProj<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/RegionalPopProjections/RegionalPopProjections_High_03_29_18.csv")
- prPopo <- as.numeric(PopProj$prPop)
+ prPop <- as.numeric(PopProj$prPop)
  Pop <- prPop[1:8] # Population for 2001. 
  
  # # QC:
