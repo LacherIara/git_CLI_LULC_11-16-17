@@ -3,11 +3,19 @@
 #INPUT: 
 #OUTPUT: 
 #DEVELOPED: 
+	# 10-24-17: Edited to improve model fit and convergence **
 #CONTACT: LacherI@si.edu
 #NOTES:
 # Saved workspace here: > save.image("V:/IaraSpatialLayers/Dinamica_Runs/AAA_RScript/JAGS_Workspace_10-20-17.RData")
 
 #IMPORTANT: 
+	# 10-24-17: Edited from original version to improve model fit and convergence **
+	# ni <- 25000 #*Changed to 80000*  # Number of iterations per chain
+	# nt <- 50      # Thinning rate (keep 1 in every nt posterior samples)
+	# nb <- 15000 #*Changed to 50000* # Number of samples to discard as burn-in (discard pre-convergence samples)
+	# nc <- 3       # Number of independent Markov Chains to run
+	
+	
 ##### NEXT STEPS #####
 
 ############################
@@ -17,46 +25,18 @@
 # setwd("Y:/Lacher/VarInSDM") #Harvard CLUSTER
 # setwd("I:/...") #I Drive 
 
+
 # ----------------------------------------------
 ###########################################
 
-
-# PACKAGES NEEDED
-
-# Header for what grouped packages are for
-
-
-# SET TEMP DIRECTORY
-rasterOptions(tmpdir = "Y:/Lacher/rtempCLEARME/")
-
-
-# ----------------------------------------------
-# FILE LOCATIONS: 
-
-# ----------------------------------------------
-# READ OUTPUT FILES:
-
-# ----------------------------------------------
-# READ INPUT FILES:
-
-
-###########################################
-# ~~~ CODE BEGINS ~~~ #
-###########################################
-
- 
  # PACKAGES NEEDED
  library(plyr)
  library(jagsUI) # (must have downloaded and installed JAGS, see: https://faculty.washington.edu/jmiyamot/p548/installing.jags.pdf)
 
  library(dplyr)
-
-
  library(reshape)
-
  library(stringr)
- 
- 
+  
  # ----------------------------------------------
  # FILE LOCATIONS: 
  
@@ -67,33 +47,33 @@ rasterOptions(tmpdir = "Y:/Lacher/rtempCLEARME/")
  # READ INPUT FILES:
  
  # Name and Class Designation:
- # UrbanNames <- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/dev_den_tables/Name_and_Class.csv")
+ UrbanNames <- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/dev_den_tables/Name_and_Class.csv")
  
  
  # Raw Data Extracted from Raster
  
- # # Join separate tables together:
- # CLI_Urb_sum <- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/CLI_Urb_sum.csv")
+ # Join separate tables together:
+ CLI_Urb_sum <- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/CLI_Urb_sum.csv")
  
  # CLI_Urb <- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/CLI_Urb.csv")
  
- # CLI_Urban <- full_join(CLI_Urb, CLI_Urb_sum)
- # # str(CLI_Urban)
- # # 'data.frame':	452 obs. of  11 variables:
- # # $ Year       : int  2001 2001 2001 2001 2001 2001 2001 2001 2001 2001 ...
- # # $ Region     : int  1 1 1 1 1 1 1 1 1 1 ...
- # # $ Urb_Class  : Factor w/ 3 levels "City","Metro",..: 1 3 1 3 1 3 1 3 1 3 ...
- # # $ ZoneID     : int  1 1 2 2 3 3 4 4 5 5 ...
- # # $ Area       : num  432000 4906800 2399400 20087100 5873400 ...
- # # $ NumDevPix  : int  462 4498 2241 13591 4625 15634 5005 14830 4849 9633 ...
- # # $ ZoneTotPop : num  570 2294 2815 6873 4796 ...
- # # $ DevArea    : int  415800 4048200 2016900 12231900 4162500 14070600 4504500 13347000 4364100 8669700 ...
- # # $ PerDev     : num  0.963 0.825 0.841 0.609 0.709 ...
- # # $ RegTotPop  : num  185142 185142 185142 185142 185142 ...
- # # $ UrbanTotPop: num  35053 109357 35053 109357 35053 ...
+ CLI_Urban <- full_join(CLI_Urb, CLI_Urb_sum)
+ # str(CLI_Urban)
+ # 'data.frame':	452 obs. of  11 variables:
+ # $ Year       : int  2001 2001 2001 2001 2001 2001 2001 2001 2001 2001 ...
+ # $ Region     : int  1 1 1 1 1 1 1 1 1 1 ...
+ # $ Urb_Class  : Factor w/ 3 levels "City","Metro",..: 1 3 1 3 1 3 1 3 1 3 ...
+ # $ ZoneID     : int  1 1 2 2 3 3 4 4 5 5 ...
+ # $ Area       : num  432000 4906800 2399400 20087100 5873400 ...
+ # $ NumDevPix  : int  462 4498 2241 13591 4625 15634 5005 14830 4849 9633 ...
+ # $ ZoneTotPop : num  570 2294 2815 6873 4796 ...
+ # $ DevArea    : int  415800 4048200 2016900 12231900 4162500 14070600 4504500 13347000 4364100 8669700 ...
+ # $ PerDev     : num  0.963 0.825 0.841 0.609 0.709 ...
+ # $ RegTotPop  : num  185142 185142 185142 185142 185142 ...
+ # $ UrbanTotPop: num  35053 109357 35053 109357 35053 ...
  
- # ### WRITE TO FILE ###
- # write.csv(CLI_Urban, "V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/CLI_Urban.csv", row.names = F)
+ ### WRITE TO FILE ###
+ write.csv(CLI_Urban, "V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/CLI_Urban.csv", row.names = F)
  
  ### READ TO FILE ###
  CLI_Urban <- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/CLI_Urban_10-19-17.csv") # 452 obs. of  12 variables
@@ -113,7 +93,7 @@ rasterOptions(tmpdir = "Y:/Lacher/rtempCLEARME/")
  
  
  
- # Extract the column for percent development for each zone in 2001 
+ # # Extract the column for percent development for each zone in 2001 
  N2001 <- CLI_Urban$PerDev[which(CLI_Urban$Year==2001)]
  
  # Extract the column for percent development for each zone in 2011 
@@ -123,7 +103,7 @@ rasterOptions(tmpdir = "Y:/Lacher/rtempCLEARME/")
  dat <- cbind(N2001,matrix(NA,nrow=length(N2001),ncol=9),N2011)
  #dat <- cbind(N2001,matrix(NA,nrow=length(N2001),ncol=10))
  
- # Extract a vector of region numbers
+ # # Extract a vector of region numbers
  Region <- CLI_Urban$Region[which(CLI_Urban$Year==2001)]
  
  # Create an object giving the number of regions
@@ -148,7 +128,7 @@ rasterOptions(tmpdir = "Y:/Lacher/rtempCLEARME/")
  
  # Population Estimates:
  # **!! Where are these population estimates from? **
- PopProj<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/RegionalPopProjections_10-19-17.csv")
+ PopProj<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/RegionalPopProjections/RegionalPopProjections_High_03_29_18.csv")
  prPopo <- as.numeric(PopProj$prPop)
  Pop <- prPop[1:8] # Population for 2001. 
  
