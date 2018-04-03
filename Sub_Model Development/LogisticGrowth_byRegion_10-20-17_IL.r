@@ -129,7 +129,11 @@
  # Population Estimates:
  # **!! Where are these population estimates from? **
  PopProj<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/RegionalPopProjections/RegionalPopProjections_High_03_29_18.csv")
+<<<<<<< HEAD
  prPopo <- as.numeric(PopProj$prPop)
+=======
+ prPop <- as.numeric(PopProj$prPop)
+>>>>>>> 913ba626827e49b7a7a1a9e0f756f46e716d726f
  Pop <- prPop[1:8] # Population for 2001. 
  
  # # QC:
