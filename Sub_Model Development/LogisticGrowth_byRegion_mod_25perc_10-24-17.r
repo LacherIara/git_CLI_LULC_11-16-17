@@ -1,31 +1,33 @@
-R version 3.4.1 (2017-06-30) -- "Single Candle"
-Copyright (C) 2017 The R Foundation for Statistical Computing
-Platform: x86_64-w64-mingw32/x64 (64-bit)
+########################### 
+#PURPOSE: Calculate the development density per class and zone. 
+#INPUT: 
+#OUTPUT: 
+#DEVELOPED: 
+	# 10-24-17: Edited to improve model fit and convergence **
+#CONTACT: LacherI@si.edu
+#NOTES:
+# Saved workspace here: > save.image("V:/IaraSpatialLayers/Dinamica_Runs/AAA_RScript/JAGS_Workspace_10-20-17.RData")
 
-R is free software and comes with ABSOLUTELY NO WARRANTY.
-You are welcome to redistribute it under certain conditions.
-Type 'license()' or 'licence()' for distribution details.
+#IMPORTANT: 
+	
+##### NEXT STEPS #####
 
-R is a collaborative project with many contributors.
-Type 'contributors()' for more information and
-'citation()' on how to cite R or R packages in publications.
+############################
 
-Type 'demo()' for some demos, 'help()' for on-line help, or
-'help.start()' for an HTML browser interface to help.
-Type 'q()' to quit R.
+# SET WORKING DIRECTORY
+# setwd("Y:/Lacher/...") #Harvard CLUSTER
+# setwd("Y:/Lacher/VarInSDM") #Harvard CLUSTER
+# setwd("I:/...") #I Drive 
 
-[Workspace loaded from ~/.RData]
 
- 
+# ----------------------------------------------
+###########################################
  # PACKAGES NEEDED
  library(plyr)
  library(jagsUI) # (must have downloaded and installed JAGS, see: https://faculty.washington.edu/jmiyamot/p548/installing.jags.pdf)
 
  library(dplyr)
-
-
  library(reshape)
-
  library(stringr)
  
  
