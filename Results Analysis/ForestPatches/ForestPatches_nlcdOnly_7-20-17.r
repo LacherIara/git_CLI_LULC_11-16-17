@@ -48,9 +48,9 @@ library(dplyr) # !! Remove dplyr in order to run clump detach(name="package:dply
 cntyRasterLoc <- "V:/IaraSpatialLayers/PreparedRasters/StudyAreaBndy/"
 
 # Rasters for comparison ( now includes folder with duplicate NLCD rasters for ease in scripting)
-RasterLoc <- "V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/FutureLandscapes/"
+RasterLoc <- "V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/FutureLandscapes/"
 
-Output_Folder <- "V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/Patch_Stats/Test_SH/"
+Output_Folder <- "V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/"
 # ----------------------------------------------
 # READ OUTPUT FILES:
 
@@ -62,8 +62,8 @@ Output_Folder <- "V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/Pat
 
 # ----------------------------------------------
 # NLCD 2001 & 2011:
-nl01 <- raster("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/FutureLandscapes/NL/nlcd_nlcd/nlcd01_anC.img")
-nl11 <- raster("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/FutureLandscapes/NL/nlcd_nlcd/nlcd11_anC.img")
+nl01 <- raster("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/FutureLandscapes/NL/nlcd_nlcd/nlcd01_anC.img")
+nl11 <- raster("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/FutureLandscapes/NL/nlcd_nlcd/nlcd11_anC.img")
 
 # ----------------------------------------------
 # COUNTY RASTERS:
@@ -109,16 +109,18 @@ LS_trans <-  list(
   'NL11' = list(
     '0111' = c("NL/nlcd_nlcd/NL01_5_StudyArea.tif", "NL/nlcd_nlcd/NL11_5_StudyArea.tif")), 
   'RT05'= list(
-    'xxRT'= c("RT/v2013_RT_Landscape05.tif" ,"RT/v2013_RT_Landscape05.tif")), 
-    'Q105'= list(
-      'xxQ1'= c("Q1/v2013_Q1_Landscape05.tif" ,"Q1/v2013_Q1_Landscape05.tif")),
-      'Q205'= list(
-        'xxQ2'= c("Q2/v2013_Q2_Landscape05.tif" ,"Q2/v2013_Q2_Landscape05.tif")),
+    'xxRT'= c("RT/v2015_RT_Landscape05.tif" ,"RT/v2015_RT_Landscape05.tif")), 
+   # 'Q105'= list(
+      #'xxQ1'= c("Q1/v2013_Q1_Landscape05.tif" ,"Q1/v2013_Q1_Landscape05.tif")),
+      #'Q205'= list(
+       # 'xxQ2'= c("Q2/v2013_Q2_Landscape05.tif" ,"Q2/v2013_Q2_Landscape05.tif")),
   'Q305'= list(
-    'xxQ3'= c("Q3/v2013_Q3_Landscape05.tif" ,"Q3/v2013_Q3_Landscape05.tif")),
-  'Q405'= list(
-    'xxQ4'= c("Q4/v2013_Q4_Landscape05.tif" ,"Q4/v2013_Q4_Landscape05.tif"))
-)
+    'xxQ3'= c("Q3/v2015_Q3_Landscape05.tif" ,"Q3/v2015_Q3_Landscape05.tif")))
+  
+  #,
+ # 'Q405'= list(
+    #'xxQ4'= c("Q4/v2013_Q4_Landscape05.tif" ,"Q4/v2013_Q4_Landscape05.tif"))
+#)
   
 
 
