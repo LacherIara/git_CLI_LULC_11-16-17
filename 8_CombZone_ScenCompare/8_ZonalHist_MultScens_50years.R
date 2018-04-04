@@ -113,9 +113,9 @@ Comb_output<-"I:/Test/RT/" #Sarah Halperin test. Can be deleted.
 # nl11 <- raster("V:/IaraSpatialLayers/PreparedRasters/StudyAreaBndy/nlcd11_anC.img")
 
 # COUNTY RASTERS #currently set to regions 
-regions <- raster(paste(cntyRasterLoc, "region_an2", ".img", sep="")) # this is for the raster.
+regions <- raster(paste(cntyRasterLoc, "regions_StudyArea", ".tif", sep="")) # this is for the raster.
 counties_vals <- getValues(regions) #defining the region 
-#NOTE: Craig said the only correct region raster was region_an2. I updated to region_an2 was region_an
+#NOTE: Craig said the only correct region raster was region_an2. I updated to region_an2 was region_an. I changed it to counties (regions_StudyArea.tif)
 
 # str(counties_vals)
 # int [1:64956544] NA NA NA NA NA NA NA NA NA NA ...
