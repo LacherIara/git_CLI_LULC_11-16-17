@@ -480,7 +480,8 @@ prPops<-Alls_prPop[41:80]
 
 
  #10
- Nin<- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs00_10-20-17.csv") #Grab previous years output to form new baseline
+ Nin<- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/Sub_Model Development/UrbanGrowthPatterns/LogRegOutputs/LogRegOutputs00_10-20-17.csv") #Grab previous years output to form new baseline
+ 
 
  NinD<- Nin$PredPercDev
  Nt <- Nt1 <- NinD  # Create new data objects to overwrite with predicted data
