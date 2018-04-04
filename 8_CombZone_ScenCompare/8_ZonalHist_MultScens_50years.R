@@ -760,11 +760,23 @@ write.csv(CombinedReshape, paste0(Comb_output,"CombinedReshape.csv"))
 CombinedMelt<-melt(Combined, id=c("Rowid_", "LABEL", "TimeStep" ))
 CombinedMelt$LABEL<-as.factor(CombinedMelt$LABEL) #turn Label to factor from integer
 
+
+#ggplot per individual region 
+CombinedMelt<-subset(CombinedMelt, CombinedMelt$variable == "GEOID_24001") #subset based on region. Need to change the CombinedMelt$variable == 
+
 windows()
 ggplot(CombinedMelt, aes(x=TimeStep, y=value, colour=LABEL, group=LABEL))+
   geom_line()+
-  facet_grid(.~variable, scales="free")
-  
+  #facet_grid(.~variable, scales="free")+
+  scale_x_continuous(name= "Time Step", breaks= c(1,2,3,4,5), labels=c("2021", "2031", "2041", "2051", "2061"))+
+  scale_colour_discrete(name= "Land Cover Types", labels=c("3", "5", "6", "7"))+
+  scale_y_continuous(limits=c(0,1500000))+
+   theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=14,face="bold"))
+
+
 
 #Sum by Region 
 region_sum<-aggregate(value~LABEL+TimeStep,CombinedMelt, sum)
@@ -772,7 +784,15 @@ region_sum<-aggregate(value~LABEL+TimeStep,CombinedMelt, sum)
 #Ggplot summed over each region 
 windows()
 ggplot(region_sum, aes(x=TimeStep, y=value, colour=LABEL, group=LABEL))+
-  geom_line()
+  geom_line()+
+  scale_x_continuous(name= "Time Step", breaks= c(1,2,3,4,5), labels=c("2021", "2031", "2041", "2051", "2061"))+
+  scale_colour_discrete(name= "Land Cover Types", labels=c("3", "5", "6", "7"))+
+  scale_y_continuous(limits=c(0,25000000))+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=14,face="bold"))
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #Save CSV needed for graphs. NEED TO CHANGE BASED ON INPUT
@@ -837,5 +857,13 @@ ggplot(CombinedMeltLC, aes(x=TimeStep, y=value, colour=Scenario, group=Scenario)
 windows()
 ggplot(CombinedRegionLC, aes(x=TimeStep, y=value, colour=Scenario, group=Scenario))+
   geom_line()+
-  facet_grid(.~LABEL, scales="free")
->>>>>>> 5494a35960a3438cbfe4790e3eef5d8b988e101e
+  facet_grid(.~LABEL, scales="free")+
+  scale_x_continuous(name= "Time Step", breaks= c(1,2,3,4,5), labels=c("2021", "2031", "2041", "2051", "2061"))+
+  scale_colour_discrete(name= "Land Cover Types", labels=c("3", "5", "6", "7"))+
+  scale_y_continuous(limits=c(0,25000000))+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=14,face="bold"))
+
+
