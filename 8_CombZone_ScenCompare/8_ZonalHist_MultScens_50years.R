@@ -61,28 +61,28 @@ cntyRasterLoc <- "V:/IaraSpatialLayers/PreparedRasters/StudyAreaBndy/"
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TURN ON FOR RT
 
-inRasterLoc <- "V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/FutureLandscapes/RT/" 
+inRasterLoc <- "V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/FutureLandscapes/RT/" 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TURN ON FOR Q1
-#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/FutureLandscapes/Q1/"
+#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/FutureLandscapes/Q1/"
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TURN ON FOR Q2
-#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/FutureLandscapes/Q2/"
+#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/FutureLandscapes/Q2/"
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TURN ON FOR Q3
-#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/FutureLandscapes/Q3/"
+#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/FutureLandscapes/Q3/"
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TURN ON FOR Q4
-#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/FutureLandscapes/Q4/"
+#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/FutureLandscapes/Q4/"
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TURN ON FOR ALL SCENARIOS 
-#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/FutureLandscapes/"
+#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/FutureLandscapes/"
 #Folders <-  list('Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'RT' = c("RT/"),'RT' = c("RT/"),'RT' = c("RT/"),'RT' = c("RT/"),'RT' = c("RT/"))
 #inRasterLoc <-paste0(inRasterLoc, Folders)
 
@@ -94,12 +94,12 @@ Comb_output<-"I:/Test/RT/" #Sarah Halperin test. Can be deleted.
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TURN ON RESPECTIVE OUTPUT FOLDER 
-#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/RT/"
-#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q1/"
-#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q2/"
-#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q3/"
-#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q4/"
-#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/All/"
+#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/RT/"
+#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q1/"
+#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q2/"
+#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q3/"
+#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q4/"
+#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/All/"
 
 # ----------------------------------------------
 # READ OUTPUT FILES:
@@ -145,21 +145,21 @@ S20_GEOID <-  read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SAcnty
 # ----------------------------------------------
 
 #TURN ON FOR RT
-LS_trans <-  list('LS01' = c("v2013_RT_Landscape01.tif"),'LS02' = c("v2013_RT_Landscape02.tif"),'LS03' = c("v2013_RT_Landscape03.tif"),'LS04' = c("v2013_RT_Landscape04.tif"),'LS05' = c("v2013_RT_Landscape05.tif")) #Each of the different future landscapes for the different timesteps. 
+LS_trans <-  list('LS01' = c("v2015_RT_Landscape01.tif"),'LS02' = c("v2015_RT_Landscape02.tif"),'LS03' = c("v2015_RT_Landscape03.tif"),'LS04' = c("v2015_RT_Landscape04.tif"),'LS05' = c("v2015_RT_Landscape05.tif")) #Each of the different future landscapes for the different timesteps. 
 
 #TURN ON FOR Q1
-#LS_trans <-  list('LS01' = c("v2013_Q1_Landscape01.tif"),'LS02' = c("v2013_Q1_Landscape02.tif"),'LS03' = c("v2013_Q1_Landscape03.tif"),'LS04' = c("v2013_Q1_Landscape04.tif"),'LS05' = c("v2013_Q1_Landscape05.tif"))
+#LS_trans <-  list('LS01' = c("v2015_Q1_Landscape01.tif"),'LS02' = c("v2015_Q1_Landscape02.tif"),'LS03' = c("v2015_Q1_Landscape03.tif"),'LS04' = c("v2015_Q1_Landscape04.tif"),'LS05' = c("v2015_Q1_Landscape05.tif"))
 
 
 #TURN ON FOR Q2
-#LS_trans <-  list('LS01' = c("v2013_Q2_Landscape01.tif"),'LS02' = c("v2013_Q2_Landscape02.tif"),'LS03' = c("v2013_Q2_Landscape03.tif"),'LS04' = c("v2013_Q2_Landscape04.tif"),'LS05' = c("v2013_Q2_Landscape05.tif"))
+#LS_trans <-  list('LS01' = c("v2015_Q2_Landscape01.tif"),'LS02' = c("v2015_Q2_Landscape02.tif"),'LS03' = c("v2015_Q2_Landscape03.tif"),'LS04' = c("v2015_Q2_Landscape04.tif"),'LS05' = c("v2015_Q2_Landscape05.tif"))
 
 #TURN ON FOR Q3
-#LS_trans <-  list('LS01' = c("v2013_Q3_Landscape01.tif"),'LS02' = c("v2013_Q3_Landscape02.tif"),'LS03' = c("v2013_Q3_Landscape03.tif"),'LS04' = c("v2013_Q3_Landscape04.tif"),'LS05' = c("v2013_Q3_Landscape05.tif"))
+#LS_trans <-  list('LS01' = c("v2015_Q3_Landscape01.tif"),'LS02' = c("v2015_Q3_Landscape02.tif"),'LS03' = c("v2015_Q3_Landscape03.tif"),'LS04' = c("v2015_Q3_Landscape04.tif"),'LS05' = c("v2015_Q3_Landscape05.tif"))
 
 
 #TURN ON FOR Q4
-#LS_trans <-  list('LS01' = c("v2013_Q4_Landscape01.tif"),'LS02' = c("v2013_Q4_Landscape02.tif"),'LS03' = c("v2013_Q4_Landscape03.tif"),'LS04' = c("v2013_Q4_Landscape04.tif"),'LS05' = c("v2013_Q4_Landscape05.tif"))
+#LS_trans <-  list('LS01' = c("v2015_Q4_Landscape01.tif"),'LS02' = c("v2015_Q4_Landscape02.tif"),'LS03' = c("v2015_Q4_Landscape03.tif"),'LS04' = c("v2015_Q4_Landscape04.tif"),'LS05' = c("v2015_Q4_Landscape05.tif"))
 
 # ------------------------------------------------------
 # ------------------------------------------------------
@@ -251,7 +251,7 @@ Tables<-lapply(Folder,function(i){
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #BRING IN TABLES FOR RT
 #NOTE: I set up to link to the output folder, but this may need to be changed 
-#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/RT", pattern=".txt", full.names = TRUE) #Read in RT files 
+#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/RT", pattern=".txt", full.names = TRUE) #Read in RT files 
 #Tables<-lapply(Folder,function(i){
   #read.csv(i)
 #})
@@ -259,7 +259,7 @@ Tables<-lapply(Folder,function(i){
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #BRING IN TABLES FOR Q1
-#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q1", pattern=".txt", full.names = TRUE) #Read in RT files 
+#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q1", pattern=".txt", full.names = TRUE) #Read in RT files 
 #Tables<-lapply(Folder,function(i){
 #read.csv(i)
 #})
@@ -267,7 +267,7 @@ Tables<-lapply(Folder,function(i){
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #BRING IN TABLES FOR Q2
 
-#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q2", pattern=".txt", full.names = TRUE) #Read in RT files 
+#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q2", pattern=".txt", full.names = TRUE) #Read in RT files 
 #Tables<-lapply(Folder,function(i){
 #read.csv(i)
 #})
@@ -276,7 +276,7 @@ Tables<-lapply(Folder,function(i){
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #BRING IN TABLES FOR Q3
 
-#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q3", pattern=".txt", full.names = TRUE) #Read in RT files 
+#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q3", pattern=".txt", full.names = TRUE) #Read in RT files 
 #Tables<-lapply(Folder,function(i){
 #read.csv(i)
 #})
@@ -284,7 +284,7 @@ Tables<-lapply(Folder,function(i){
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #BRING IN TABLES FOR Q4
 
-#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q4", pattern=".txt", full.names = TRUE) #Read in RT files 
+#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q4", pattern=".txt", full.names = TRUE) #Read in RT files 
 #Tables<-lapply(Folder,function(i){
 #read.csv(i)
 #})
@@ -362,11 +362,11 @@ write.csv(region_sum, paste0(Comb_output,"Region_sum.csv"), row.names=FALSE)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TABLES COMPARED ACROSS SCENARIOS OVER TIME 
 #TURN ON FOR DESIRED OUTPUT CSV
-OutputRT<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/RT/"
-OutputQ1<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q1/"
-OutputQ2<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q2/"
-OutputQ3<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q3/"
-OutputQ4<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q4/"
+OutputRT<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/RT/"
+OutputQ1<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q1/"
+OutputQ2<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q2/"
+OutputQ3<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q3/"
+OutputQ4<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q4/"
 
 
 ##Used as a TEST can be deleted 
@@ -481,28 +481,28 @@ cntyRasterLoc <- "V:/IaraSpatialLayers/PreparedRasters/StudyAreaBndy/"
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TURN ON FOR RT
 
-inRasterLoc <- "V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/FutureLandscapes/RT/" 
+inRasterLoc <- "V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/FutureLandscapes/RT/" 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TURN ON FOR Q1
-#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/FutureLandscapes/Q1/"
+#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/FutureLandscapes/Q1/"
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TURN ON FOR Q2
-#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/FutureLandscapes/Q2/"
+#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/FutureLandscapes/Q2/"
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TURN ON FOR Q3
-#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/FutureLandscapes/Q3/"
+#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/FutureLandscapes/Q3/"
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TURN ON FOR Q4
-#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/FutureLandscapes/Q4/"
+#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/FutureLandscapes/Q4/"
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TURN ON FOR ALL SCENARIOS 
-#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/FutureLandscapes/"
+#inRasterLoc<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/FutureLandscapes/"
 #Folders <-  list('Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'RT' = c("RT/"),'RT' = c("RT/"),'RT' = c("RT/"),'RT' = c("RT/"),'RT' = c("RT/"))
 #inRasterLoc <-paste0(inRasterLoc, Folders)
 
@@ -514,12 +514,12 @@ Comb_output<-"I:/Test/RT/" #Sarah Halperin test. Can be deleted.
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TURN ON RESPECTIVE OUTPUT FOLDER 
-#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/RT/"
-#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q1/"
-#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q2/"
-#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q3/"
-#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q4/"
-#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/All/"
+#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/RT/"
+#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q1/"
+#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q2/"
+#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q3/"
+#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q4/"
+#Comb_output<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/All/"
 
 # ----------------------------------------------
 # READ OUTPUT FILES:
@@ -535,7 +535,7 @@ Comb_output<-"I:/Test/RT/" #Sarah Halperin test. Can be deleted.
 # COUNTY RASTERS #currently set to regions 
 regions <- raster(paste(cntyRasterLoc, "region_an2", ".img", sep="")) # this is for the raster.
 counties_vals <- getValues(regions) #defining the region 
-#NOTE: Craig said the only correct region raster was region_an2. I updated to region_an2 was region_an
+#NOTE: Craig said the only correct region raster was region_an2. I updated it to region_an2 was region_an
 
 # str(counties_vals)
 # int [1:64956544] NA NA NA NA NA NA NA NA NA NA ...
@@ -565,21 +565,21 @@ S20_GEOID <-  read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SAcnty
 # ----------------------------------------------
 
 #TURN ON FOR RT
-LS_trans <-  list('LS01' = c("v2013_RT_Landscape01.tif"),'LS02' = c("v2013_RT_Landscape02.tif"),'LS03' = c("v2013_RT_Landscape03.tif"),'LS04' = c("v2013_RT_Landscape04.tif"),'LS05' = c("v2013_RT_Landscape05.tif")) #Each of the different future landscapes for the different timesteps. 
+LS_trans <-  list('LS01' = c("v2015_RT_Landscape01.tif"),'LS02' = c("v2015_RT_Landscape02.tif"),'LS03' = c("v2015_RT_Landscape03.tif"),'LS04' = c("v2015_RT_Landscape04.tif"),'LS05' = c("v2015_RT_Landscape05.tif")) #Each of the different future landscapes for the different timesteps. 
 
 #TURN ON FOR Q1
-#LS_trans <-  list('LS01' = c("v2013_Q1_Landscape01.tif"),'LS02' = c("v2013_Q1_Landscape02.tif"),'LS03' = c("v2013_Q1_Landscape03.tif"),'LS04' = c("v2013_Q1_Landscape04.tif"),'LS05' = c("v2013_Q1_Landscape05.tif"))
+#LS_trans <-  list('LS01' = c("v2015_Q1_Landscape01.tif"),'LS02' = c("v2015_Q1_Landscape02.tif"),'LS03' = c("v2015_Q1_Landscape03.tif"),'LS04' = c("v2015_Q1_Landscape04.tif"),'LS05' = c("v2015_Q1_Landscape05.tif"))
 
 
 #TURN ON FOR Q2
-#LS_trans <-  list('LS01' = c("v2013_Q2_Landscape01.tif"),'LS02' = c("v2013_Q2_Landscape02.tif"),'LS03' = c("v2013_Q2_Landscape03.tif"),'LS04' = c("v2013_Q2_Landscape04.tif"),'LS05' = c("v2013_Q2_Landscape05.tif"))
+#LS_trans <-  list('LS01' = c("v2015_Q2_Landscape01.tif"),'LS02' = c("v2015_Q2_Landscape02.tif"),'LS03' = c("v2015_Q2_Landscape03.tif"),'LS04' = c("v2015_Q2_Landscape04.tif"),'LS05' = c("v2015_Q2_Landscape05.tif"))
 
 #TURN ON FOR Q3
-#LS_trans <-  list('LS01' = c("v2013_Q3_Landscape01.tif"),'LS02' = c("v2013_Q3_Landscape02.tif"),'LS03' = c("v2013_Q3_Landscape03.tif"),'LS04' = c("v2013_Q3_Landscape04.tif"),'LS05' = c("v2013_Q3_Landscape05.tif"))
+#LS_trans <-  list('LS01' = c("v2015_Q3_Landscape01.tif"),'LS02' = c("v2015_Q3_Landscape02.tif"),'LS03' = c("v2015_Q3_Landscape03.tif"),'LS04' = c("v2015_Q3_Landscape04.tif"),'LS05' = c("v2015_Q3_Landscape05.tif"))
 
 
 #TURN ON FOR Q4
-#LS_trans <-  list('LS01' = c("v2013_Q4_Landscape01.tif"),'LS02' = c("v2013_Q4_Landscape02.tif"),'LS03' = c("v2013_Q4_Landscape03.tif"),'LS04' = c("v2013_Q4_Landscape04.tif"),'LS05' = c("v2013_Q4_Landscape05.tif"))
+#LS_trans <-  list('LS01' = c("v2015_Q4_Landscape01.tif"),'LS02' = c("v2015_Q4_Landscape02.tif"),'LS03' = c("v2015_Q4_Landscape03.tif"),'LS04' = c("v2015_Q4_Landscape04.tif"),'LS05' = c("v2015_Q4_Landscape05.tif"))
 
 # ------------------------------------------------------
 # ------------------------------------------------------
@@ -671,7 +671,7 @@ Tables<-lapply(Folder,function(i){
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #BRING IN TABLES FOR RT
 #NOTE: I set up to link to the output folder, but this may need to be changed 
-#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/RT", pattern=".txt", full.names = TRUE) #Read in RT files 
+#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/RT", pattern=".txt", full.names = TRUE) #Read in RT files 
 #Tables<-lapply(Folder,function(i){
   #read.csv(i)
 #})
@@ -679,7 +679,7 @@ Tables<-lapply(Folder,function(i){
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #BRING IN TABLES FOR Q1
-#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q1", pattern=".txt", full.names = TRUE) #Read in RT files 
+#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q1", pattern=".txt", full.names = TRUE) #Read in RT files 
 #Tables<-lapply(Folder,function(i){
 #read.csv(i)
 #})
@@ -687,7 +687,7 @@ Tables<-lapply(Folder,function(i){
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #BRING IN TABLES FOR Q2
 
-#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q2", pattern=".txt", full.names = TRUE) #Read in RT files 
+#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q2", pattern=".txt", full.names = TRUE) #Read in RT files 
 #Tables<-lapply(Folder,function(i){
 #read.csv(i)
 #})
@@ -696,7 +696,7 @@ Tables<-lapply(Folder,function(i){
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #BRING IN TABLES FOR Q3
 
-#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q3", pattern=".txt", full.names = TRUE) #Read in RT files 
+#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q3", pattern=".txt", full.names = TRUE) #Read in RT files 
 #Tables<-lapply(Folder,function(i){
 #read.csv(i)
 #})
@@ -704,7 +704,7 @@ Tables<-lapply(Folder,function(i){
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #BRING IN TABLES FOR Q4
 
-#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q4", pattern=".txt", full.names = TRUE) #Read in RT files 
+#Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q4", pattern=".txt", full.names = TRUE) #Read in RT files 
 #Tables<-lapply(Folder,function(i){
 #read.csv(i)
 #})
@@ -802,11 +802,11 @@ write.csv(region_sum, paste0(Comb_output,"Region_sum.csv"), row.names=FALSE)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TABLES COMPARED ACROSS SCENARIOS OVER TIME 
 #TURN ON FOR DESIRED OUTPUT CSV
-OutputRT<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/RT/"
-OutputQ1<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q1/"
-OutputQ2<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q2/"
-OutputQ3<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q3/"
-OutputQ4<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/BasicDataAnalyses/Tables/Q4/"
+OutputRT<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/RT/"
+OutputQ1<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q1/"
+OutputQ2<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q2/"
+OutputQ3<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q3/"
+OutputQ4<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Tables/Q4/"
 
 
 ##Used as a TEST can be deleted 
