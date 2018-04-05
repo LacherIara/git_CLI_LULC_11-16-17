@@ -260,11 +260,11 @@ jdata <- list(N = dat, Region=as.numeric(Region), Dist=Dist, Pop=as.numeric(scal
 parameters <- c("sd", "mu.Rm", "sd.Rm", "alpha.Rm", "beta1.Rm", "beta2.Rm",
                 "beta3.Rm","beta4.Rm","mu.K", "sd.K", "K", "beta.Rm")
 
-# # Markov Chain settings to submit to JAGS # See notes in Stats One note
-# ni <- 25000   # Number of iterations per chain
-# nt <- 50      # Thinning rate (keep 1 in every nt posterior samples)
-# nb <- 15000   # Number of samples to discard as burn-in (discard pre-convergence samples)
-# nc <- 3       # Number of independent Markov Chains to run
+# Markov Chain settings to submit to JAGS # See notes in Stats One note
+ni <- 25000   # Number of iterations per chain
+nt <- 50      # Thinning rate (keep 1 in every nt posterior samples)
+nb <- 15000   # Number of samples to discard as burn-in (discard pre-convergence samples)
+nc <- 3       # Number of independent Markov Chains to run
 
 # # ** NOTE: Edited to improve model fit and convergence **
 # # Markov Chain settings to submit to JAGS # See notes in Stats One note
