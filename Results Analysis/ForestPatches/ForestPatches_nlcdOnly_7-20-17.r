@@ -309,6 +309,117 @@ write.csv(CStat_table, file=paste0(Output_Folder, "AllScens_Forest_CStat.csv"),r
 # READ FROM FILE #
 CStat_table <- read.csv(paste0(Output_Folder, "AllScens_Forest_CStat.csv"))
 
+#-------------------------------------------#
+#Exploratory Graphs 
+
+
+NL01Cstats<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/NL01xx01_Forest_Cstats.txt")
+NL11Cstats<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/NL110111_Forest_Cstats.txt")
+Q305Cstats<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/Q305xxQ3_Forest_Cstats.txt")
+RT05Cstats<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/RT05xxRT_Forest_Cstats.txt")
+
+
+NL01Cstats<-NL01Cstats[,c(1,2,3,4,10,27,28,29,34,38)]
+NL11Cstats<-NL11Cstats[,c(1,2,3,4,10,27,28,29,34,38)]
+Q305Cstats<-Q305Cstats[,c(1,2,3,4,10,27,28,29,34,38)]
+RT05Cstats<-RT05Cstats[,c(1,2,3,4,10,27,28,29,34,38)]
+
+NL01Cstats$class<-as.factor(NL01Cstats$class)
+NL11Cstats$class<-as.factor(NL11Cstats$class)
+Q305Cstats$class<-as.factor(Q305Cstats$class)
+RT05Cstats$class<-as.factor(RT05Cstats$class)
+
+
+#number of patches 
+ggplot(NL01Cstats, aes(x=NL01Cstats$class, y=NL01Cstats$n.patches))+
+         geom_bar(stat="identity", width=0.5)
+ggplot(NL11Cstats, aes(x=NL11Cstats$class, y=NL11Cstats$n.patches))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(Q305Cstats, aes(x=Q305Cstats$class, y=Q305Cstats$n.patches))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$n.patches))+
+  geom_bar(stat="identity", width=0.5)
+
+#Total Area
+ggplot(NL01Cstats, aes(x=NL01Cstats$class, y=NL01Cstats$total.area))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(NL11Cstats, aes(x=NL11Cstats$class, y=NL11Cstats$total.area))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(Q305Cstats, aes(x=Q305Cstats$class, y=Q305Cstats$total.area))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$total.area))+
+  geom_bar(stat="identity", width=0.5)
+
+#proportion of landscape
+ggplot(NL01Cstats, aes(x=NL01Cstats$class, y=NL01Cstats$prop.landscape))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(NL11Cstats, aes(x=NL11Cstats$class, y=NL11Cstats$prop.landscape))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(Q305Cstats, aes(x=Q305Cstats$class, y=Q305Cstats$prop.landscape))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$prop.landscape))+
+  geom_bar(stat="identity", width=0.5)
+
+#total core area
+ggplot(NL01Cstats, aes(x=NL01Cstats$class, y=NL01Cstats$total.core.area))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(NL11Cstats, aes(x=NL11Cstats$class, y=NL11Cstats$total.core.area))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(Q305Cstats, aes(x=Q305Cstats$class, y=Q305Cstats$total.core.area))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$total.core.area))+
+  geom_bar(stat="identity", width=0.5)
+
+#proprotion landscape core
+ggplot(NL01Cstats, aes(x=NL01Cstats$class, y=NL01Cstats$prop.landscape.core))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(NL11Cstats, aes(x=NL11Cstats$class, y=NL11Cstats$prop.landscape))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(Q305Cstats, aes(x=Q305Cstats$class, y=Q305Cstats$prop.landscape.core))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$prop.landscape.core))+
+  geom_bar(stat="identity", width=0.5)
+
+
+#mean patch core area
+ggplot(NL01Cstats, aes(x=NL01Cstats$class, y=NL01Cstats$mean.patch.core.area))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(NL11Cstats, aes(x=NL11Cstats$class, y=NL11Cstats$mean.patch.core.area))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(Q305Cstats, aes(x=Q305Cstats$class, y=Q305Cstats$mean.patch.core.area))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$mean.patch.core.area))+
+  geom_bar(stat="identity", width=0.5)
+
+#mean patch area
+ggplot(NL01Cstats, aes(x=NL01Cstats$class, y=NL01Cstats$mean.patch.area))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(NL11Cstats, aes(x=NL11Cstats$class, y=NL11Cstats$mean.patch.area))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(Q305Cstats, aes(x=Q305Cstats$class, y=Q305Cstats$mean.patch.area))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$mean.patch.area))+
+  geom_bar(stat="identity", width=0.5)
+
+#aggregation index
+ggplot(NL01Cstats, aes(x=NL01Cstats$class, y=NL01Cstats$aggregation.index))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(NL11Cstats, aes(x=NL11Cstats$class, y=NL11Cstats$aggregation.index))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(Q305Cstats, aes(x=Q305Cstats$class, y=Q305Cstats$aggregation.index))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$aggregation.index))+
+  geom_bar(stat="identity", width=0.5)
+
+#patch.cohesion 
+ggplot(NL01Cstats, aes(x=NL01Cstats$class, y=NL01Cstats$patch.cohesion.index))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(NL11Cstats, aes(x=NL11Cstats$class, y=NL11Cstats$patch.cohesion.index))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(Q305Cstats, aes(x=Q305Cstats$class, y=Q305Cstats$patch.cohesion.index))+
+  geom_bar(stat="identity", width=0.5)
+ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$patch.cohesion.index))+
+  geom_bar(stat="identity", width=0.5)
 
 # ----------------------------------------------
 # Patch Stats - come back to this.
