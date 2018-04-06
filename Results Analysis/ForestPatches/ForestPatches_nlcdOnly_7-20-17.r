@@ -428,10 +428,6 @@ ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$patch.cohesion.index))+
 # test_Pstat<-read.table(paste0(Output_Folder,LS_Pstat_files[2]), sep=",", header=TRUE)
 
 
-
-
-
-
 # # For Patch Stats, filter out rows with '0' in the column "region_maj"
 
 
