@@ -104,23 +104,21 @@ colnames(S20_GEOID)<-c("VALUE", "GEOID", "Name")
 # LIST FILES TO READ IN
 # ----------------------------------------------
 LS_trans <-  list(
-  'NL01' = list(
-    'xx01' = c("NL/nlcd_nlcd/NL01_5_StudyArea.tif", "NL/nlcd_nlcd/NL01_5_StudyArea.tif")),
-  'NL11' = list(
-    '0111' = c("NL/nlcd_nlcd/NL01_5_StudyArea.tif", "NL/nlcd_nlcd/NL11_5_StudyArea.tif")), 
+  #'NL01' = list(
+    #'xx01' = c("NL/nlcd_nlcd/NL01_5_StudyArea.tif", "NL/nlcd_nlcd/NL01_5_StudyArea.tif")),
+  #'NL11' = list(
+   # '0111' = c("NL/nlcd_nlcd/NL01_5_StudyArea.tif", "NL/nlcd_nlcd/NL11_5_StudyArea.tif")), 
   'RT05'= list(
     'xxRT'= c("RT/v2015_RT_Landscape05.tif" ,"RT/v2015_RT_Landscape05.tif")), 
-   # 'Q105'= list(
-      #'xxQ1'= c("Q1/v2013_Q1_Landscape05.tif" ,"Q1/v2013_Q1_Landscape05.tif")),
-      #'Q205'= list(
-       # 'xxQ2'= c("Q2/v2013_Q2_Landscape05.tif" ,"Q2/v2013_Q2_Landscape05.tif")),
+    'Q105'= list(
+      'xxQ1'= c("Q1/v2015_Q1_Landscape05.tif" ,"Q1/v2015_Q1_Landscape05.tif")),
+      'Q205'= list(
+       'xxQ2'= c("Q2/v2015_Q2_Landscape05.tif" ,"Q2/v2015_Q2_Landscape05.tif")),
   'Q305'= list(
-    'xxQ3'= c("Q3/v2015_Q3_Landscape05.tif" ,"Q3/v2015_Q3_Landscape05.tif")))
-  
-  #,
- # 'Q405'= list(
-    #'xxQ4'= c("Q4/v2013_Q4_Landscape05.tif" ,"Q4/v2013_Q4_Landscape05.tif"))
-#)
+    'xxQ3'= c("Q3/v2015_Q3_Landscape05.tif" ,"Q3/v2015_Q3_Landscape05.tif")),
+ 'Q405'= list(
+    'xxQ4'= c("Q4/v2015_Q4_Landscape05.tif" ,"Q4/v2015_Q4_Landscape05.tif")))
+
   
 
 
@@ -312,22 +310,53 @@ CStat_table <- read.csv(paste0(Output_Folder, "AllScens_Forest_CStat.csv"))
 #-------------------------------------------#
 #Exploratory Graphs 
 
+Input_Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats", pattern="_Forest_Cstats.txt", full.names=TRUE) 
+C_stats<-lapply(Input_Folder,function(i){
+  read.csv(i)
+})
 
-NL01Cstats<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/NL01xx01_Forest_Cstats.txt")
-NL11Cstats<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/NL110111_Forest_Cstats.txt")
-Q305Cstats<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/Q305xxQ3_Forest_Cstats.txt")
-RT05Cstats<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/RT05xxRT_Forest_Cstats.txt")
+NL01<-C_stats[[1]]
+NL11<-C_stats[[2]]
+Q1<-C_stats[[3]]
+Q2<-C_stats[[4]]
+Q3<-C_stats[[5]]
+Q4<-C_stats[[6]]
+RT<-C_stats[[7]]
 
 
-NL01Cstats<-NL01Cstats[,c(1,2,3,4,10,27,28,29,34,38)]
-NL11Cstats<-NL11Cstats[,c(1,2,3,4,10,27,28,29,34,38)]
-Q305Cstats<-Q305Cstats[,c(1,2,3,4,10,27,28,29,34,38)]
-RT05Cstats<-RT05Cstats[,c(1,2,3,4,10,27,28,29,34,38)]
+#NL01Cstats<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/NL01xx01_Forest_Cstats.txt")
+#NL11Cstats<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/NL110111_Forest_Cstats.txt")
+#Q305Cstats<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/Q305xxQ3_Forest_Cstats.txt")
+#RT05Cstats<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/RT05xxRT_Forest_Cstats.txt")
 
-NL01Cstats$class<-as.factor(NL01Cstats$class)
-NL11Cstats$class<-as.factor(NL11Cstats$class)
-Q305Cstats$class<-as.factor(Q305Cstats$class)
-RT05Cstats$class<-as.factor(RT05Cstats$class)
+
+NL01<-NL01[,c(1,2,3,4,10,27,28,29,34,38)]
+NL11<-NL11[,c(1,2,3,4,10,27,28,29,34,38)]
+Q1<-Q1[,c(1,2,3,4,10,27,28,29,34,38)]
+Q2<-Q2[,c(1,2,3,4,10,27,28,29,34,38)]
+Q3<-Q3[,c(1,2,3,4,10,27,28,29,34,38)]
+Q4<-Q4[,c(1,2,3,4,10,27,28,29,34,38)]
+RT<-RT[,c(1,2,3,4,10,27,28,29,34,38)]
+
+
+write.csv(NL01, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/NL01xx01_Forest_Cstats_thin.csv")
+write.csv(NL11, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/NL110111_Forest_Cstats_thin.csv")
+write.csv(Q3, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/Q305xxQ3_Forest_Cstats_thin.csv")
+write.csv(RT, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/RT05xxRT_Forest_Cstats_thin.csv")
+write.csv(Q1, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/Q105xxRT_Forest_Cstats_thin.csv")
+write.csv(Q2, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/Q205xxRT_Forest_Cstats_thin.csv")
+write.csv(Q3, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/Q305xxRT_Forest_Cstats_thin.csv")
+write.csv(Q4, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/Q405xxRT_Forest_Cstats_thin.csv")
+
+
+
+
+
+
+NL01$class<-as.factor(NL01$class)
+NL11$class<-as.factor(NL11$class)
+Q3$class<-as.factor(Q3$class)
+RT$class<-as.factor(RT$class)
 
 
 #number of patches 
