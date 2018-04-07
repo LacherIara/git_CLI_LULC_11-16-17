@@ -583,6 +583,23 @@ FauquierF<-subset(ForestM, ForestM$variable == "GEOID_51061")
 FauquierG<-subset(GrassM, GrassM$variable == "GEOID_51061")
 FauquierC<-subset(CropM, CropM$variable == "GEOID_51061")
 
+#remove 2001
+FauquierD<-subset(FauquierD, FauquierD$TimeStep > 1)
+FauquierF<-subset(FauquierF, FauquierD$TimeStep > 1)
+FauquierG<-subset(FauquierG, FauquierD$TimeStep > 1)
+FauquierC<-subset(FauquierC, FauquierD$TimeStep > 1)
+
+FrederickD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51107")
+FrederickF<-subset(ForestM, ForestM$variable == "GEOID_51107")
+FrederickG<-subset(GrassM, GrassM$variable == "GEOID_51107")
+FrederickC<-subset(CropM, CropM$variable == "GEOID_51107")
+
+
+FrederickD<-subset(FrederickD, FrederickD$TimeStep > 1)
+FrederickF<-subset(FrederickF, FrederickF$TimeStep > 1)
+FrederickG<-subset(FrederickG, FrederickG$TimeStep > 1)
+FrederickC<-subset(FrederickC, FrederickC$TimeStep > 1)
+
 FrederickQ1<-subset(Frederick, Frederick$Scenario == "Q1")
 FrederickQ2<-subset(Frederick, Frederick$Scenario == "Q2") 
 
@@ -591,10 +608,10 @@ FrederickQ2$LABEL<-as.factor(FrederickQ1$LABEL)
 
 
 windows()
-ggplot(Frederick, aes(x=TimeStep, y=value, colour=Scenario, group=Scenario))+
+FauquierDevelopmentGraph<-ggplot(FauquierD, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
   geom_line(size=2)+
   #facet_grid(~LABEL)+
-  scale_x_continuous(name= "Time Step", breaks= c(1,2,3,4,5,6,7), labels=c("2001", "2011", "2021", "2031", "2041", "2051", "2061"))+
+  scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c("2011", "2021", "2031", "2041", "2051", "2061"))+
   scale_colour_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
   scale_y_continuous(name =expression('Total Area km'^2))+
   theme_bw()+
@@ -603,6 +620,14 @@ ggplot(Frederick, aes(x=TimeStep, y=value, colour=Scenario, group=Scenario))+
         axis.title=element_text(size=14,face="bold"), legend.text=element_text(size=14), legend.title=element_blank())
 
 
+#export graph 
+setwd("X:/Scenario Planning/Graphics/Map Images/IALE Presentation")
+png("FauquierDevelopmentGraph.png", width=1000, height=100, units="in", res=300) #can't put units and resolution
+FauquierDevelopmentGraph
+dev.off()
+
+
+ggsave(file="FauquierDevelopmentGraph.png", dpi=300)
 
 
 
@@ -613,15 +638,31 @@ Forest<-subset(CombinedRegionLC, CombinedRegionLC$LABEL == "5")
 Grass<-subset(CombinedRegionLC, CombinedRegionLC$LABEL == "6")
 Crop<-subset(CombinedRegionLC, CombinedRegionLC$LABEL == "7")
 
+Development<-subset(Development, Development$TimeStep > 1)
+Forest<-subset(Forest, Forest$TimeStep > 1)
+Grass<-subset(Grass, Grass$TimeStep >1)
+Crop<-subset(Crop, Crop$TimeStep>1)
+
+
 
 windows()
-ggplot(Crop, aes(x=TimeStep, y=value, colour=Scenario, group=Scenario))+
+CropSA<-ggplot(Crop, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
   geom_line(size=2)+
-  scale_x_continuous(name= "Time Step", breaks= c(1,2,3,4,5,6,7), labels=c("2001", "2011", "2021", "2031", "2041", "2051", "2061"))+
-  scale_colour_manual(values=c("#FF0404", "#E54A1E","#106A0F", "#0070C1","#330066"))+
+  scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c( "2011", "2021", "2031", "2041", "2051", "2061"))+
+  scale_colour_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
   scale_y_continuous(name =expression('Total Area km'^2))+
   theme_bw()+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   theme(axis.text=element_text(size=14),
         axis.title=element_text(size=14,face="bold"), legend.text=element_text(size=14), legend.title=element_blank())
+
+
+#export graph 
+setwd("X:/Scenario Planning/Graphics/Map Images/IALE Presentation")
+png("CropSA.png", width=1000, height=100, units="in", res=300) #can't put units and resolution
+CropSA
+dev.off()
+
+
+ggsave(file="CropSA.png", dpi=300)
 
