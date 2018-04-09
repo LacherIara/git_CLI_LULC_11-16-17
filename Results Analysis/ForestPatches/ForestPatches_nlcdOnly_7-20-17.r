@@ -48,9 +48,16 @@ library(dplyr) # !! Remove dplyr in order to run clump detach(name="package:dply
 cntyRasterLoc <- "V:/IaraSpatialLayers/PreparedRasters/StudyAreaBndy/"
 
 # Rasters for comparison ( now includes folder with duplicate NLCD rasters for ease in scripting)
-RasterLoc <- "V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/FutureLandscapes/"
+version<-"/StudyArea_v201/SA_v2015"
+version_input<-paste0("V:/IaraSpatialLayers/Dinamica_Runs",version, "/FutureLandscapes/")
+Scenario<-"RT"
+version_output<-"BasicDataAnalysis/Forest_Stats/"
+Output_Folder<-paste0(version_input,gsub(version_input,"FutureLandscapes/", version_output))
 
-Output_Folder <- "V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/"
+
+RasterLoc <- version_input
+
+
 # ----------------------------------------------
 # READ OUTPUT FILES:
 
@@ -62,8 +69,8 @@ Output_Folder <- "V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/Bas
 
 # ----------------------------------------------
 # NLCD 2001 & 2011:
-nl01 <- raster("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/FutureLandscapes/NL/nlcd_nlcd/nlcd01_anC.img")
-nl11 <- raster("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/FutureLandscapes/NL/nlcd_nlcd/nlcd11_anC.img")
+nl01 <- raster(paste0(version_input, "nlcd01_anC.img"))
+nl11 <- raster(paste0(version_input, "nlcd11_anC.img"))
 
 # ----------------------------------------------
 # COUNTY RASTERS:
@@ -103,21 +110,23 @@ colnames(S20_GEOID)<-c("VALUE", "GEOID", "Name")
 # ----------------------------------------------
 # LIST FILES TO READ IN
 # ----------------------------------------------
+version_LS_trans<-"v2015"
+
 LS_trans <-  list(
   #'NL01' = list(
     #'xx01' = c("NL/nlcd_nlcd/NL01_5_StudyArea.tif", "NL/nlcd_nlcd/NL01_5_StudyArea.tif")),
   #'NL11' = list(
    # '0111' = c("NL/nlcd_nlcd/NL01_5_StudyArea.tif", "NL/nlcd_nlcd/NL11_5_StudyArea.tif")), 
   'RT05'= list(
-    'xxRT'= c("RT/v2015_RT_Landscape05.tif" ,"RT/v2015_RT_Landscape05.tif")), 
+    'xxRT'= c(paste0("RT/", version_LS_trans, "_Landscape05.tif") ,paste0("RT", version_LS_trans, "_Landscape05.tif"))), 
     'Q105'= list(
-      'xxQ1'= c("Q1/v2015_Q1_Landscape05.tif" ,"Q1/v2015_Q1_Landscape05.tif")),
+      'xxQ1'= c(paste0("Q1/", version_LS_trans, "_Landscape05.tif") ,paste0("Q1", version_LS_trans, "_Landscape05.tif"))),
       'Q205'= list(
-       'xxQ2'= c("Q2/v2015_Q2_Landscape05.tif" ,"Q2/v2015_Q2_Landscape05.tif")),
+       'xxQ2'= c(paste0("Q2/", version_LS_trans, "_Landscape05.tif") ,paste0("Q2", version_LS_trans, "_Landscape05.tif"))),
   'Q305'= list(
-    'xxQ3'= c("Q3/v2015_Q3_Landscape05.tif" ,"Q3/v2015_Q3_Landscape05.tif")),
+    'xxQ3'= c(paste0("Q3/", version_LS_trans, "_Landscape05.tif") ,paste0("Q3", version_LS_trans, "_Landscape05.tif"))),
  'Q405'= list(
-    'xxQ4'= c("Q4/v2015_Q4_Landscape05.tif" ,"Q4/v2015_Q4_Landscape05.tif")))
+    'xxQ4'= c(paste0("Q4/", version_LS_trans, "_Landscape05.tif") ,paste0("Q4", version_LS_trans, "_Landscape05.tif"))))
 
   
 
@@ -310,11 +319,12 @@ CStat_table <- read.csv(paste0(Output_Folder, "AllScens_Forest_CStat.csv"))
 #-------------------------------------------#
 #Exploratory Graphs 
 
-Input_Folder<-list.files("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats", pattern="_Forest_Cstats.txt", full.names=TRUE) 
+Input_Folder<-list.files(Output_Folder, pattern="_Forest_Cstats.txt", full.names=TRUE) 
 C_stats<-lapply(Input_Folder,function(i){
   read.csv(i)
 })
 
+#ADD TIME STEP 
 NL01<-C_stats[[1]]
 NL11<-C_stats[[2]]
 Q1<-C_stats[[3]]
@@ -324,12 +334,7 @@ Q4<-C_stats[[6]]
 RT<-C_stats[[7]]
 
 
-#NL01Cstats<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/NL01xx01_Forest_Cstats.txt")
-#NL11Cstats<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/NL110111_Forest_Cstats.txt")
-#Q305Cstats<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/Q305xxQ3_Forest_Cstats.txt")
-#RT05Cstats<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/RT05xxRT_Forest_Cstats.txt")
-
-
+#SELECT DESIRED VARIABLES 
 NL01<-NL01[,c(1,2,3,4,10,27,28,29,34,38)]
 NL11<-NL11[,c(1,2,3,4,10,27,28,29,34,38)]
 Q1<-Q1[,c(1,2,3,4,10,27,28,29,34,38)]
@@ -339,24 +344,19 @@ Q4<-Q4[,c(1,2,3,4,10,27,28,29,34,38)]
 RT<-RT[,c(1,2,3,4,10,27,28,29,34,38)]
 
 
-write.csv(NL01, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/NL01xx01_Forest_Cstats_thin.csv")
-write.csv(NL11, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/NL110111_Forest_Cstats_thin.csv")
-write.csv(Q3, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/Q305xxQ3_Forest_Cstats_thin.csv")
-write.csv(RT, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/RT05xxRT_Forest_Cstats_thin.csv")
-write.csv(Q1, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/Q105xxRT_Forest_Cstats_thin.csv")
-write.csv(Q2, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/Q205xxRT_Forest_Cstats_thin.csv")
-write.csv(Q3, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/Q305xxRT_Forest_Cstats_thin.csv")
-write.csv(Q4, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/Q405xxRT_Forest_Cstats_thin.csv")
+write.csv(NL01, file=paste0(Output_Folder, "NL01xx01_Forest_Cstats_thin.csv"))
+write.csv(NL11, file=paste0(Output_Folder, "NL110111_Forest_Cstats_thin.csv"))
+write.csv(Q3, file=paste0(Output_Folder, "Q305xxQ3_Forest_Cstats_thin.csv"))
+write.csv(RT, file=paste0(Output_Folder, "RT05xxRT_Forest_Cstats_thin.csv"))
+write.csv(Q1, file=paste0(Output_Folder, "Q105xxRT_Forest_Cstats_thin.csv"))
+write.csv(Q2, file=paste0(Output_Folder, "Q205xxRT_Forest_Cstats_thin.csv"))
+write.csv(Q3, file=paste0(Output_Folder, "Q305xxRT_Forest_Cstats_thin.csv"))
+write.csv(Q4, file=paste0(Output_Folder, "Q405xxRT_Forest_Cstats_thin.csv"))
 
 
 
 
-
-
-NL01$class<-as.factor(NL01$class)
-NL11$class<-as.factor(NL11$class)
-Q3$class<-as.factor(Q3$class)
-RT$class<-as.factor(RT$class)
+#ALSO EASILY MADE IN EXCEL. Grab excel sheet from here: file:///V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/Forest_Cstats_graphs.xlsx and copy graphs to new spreadsheets 
 
 
 #number of patches 
@@ -449,6 +449,107 @@ ggplot(Q305Cstats, aes(x=Q305Cstats$class, y=Q305Cstats$patch.cohesion.index))+
   geom_bar(stat="identity", width=0.5)
 ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$patch.cohesion.index))+
   geom_bar(stat="identity", width=0.5)
+#------------------------------------------------------------------------------------------------------------#
+#Cstats graphs 
+
+#NOTE MAY HAVE TO CHANGE CLASS TO FACTOR 
+
+
+Folder<-list.files(Output_Folder, pattern="Cstats_thin.csv", full.names = TRUE) #Read in NCLD files 
+C_stats<-lapply(Folder,function(i){
+  read.csv(i)
+})
+
+C_statsQ1<-C_stats[[3]]
+C_statsQ2<-C_stats[[4]]
+C_statsQ3<-C_stats[[5]]
+C_statsQ4<-C_stats[[6]]
+C_statsRT<-C_stats[[7]]
+
+C_statsQ1$Scenario<-"Q1"
+C_statsQ2$Scenario<-"Q2"
+C_statsQ3$Scenario<-"Q3"
+C_statsQ4$Scenario<-"Q4"
+C_statsRT$Scenario<-"RT"
+
+C_statsCombined<-rbind(C_statsQ1, C_statsQ2, C_statsQ3, C_statsQ4, C_statsRT)
+
+C_statsCombined$X<-NULL
+C_statsCombined<-C_statsCombined[-1,]
+
+#Subet desired county
+C_statsCombinedF10<-subset(C_statsCombined, C_statsCombined$class == 3)
+C_statsCombinedF10<-subset(C_statsCombined, C_statsCombined$class == 10)
+C_statsCombinedFF<-rbind(C_statsCombinedF3, C_statsCombinedF10)
+
+#convert to km2 from m2 
+#MAY HAVE TO DO FOR OTHER VARIABLES TO 
+C_statsCombinedFF$mean.patch.areakm<-C_statsCombinedFF$mean.patch.area*(1/1000000)
+
+
+#Fragstats by county 
+mean_patchFF<-ggplot(C_statsCombinedFF, aes(x=class, y=mean.patch.areakm, fill=Scenario))+
+  geom_bar(stat="identity", position="dodge")+
+  scale_x_discrete(breaks= c("3", "10"), labels=c("Frederick County", "Fauquier County"))+
+  scale_fill_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
+  scale_y_continuous(name =expression('Mean Patch Area km'^2))+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text=element_text(size=14),
+        axis.title.x=element_blank(), axis.title.y =element_text(size=14,face="bold"), legend.text=element_text(size=14), legend.title=element_blank())
+
+#export graph 
+setwd("X:/Scenario Planning/Graphics/Map Images/IALE Presentation")
+png("mean_patchFF.png", width=1000, height=100, units="in", res=300) #can't put units and resolution
+mean_patchFF
+dev.off()
+
+
+ggsave(file="mean_patchFF.png", dpi=300)
+
+#Total Area and TOtal Core AREA by County 
+
+#1st county 
+F3TATC<-C_statsCombinedF3[,c(3,6,11)]
+F3TATC$total.areakm<-F3TATC$total.area*(1/1000000)
+F3TATC$total.core.areakm<-F3TATC$total.core.area*(1/1000000)
+F3TATC$total.area<-NULL
+F3TATC$total.core.area<-NULL
+
+F3TATCmelt<-melt(F3TATC)
+
+#2nd county 
+F10TATC<-C_statsCombinedF10[,c(3,6,11)]
+F10TATC$total.areakm<-F10TATC$total.area*(1/1000000)
+F10TATC$total.core.areakm<-F10TATC$total.core.area*(1/1000000)
+F10TATC$total.area<-NULL
+F10TATC$total.core.area<-NULL
+
+F10TATCmelt<-melt(F10TATC)
+
+#Total Area and Total Core Area Graph for individual county 
+AreaF10<-ggplot(F10TATCmelt, aes(x=Scenario, y=value, fill=variable))+
+  geom_bar(stat="identity", position="dodge")+
+  scale_x_discrete(breaks= c("Q1", "Q2", "Q3", "Q4", "RT"))+
+  scale_fill_manual(labels=c("Total Area", "Total Core Area"),values=c( "#0070C1","#330066"))+
+  scale_y_continuous(name =expression('Area km'^2))+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text=element_text(size=14), axis.title=element_text(size=14,face="bold"), legend.text=element_text(size=14), legend.title=element_blank())
+
+
+#export graph 
+setwd("X:/Scenario Planning/Graphics/Map Images/IALE Presentation")
+png("AreaF10.png", width=1000, height=100, units="in", res=300) #can't put units and resolution
+AreaF10
+dev.off()
+
+
+ggsave(file="AreaF10.png", dpi=300)
+
+
+
+
 
 # ----------------------------------------------
 # Patch Stats - come back to this.

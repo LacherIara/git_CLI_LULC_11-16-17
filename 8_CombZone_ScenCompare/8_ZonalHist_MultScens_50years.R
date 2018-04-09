@@ -51,10 +51,10 @@ library(ggplot2) #graphs
 # rasterOptions(tmpdir = "Y:/Lacher/RTempCLEARME/")
 
 
-#Version Input
+#Version Input: MUST CHANGE
 version<-"/StudyArea_v201/SA_v2015"
 version_input<-paste0("V:/IaraSpatialLayers/Dinamica_Runs",version, "/FutureLandscapes/")
-Scenario<-"RT"
+Scenario<-"RT/"
 
 # ----------------------------------------------
 # FILE PATHS
@@ -67,24 +67,7 @@ cntyRasterLoc <- "V:/IaraSpatialLayers/PreparedRasters/StudyAreaBndy/"
 inRasterLoc<-paste0(version_input, "NL/nlcd_nlcd/")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#TURN ON FOR RT
-inRasterLoc <- paste0(version_input, "RT/")
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#TURN ON FOR Q1
-inRasterLoc<-paste0(version_input, "Q1/")
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#TURN ON FOR Q2
-inRasterLoc<-paste0(version_input, "Q2/")
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#TURN ON FOR Q3
-inRasterLoc<-paste0(version_input, "Q3/")
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#TURN ON FOR Q4
-inRasterLoc<-paste0(version_input, "Q4/")
+inRasterLoc <- paste0(version_input, Scenario)
 
 #TURN ON FOR ALL SCENARIOS 
 inRasterLoc<-version_input
@@ -431,7 +414,10 @@ LABEL7<-LABEL7[1:20,]
 colnames(LABEL7)<-c("2001.7","2011.7","2021.7","2031.7","2041.7", "2051.7","2061.7")
 
 
-#Save CSV
+#Save CSV #MUST CHANGE
+Scenario<-"RT" #delete / 
+
+
 CombinedReshape<-cbind(LABEL3, LABEL5,LABEL6,LABEL7) 
 write.csv(CombinedReshape, paste0(Comb_outputReshape,"CombinedReshape", Scenario, ".csv")) 
 
