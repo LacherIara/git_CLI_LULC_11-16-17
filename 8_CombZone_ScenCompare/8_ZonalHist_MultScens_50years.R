@@ -52,9 +52,9 @@ library(ggplot2) #graphs
 
 
 #Version Input: MUST CHANGE
-version<-"/StudyArea_v201/SA_v2015"
+version<-"/StudyArea_V201/SA_V2015"
 version_input<-paste0("V:/IaraSpatialLayers/Dinamica_Runs",version, "/FutureLandscapes/")
-Scenario<-"RT/"
+Scenario<-"Q3/" #Say "All" for all scenarios 
 
 # ----------------------------------------------
 # FILE PATHS
@@ -66,6 +66,7 @@ cntyRasterLoc <- "V:/IaraSpatialLayers/PreparedRasters/StudyAreaBndy/"
 #TURN ON FOR NL
 inRasterLoc<-paste0(version_input, "NL/nlcd_nlcd/")
 
+#TURN ON FOR ALL INDIVIDUAL SCENARIOS 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 inRasterLoc <- paste0(version_input, Scenario)
 
@@ -79,12 +80,10 @@ inRasterLoc <-paste0(inRasterLoc, Folders)
 # Define paths for output files
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#ADJUST FOR DESURED FOLDER 
-version_output<-"BasicDataAnalysis/Zonal_Histograms/ALL/"
-  
-Comb_output<-paste0(version_input,gsub(version_input,"FutureLandscapes/", version_output))
-
-
+#ADJUST FOR DESURED FOLDER
+version_output<-"BasicDataAnalyses/Zonal_Histogram/"
+Comb_output<-gsub("FutureLandscapes/", version_output, version_input)
+Comb_output<-paste0(Comb_output, Scenario)
 # ----------------------------------------------
 # READ OUTPUT FILES:
 
@@ -154,7 +153,6 @@ LS_trans <-  list('LS01' = c(paste0(version_LS_trans,"_RT_Landscape01.tif")),'LS
 
 
 #TURN ON FOR ALL SCENARIOS 
-#TURN ON FOR RT
 RT <-  list('LSRT01' = c(paste0(version_LS_trans,"_RT_Landscape01.tif")),'LSRT02' = c(paste0(version_LS_trans, "_RT_Landscape02.tif")),'LSRT03' = c(paste0(version_LS_trans,"_RT_Landscape03.tif")),'LSRT04' = c(paste0(version_LS_trans,"_RT_Landscape04.tif")),'LSRT05' = c(paste0(version_LS_trans,"_RT_Landscape05.tif"))) 
 
 Q1 <-  list('LSQ101' = c(paste0(version_LS_trans,"_Q1_Landscape01.tif")),'LSQ102' = c(paste0(version_LS_trans, "_Q1_Landscape02.tif")),'LSQ103' = c(paste0(version_LS_trans,"_Q1_Landscape03.tif")),'LSQ104' = c(paste0(version_LS_trans,"_Q1_Landscape04.tif")),'LSQ105' = c(paste0(version_LS_trans,"_Q1_Landscape05.tif")))
@@ -162,10 +160,10 @@ Q1 <-  list('LSQ101' = c(paste0(version_LS_trans,"_Q1_Landscape01.tif")),'LSQ102
 Q2 <-  list('LSQ201' = c(paste0(version_LS_trans,"_Q2_Landscape01.tif")),'LSQ202' = c(paste0(version_LS_trans, "_Q2_Landscape02.tif")),'LSQ203' = c(paste0(version_LS_trans,"_Q2_Landscape03.tif")),'LSQ204' = c(paste0(version_LS_trans,"_Q2_Landscape04.tif")),'LSQ205' = c(paste0(version_LS_trans,"_Q2_Landscape05.tif")))
 
 
-Q3<-  list('LSQ301' = c(paste0(version_LS_trans,"_RT_Landscape01.tif")),'LSQ302' = c(paste0(version_LS_trans, "_RT_Landscape02.tif")),'LSQ303' = c(paste0(version_LS_trans,"_RT_Landscape03.tif")),'LSQ304' = c(paste0(version_LS_trans,"_RT_Landscape04.tif")),'LSQ305' = c(paste0(version_LS_trans,"_RT_Landscape05.tif")))
+Q3<-  list('LSQ301' = c(paste0(version_LS_trans,"_Q3_Landscape01.tif")),'LSQ302' = c(paste0(version_LS_trans, "_Q3_Landscape02.tif")),'LSQ303' = c(paste0(version_LS_trans,"_Q3_Landscape03.tif")),'LSQ304' = c(paste0(version_LS_trans,"_Q3_Landscape04.tif")),'LSQ305' = c(paste0(version_LS_trans,"_Q3_Landscape05.tif")))
 
 
-Q4 <-  list('LSQ401' = c(paste0(version_LS_trans,"_RT_Landscape01.tif")),'LSQ402' = c(paste0(version_LS_trans, "_RT_Landscape02.tif")),'LSQ403' = c(paste0(version_LS_trans,"_RT_Landscape03.tif")),'LSQ404' = c(paste0(version_LS_trans,"_RT_Landscape04.tif")),'LSQ405' = c(paste0(version_LS_trans,"_RT_Landscape05.tif")))
+Q4 <-  list('LSQ401' = c(paste0(version_LS_trans,"_Q4_Landscape01.tif")),'LSQ402' = c(paste0(version_LS_trans, "_Q4_Landscape02.tif")),'LSQ403' = c(paste0(version_LS_trans,"_Q4_Landscape03.tif")),'LSQ404' = c(paste0(version_LS_trans,"_Q4_Landscape04.tif")),'LSQ405' = c(paste0(version_LS_trans,"_Q4_Landscape05.tif")))
 
 
 LS_trans<-do.call(c,(list(Q1, Q2, Q3, Q4,RT))) #create list for ALL SCENARIOS 
@@ -188,7 +186,7 @@ old <- Sys.time() # TIMING SCRIPT
 for(in_to_fin in names(LS_trans)){ # Makes code flexible for use with more than 2 landscapes. ##CF- so not actual loop here?
 
 Final_Landscape <-paste0(inRasterLoc, LS_trans[[in_to_fin]][1]) #full file path using inRasterLoc as the base
-#Final_hist_output <- paste0(Comb_output, gsub(".img","_hist.txt",LS_trans[[in_to_fin]][1])) #nlcd 
+#Final_hist_output <- paste0(Comb_output, gsub(".img","_hist.txt",LS_trans[[in_to_fin]][1])) #For NCLD 
 Final_hist_output <- paste0(Comb_output, gsub(".tif","_hist.txt",LS_trans[[in_to_fin]][1])) #naming the file output. Taking the name of the raster to make the name of the output table. Remove tif. put _hist.txt
 Final_Landscape <- raster(Final_Landscape) 
 fin_vals <- getValues(Final_Landscape) 
@@ -250,6 +248,7 @@ final_hist[is.na(final_hist)]<-0
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # WRITE TO FILE
 write.table(final_hist, file = Final_hist_output, row.names=FALSE, col.names=TRUE, sep=",")  
+
 }
 
 
@@ -258,14 +257,13 @@ print(new) # Time difference of 6.276551 mins
 #-----------------------------------------------------------------------------------------------------------------#
 
 #ALL SCENARIOS 
-
+#CODE REPEATS 
 ## ----------------------------------------------
 # Loop through transitions
 # ----------------------------------------------
 old <- Sys.time() # TIMING SCRIPT
 
 InRasterLoc_LsTrans<-paste0(inRasterLoc, LS_trans)
-
 
 
 for(i in 1:length(InRasterLoc_LsTrans)){ # Makes code flexible for use with more than 2 landscapes. ##CF- so not actual loop here?#full file path using inRasterLoc as the base
@@ -361,7 +359,7 @@ NCLD[[2]]$TimeStep<-2
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #Change based on scenario
 #BRING IN TABLES
-
+Scenario<-"Q2/"
 
 Folder<-list.files(paste0(version_table,Scenario), pattern=".txt", full.names = TRUE) 
 Tables<-lapply(Folder,function(i){
@@ -381,7 +379,7 @@ Tables[[4]]$TimeStep<-6
 Tables[[5]]$TimeStep<-7
 
 Combined<-do.call(rbind.data.frame,Tables)
-NCLD<-do.call(rbind.data.frame,NCLD) #only do once
+#NCLD<-do.call(rbind.data.frame,NCLD) #only do once
 Combined<-rbind(NCLD,Combined)
 
 #Land Cover Type #3 
@@ -415,11 +413,13 @@ colnames(LABEL7)<-c("2001.7","2011.7","2021.7","2031.7","2041.7", "2051.7","2061
 
 
 #Save CSV #MUST CHANGE
-Scenario<-"RT" #delete / 
+Scenario<-"Q2" #delete / 
 
+Comb_outputMelt<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Zonal_Histogram/Test/"
+Comb_outputReshape<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Zonal_Histogram/Test/"
 
 CombinedReshape<-cbind(LABEL3, LABEL5,LABEL6,LABEL7) 
-write.csv(CombinedReshape, paste0(Comb_outputReshape,"CombinedReshape", Scenario, ".csv")) 
+write.csv(CombinedReshape, paste0(Comb_outputReshape,"CombinedReshape", Scenario,".csv")) 
 
 
 #Melt for graphs 
@@ -508,8 +508,9 @@ CSV_Melt[[4]]$Scenario<-"Q4"
 CSV_Melt[[5]]$Scenario<-"RT"
 
 CombinedMeltLC<-do.call(rbind.data.frame,CSV_Melt)
-#CombinedMeltLC$valuekm<-CombinedMeltLC$value*(900/1000000) if valuekm exists do not need
-write.csv(CombinedMeltLC, paste0(Comb_outputMelt,"CombinedMeltLC", Scenario, ".csv"), row.names=FALSE)
+CombinedMeltLC$valuekm<-CombinedMeltLC$value*(900/1000000) #if valuekm exists do not need
+CombinedMeltLC<-subset(CombinedMeltLC, CombinedMeltLC$TimeStep > 1)
+write.csv(CombinedMeltLC, paste0(Comb_outputMelt,"CombinedMeltLC", ".csv"), row.names=FALSE)
 
 
 CSV_Region[[1]]$Scenario<-"Q1"
@@ -525,14 +526,14 @@ write.csv(region_sum, paste0(Comb_outputRegion,"CombinedRegionLC", Scenario, ".c
 
 
 #Subset by land cover type 
-DevelopmentM<-subset(CombinedMeltLC, CombinedRegionLC$LABEL == "3")
-ForestM<-subset(CombinedMeltLC, CombinedRegionLC$LABEL == "5")
-GrassM<-subset(CombinedMeltLC, CombinedRegionLC$LABEL == "6")
-CropM<-subset(CombinedMeltLC, CombinedRegionLC$LABEL == "7")
+DevelopmentM<-subset(CombinedMeltLC, CombinedMeltLC$LABEL == "3")
+ForestM<-subset(CombinedMeltLC, CombinedMeltLC$LABEL == "5")
+GrassM<-subset(CombinedMeltLC, CombinedMeltLC$LABEL == "6")
+CropM<-subset(CombinedMeltLC, CombinedMeltLC$LABEL == "7")
 
 #Subset by county examples
-Loudoun<-subset(CombinedMeltLC, CombinedMeltLC$variable == "GEOID_51069")
-Frederick<-subset(CombinedMeltLC, CombinedMeltLC$variable == "GEOID_51107")
+Loudoun<-subset(CombinedMeltLC, CombinedMeltLC$variable == "GEOID_51107")
+Frederick<-subset(CombinedMeltLC, CombinedMeltLC$variable == "GEOID_51069")
 Fauquier<-subset(CombinedMeltLC, CombinedMeltLC$variable == "GEOID_51061")
 Shenandoah<-subset(CombinedMeltLC, CombinedMeltLC$variable == "GEOID_51171")
 Albemarle<-subset(CombinedMeltLC, CombinedMeltLC$variable == "GEOID_51003")
@@ -551,10 +552,10 @@ FauquierG<-subset(GrassM, GrassM$variable == "GEOID_51061")
 FauquierC<-subset(CropM, CropM$variable == "GEOID_51061")
 
 
-FrederickD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51107")
-FrederickF<-subset(ForestM, ForestM$variable == "GEOID_51107")
-FrederickG<-subset(GrassM, GrassM$variable == "GEOID_51107")
-FrederickC<-subset(CropM, CropM$variable == "GEOID_51107")
+FrederickD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51069")
+FrederickF<-subset(ForestM, ForestM$variable == "GEOID_51069")
+FrederickG<-subset(GrassM, GrassM$variable == "GEOID_51069")
+FrederickC<-subset(CropM, CropM$variable == "GEOID_51069")
 
 
 
@@ -562,7 +563,7 @@ FrederickC<-subset(CropM, CropM$variable == "GEOID_51107")
 
 #IF GRAPH LOOKS weird make sure LABEL is set as a factor 
 windows()
-FauquierDevelopmentGraph<-ggplot(FauquierD, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
+IALE_v2015_Fred_Crop<-ggplot(FrederickC, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
   geom_line(size=2)+
   #facet_grid(~LABEL)+
   scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c("2011", "2021", "2031", "2041", "2051", "2061"))+
@@ -576,12 +577,12 @@ FauquierDevelopmentGraph<-ggplot(FauquierD, aes(x=TimeStep, y=valuekm, colour=Sc
 
 #export graph 
 setwd("X:/Scenario Planning/Graphics/Map Images/IALE Presentation")
-png("FauquierDevelopmentGraph.png", width=1000, height=100, units="in", res=300) #can't put units and resolution
-FauquierDevelopmentGraph
+png("IALE_v2015_Fred_Crop.png", width=1000, height=100, units="in", res=300) #can't put units and resolution
+IALE_v2015_Fred_Crop
 dev.off()
 
 
-ggsave(file="FauquierDevelopmentGraph.png", dpi=300)
+ggsave(file="IALE_v2015_Fred_Crop.png", dpi=300)
 
 
 

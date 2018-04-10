@@ -51,8 +51,8 @@ cntyRasterLoc <- "V:/IaraSpatialLayers/PreparedRasters/StudyAreaBndy/"
 version<-"/StudyArea_v201/SA_v2015"
 version_input<-paste0("V:/IaraSpatialLayers/Dinamica_Runs",version, "/FutureLandscapes/")
 Scenario<-"RT"
-version_output<-"BasicDataAnalysis/Forest_Stats/"
-Output_Folder<-paste0(version_input,gsub(version_input,"FutureLandscapes/", version_output))
+version_output<-"BasicDataAnalyses/Forest_Stats/"
+Output_Folder<-gsub("FutureLandscapes/", version_output, version_input)
 
 
 RasterLoc <- version_input
@@ -478,7 +478,7 @@ C_statsCombined$X<-NULL
 C_statsCombined<-C_statsCombined[-1,]
 
 #Subet desired county
-C_statsCombinedF10<-subset(C_statsCombined, C_statsCombined$class == 3)
+C_statsCombinedF3<-subset(C_statsCombined, C_statsCombined$class == 3)
 C_statsCombinedF10<-subset(C_statsCombined, C_statsCombined$class == 10)
 C_statsCombinedFF<-rbind(C_statsCombinedF3, C_statsCombinedF10)
 
