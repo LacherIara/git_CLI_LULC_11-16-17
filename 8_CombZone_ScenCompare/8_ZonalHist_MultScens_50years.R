@@ -175,7 +175,7 @@ LS_trans<-do.call(c,(list(Q1, Q2, Q3, Q4,RT))) #create list for ALL SCENARIOS
 # ------------------------------------------------------
 # ------------------------------------------------------
 
-#CODE BELOW FOR ALL SCENARIOS. 
+#SEE CODE BELOW FOR ALL SCENARIOS. 
 # ----------------------------------------------
 # Loop through transitions
 # ----------------------------------------------
@@ -437,8 +437,13 @@ write.csv(CombinedMelt, paste0(Comb_outputMelt,"CombinedMelt", Scenario, ".csv")
 #Remove 2001 (optional)
 CombinedMelt<-subset(CombinedMelt, CombinedMelt$TimeStep > 1)
 
+#Sum by Region 
+region_sum<-aggregate(valuekm~LABEL+TimeStep,CombinedMelt, sum)
+write.csv(region_sum, paste0(Comb_outputRegion,"CombinedRegion", Scenario, ".csv"), row.names=FALSE)
 
-#Graphs for individual scenarios 
+#-------------------------------------------------------------------------------------------#
+#Currently not being used 
+#Graphs for individual scenarios comparing land cover type 
 
 
 windows()
@@ -452,12 +457,6 @@ ggplot(CombinedMelt, aes(x=TimeStep, y=valuekm, colour=LABEL, group=LABEL))+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   theme(axis.text=element_text(size=14),
         axis.title=element_text(size=14,face="bold"), legend.text=element_text(size=14), legend.title=element_blank)
-
-
-#Sum by Region 
-region_sum<-aggregate(valuekm~LABEL+TimeStep,CombinedMelt, sum)
-#CHANGE NAME BASED ON SCENARIO 
-write.csv(region_sum, paste0(Comb_outputRegion,"CombinedRegion", Scenario, ".csv"), row.names=FALSE)
 
 
 #Ggplot summed over each region 
@@ -481,7 +480,7 @@ dev.off()
 
 
 ggsave(file="FrederickQ2Graph.png", dpi=300)
-
+#-------------------------------------------------------------------------------------------------------------------------------------------------#
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TABLES COMPARED ACROSS SCENARIOS OVER TIME 
@@ -562,6 +561,7 @@ FrederickC<-subset(CropM, CropM$variable == "GEOID_51069")
 
 
 #IF GRAPH LOOKS weird make sure LABEL is set as a factor 
+#Graphs for individual counties 
 windows()
 IALE_v2015_Fred_Crop<-ggplot(FrederickC, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
   geom_line(size=2)+
@@ -571,8 +571,10 @@ IALE_v2015_Fred_Crop<-ggplot(FrederickC, aes(x=TimeStep, y=valuekm, colour=Scena
   scale_y_continuous(name =expression('Total Area km'^2))+
   theme_bw()+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
-  theme(axis.text=element_text(size=14),
-        axis.title=element_text(size=14,face="bold"), legend.text=element_text(size=14), legend.title=element_blank())
+  theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
+  theme(axis.text=element_text(size=40),
+        axis.title.x=element_text(size=40,face="bold"), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
+  theme(plot.margin=unit(c(1,1,1,1), "in"))
 
 
 #export graph 
@@ -600,7 +602,7 @@ Crop<-subset(CombinedRegionLC, CombinedRegionLC$LABEL == "7")
 #Crop<-subset(Crop, Crop$TimeStep>1)
 
 #NAME ggplot 
-
+#Graphs for entire study region 
 windows()
 CropSA<-ggplot(Crop, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
   geom_line(size=2)+
@@ -609,8 +611,10 @@ CropSA<-ggplot(Crop, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario)
   scale_y_continuous(name =expression('Total Area km'^2))+
   theme_bw()+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
-  theme(axis.text=element_text(size=14),
-        axis.title=element_text(size=14,face="bold"), legend.text=element_text(size=14), legend.title=element_blank())
+  theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
+  theme(axis.text=element_text(size=40),
+        axis.title.x=element_text(size=40,face="bold"), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
+  theme(plot.margin=unit(c(1,1,1,1), "in"))
 
 
 #export graph 

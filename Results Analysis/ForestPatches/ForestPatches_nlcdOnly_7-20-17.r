@@ -451,8 +451,10 @@ ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$patch.cohesion.index))+
   geom_bar(stat="identity", width=0.5)
 #------------------------------------------------------------------------------------------------------------#
 #Cstats graphs 
+#NOTE MAY HAVE TO CHANGE "CLASS" TO FACTOR 
 
-#NOTE MAY HAVE TO CHANGE CLASS TO FACTOR 
+#Calculate Area of SA and individual counties to add an additional column 
+
 
 
 Folder<-list.files(Output_Folder, pattern="Cstats_thin.csv", full.names = TRUE) #Read in NCLD files 
@@ -477,42 +479,91 @@ C_statsCombined<-rbind(C_statsQ1, C_statsQ2, C_statsQ3, C_statsQ4, C_statsRT)
 C_statsCombined$X<-NULL
 C_statsCombined<-C_statsCombined[-1,]
 
+
 #Subet desired county
 C_statsCombinedF3<-subset(C_statsCombined, C_statsCombined$class == 3)
 C_statsCombinedF10<-subset(C_statsCombined, C_statsCombined$class == 10)
 C_statsCombinedFF<-rbind(C_statsCombinedF3, C_statsCombinedF10)
 
-#convert to km2 from m2 
+#convert to km2 from hectares
 #MAY HAVE TO DO FOR OTHER VARIABLES TO 
-C_statsCombinedFF$mean.patch.areakm<-C_statsCombinedFF$mean.patch.area*(1/1000000)
-
+C_statsCombinedFF$mean.patch.areakm<-C_statsCombinedFF$mean.patch.area*(1/100)
+C_statsCombinedFF$class<-as.factor(C_statsCombinedFF$class)
 
 #Fragstats by county 
-mean_patchFF<-ggplot(C_statsCombinedFF, aes(x=class, y=mean.patch.areakm, fill=Scenario))+
+#mean_patch 
+
+  IALE_v2015_FF_mean_patch<-ggplot(C_statsCombinedFF, aes(x=class, y=mean.patch.areakm, fill=Scenario))+
   geom_bar(stat="identity", position="dodge")+
-  scale_x_discrete(breaks= c("3", "10"), labels=c("Frederick County", "Fauquier County"))+
+  scale_x_discrete(breaks= c("3", "10"), labels=c("Frederick", "Fauquier"))+
   scale_fill_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
+    xlab("County")+
   scale_y_continuous(name =expression('Mean Patch Area km'^2))+
   theme_bw()+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
-  theme(axis.text=element_text(size=14),
-        axis.title.x=element_blank(), axis.title.y =element_text(size=14,face="bold"), legend.text=element_text(size=14), legend.title=element_blank())
+    theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
+  theme(axis.text=element_text(size=40),
+        axis.title.x=element_text(size=40,face="bold"), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
+    theme(plot.margin=unit(c(1,1,1,1), "in"))
 
-#export graph 
+#number of patches 
+  IALE_v2015_FF_n_patches<-ggplot(C_statsCombinedFF, aes(x=class, y=n.patches, fill=Scenario))+
+    geom_bar(stat="identity", position="dodge")+
+      scale_x_discrete(breaks= c("3", "10"), labels=c("Frederick", "Fauquier"))+
+    scale_fill_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
+    xlab("County")+
+    scale_y_continuous(name = "Number of Patches")+
+    theme_bw()+
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+    theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
+    theme(axis.text=element_text(size=40),
+          axis.title.x=element_text(size=40,face="bold"), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
+    theme(plot.margin=unit(c(1,1,1,1), "in"))
+
+#Proportion of landscape 
+  C_statsCombinedFF$prop.landscapeCounty<-C_statsCombinedFF$prop.landscape*(17889/C_statsCombinedFF$Areakm2)
+  
+  
+  IALE_v2015_FF_prop_landscape<-ggplot(C_statsCombinedFF, aes(x=class, y=prop.landscapeCounty, fill=Scenario))+
+    geom_bar(stat="identity", position="dodge")+
+    scale_x_discrete(name="County",breaks= c("3", "10"), labels=c("Frederick", "Fauquier"))+
+    scale_fill_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
+    scale_y_continuous(name = "Proportion of the Landscape %")+
+    theme_bw()+
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+    theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
+    theme(axis.text=element_text(size=40),
+          axis.title.x=element_blank(), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
+    theme(plot.margin=unit(c(1,1,1,1), "in"))
+  
+  
+  #export graph  mean patch 
 setwd("X:/Scenario Planning/Graphics/Map Images/IALE Presentation")
-png("mean_patchFF.png", width=1000, height=100, units="in", res=300) #can't put units and resolution
-mean_patchFF
+png("IALE_v2015_FF_mean_patch.png", width=480, height=480, units="px", res=300) #can't put units and resolution
+IALE_v2015_FF_mean_patch
 dev.off()
 
 
-ggsave(file="mean_patchFF.png", dpi=300)
+ggsave(file="IALE_v2015_FF_mean_patch.png", dpi=300, width=15, height=15)
+
+#export graph number of patches 
+setwd("X:/Scenario Planning/Graphics/Map Images/IALE Presentation")
+png("IALE_v2015_FF_n_patches.png", width=480, height=480, units="px", res=300) #can't put units and resolution
+IALE_v2015_FF_n_patches
+dev.off()
+
+
+ggsave(file="IALE_v2015_FF_n_patches.png", dpi=300, width=15, height=15)
+
+
+
 
 #Total Area and TOtal Core AREA by County 
 
 #1st county 
 F3TATC<-C_statsCombinedF3[,c(3,6,11)]
-F3TATC$total.areakm<-F3TATC$total.area*(1/1000000)
-F3TATC$total.core.areakm<-F3TATC$total.core.area*(1/1000000)
+F3TATC$total.areakm<-F3TATC$total.area*(1/100)
+F3TATC$total.core.areakm<-F3TATC$total.core.area*(1/100)
 F3TATC$total.area<-NULL
 F3TATC$total.core.area<-NULL
 
@@ -520,32 +571,32 @@ F3TATCmelt<-melt(F3TATC)
 
 #2nd county 
 F10TATC<-C_statsCombinedF10[,c(3,6,11)]
-F10TATC$total.areakm<-F10TATC$total.area*(1/1000000)
-F10TATC$total.core.areakm<-F10TATC$total.core.area*(1/1000000)
+F10TATC$total.areakm<-F10TATC$total.area*(1/100)
+F10TATC$total.core.areakm<-F10TATC$total.core.area*(1/100)
 F10TATC$total.area<-NULL
 F10TATC$total.core.area<-NULL
 
 F10TATCmelt<-melt(F10TATC)
 
 #Total Area and Total Core Area Graph for individual county 
-AreaF10<-ggplot(F10TATCmelt, aes(x=Scenario, y=value, fill=variable))+
+IALE_Area_Fred<-ggplot(F3TATCmelt, aes(x=Scenario, y=value, fill=variable))+
   geom_bar(stat="identity", position="dodge")+
   scale_x_discrete(breaks= c("Q1", "Q2", "Q3", "Q4", "RT"))+
   scale_fill_manual(labels=c("Total Area", "Total Core Area"),values=c( "#0070C1","#330066"))+
-  scale_y_continuous(name =expression('Area km'^2))+
+  scale_y_continuous(name =expression('Area km'^2), limit=c(0,8000))+
   theme_bw()+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
-  theme(axis.text=element_text(size=14), axis.title=element_text(size=14,face="bold"), legend.text=element_text(size=14), legend.title=element_blank())
+  theme(axis.text=element_text(size=30), axis.title=element_text(size=30,face="bold"), legend.text=element_text(size=30), legend.title=element_blank(), legend.key.height= unit(1,"in"))
 
 
 #export graph 
 setwd("X:/Scenario Planning/Graphics/Map Images/IALE Presentation")
-png("AreaF10.png", width=1000, height=100, units="in", res=300) #can't put units and resolution
-AreaF10
+png("IALE_Area_Fred.png", width=480, height=480, units="px", res=300) #can't put units and resolution
+IALE_Area_Fred
 dev.off()
 
 
-ggsave(file="AreaF10.png", dpi=300)
+ggsave(file="IALE_Area_Fred.png", dpi=300, width=15, height=15)
 
 
 
