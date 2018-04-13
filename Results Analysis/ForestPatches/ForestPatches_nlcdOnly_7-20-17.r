@@ -355,7 +355,7 @@ write.csv(Q4, file=paste0(Output_Folder, "Q405xxRT_Forest_Cstats_thin.csv"))
 
 
 
-
+#--------------------------------------------------------------------------------------------------------------------------------------------------------#
 #ALSO EASILY MADE IN EXCEL. Grab excel sheet from here: file:///V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/Forest_Cstats_graphs.xlsx and copy graphs to new spreadsheets 
 
 
@@ -490,7 +490,10 @@ C_statsCombinedFF<-rbind(C_statsCombinedF3, C_statsCombinedF10)
 C_statsCombinedFF$mean.patch.areakm<-C_statsCombinedFF$mean.patch.area*(1/100)
 C_statsCombinedFF$class<-as.factor(C_statsCombinedFF$class)
 
+
+
 #Fragstats by county 
+
 #mean_patch 
 
   IALE_v2015_FF_mean_patch<-ggplot(C_statsCombinedFF, aes(x=class, y=mean.patch.areakm, fill=Scenario))+
@@ -536,6 +539,8 @@ C_statsCombinedFF$class<-as.factor(C_statsCombinedFF$class)
           axis.title.x=element_blank(), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
     theme(plot.margin=unit(c(1,1,1,1), "in"))
   
+#------------------------------------------------------------------------------------------#
+#EXPORT 
   
   #export graph  mean patch 
 setwd("X:/Scenario Planning/Graphics/Map Images/IALE Presentation")
@@ -556,9 +561,10 @@ dev.off()
 ggsave(file="IALE_v2015_FF_n_patches.png", dpi=300, width=15, height=15)
 
 
+#export graph proportion of landscape 
 
 
-#Total Area and TOtal Core AREA by County 
+#Total Area and TOtal Core AREA by County graphs 
 
 #1st county 
 F3TATC<-C_statsCombinedF3[,c(3,6,11)]
