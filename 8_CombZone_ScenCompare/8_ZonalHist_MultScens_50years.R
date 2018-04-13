@@ -559,7 +559,6 @@ FrederickC<-subset(CropM, CropM$variable == "GEOID_51069")
 
 
 
-
 #IF GRAPH LOOKS weird make sure LABEL is set as a factor 
 #Graphs for individual counties 
 windows()
