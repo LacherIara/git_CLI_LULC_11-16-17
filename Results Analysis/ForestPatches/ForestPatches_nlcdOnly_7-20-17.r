@@ -524,10 +524,52 @@ C_statsCombinedFF$class<-as.factor(C_statsCombinedFF$class)
     theme(plot.margin=unit(c(1,1,1,1), "in"))
 
 #Proportion of landscape 
-  C_statsCombinedFF$prop.landscapeCounty<-C_statsCombinedFF$prop.landscape*(17889/C_statsCombinedFF$Areakm2)
-  
-  
-  IALE_v2015_FF_prop_landscape<-ggplot(C_statsCombinedFF, aes(x=class, y=prop.landscapeCounty, fill=Scenario))+
+Raster_SA<-raster("V:/IaraSpatialLayers/PreparedRasters/StudyAreaBndy/regions_StudyArea.tif")  
+
+sa_ctyGEOID<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SAcntyOnly.csv")#SCBI V: #Geological ID for the county. 
+
+colnames(sa_ctyGEOID)<-c("Din_cty", "GEOID","NAME")
+sa_ctyGEOID$NAME<-NULL
+
+
+Raster_values<-getValues(Raster_SA)
+Raster_final<- summary(factor(Raster_values), maxsum = length(unique(Raster_values)))
+
+sa_ctyGEOID$Areapx<-Raster_final[1:20]
+sa_ctyGEOID$Areakm<-sa_ctyGEOID$Areapx*(900/1000000)
+colnames(sa_ctyGEOID)<-c("class","GEOID", "Areapx", "Areakm")
+TotalArea<-sum(sa_ctyGEOID$Areakm) #17888.25
+
+C_statsCombined<-merge(C_statsCombined,sa_ctyGEOID, by ="class")
+
+
+#Alternative Method 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#Raster_freq<-freq(Raster_SA)
+#Raster_freq<-as.table(Raster_freq)
+#Raster_freq<-as.data.frame(Raster_freq)
+#County<-subset(Raster_freq, Raster_freq$Var2 == "value")
+#Freq<-subset(Raster_freq, Raster_freq$Var2 == "count")
+#Raster_freq<-cbind(County,Freq)
+#Raster_freq<-Raster_freq[1:20,c(3,6)]
+#colnames(Raster_freq)<-c("County", "Freq")
+#Raster_freq$area<-Raster_freq$Freq*(900/1000000)
+#Total_Area<-sum(Raster_freq$area) #1788.25
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#resubset data to add area 
+C_statsCombinedF3<-subset(C_statsCombined, C_statsCombined$class == 3)
+
+
+C_statsCombinedF3$prop.landscape<-C_statsCombinedF3$prop.landscape*(TotalArea/C_statsCombinedF3$Areakm)
+
+C_statsCombinedF10<-subset(C_statsCombined, C_statsCombined$class == 10)
+C_statsCombinedF10$prop.landscape<-C_statsCombinedF10$prop.landscape*(TotalArea/C_statsCombinedF10$Areakm)
+
+C_statsCombinedFF<-rbind(C_statsCombinedF3, C_statsCombinedF10)
+
+C_statsCombinedFF$class<-as.character(C_statsCombinedFF$class)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#  
+  IALE_v2015_FF_prop_landscape<-ggplot(C_statsCombinedFF, aes(x=class, y=prop.landscape, fill=Scenario))+
     geom_bar(stat="identity", position="dodge")+
     scale_x_discrete(name="County",breaks= c("3", "10"), labels=c("Frederick", "Fauquier"))+
     scale_fill_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
@@ -539,7 +581,7 @@ C_statsCombinedFF$class<-as.factor(C_statsCombinedFF$class)
           axis.title.x=element_blank(), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
     theme(plot.margin=unit(c(1,1,1,1), "in"))
   
-#------------------------------------------------------------------------------------------#
+#-------------------------------------------------------------------------#
 #EXPORT 
   
   #export graph  mean patch 
@@ -562,7 +604,15 @@ ggsave(file="IALE_v2015_FF_n_patches.png", dpi=300, width=15, height=15)
 
 
 #export graph proportion of landscape 
+setwd("X:/Scenario Planning/Graphics/Map Images/IALE Presentation")
+png("IALE_v2015_FF_prop_landscape.png", width=480, height=480, units="px", res=300)
+IALE_v2015_FF_prop_landscape
 
+
+dev.off()
+
+
+ggsave(file="IALE_v2015_FF_prop_landscape.png", dpi=300, width=15, height=15)
 
 #Total Area and TOtal Core AREA by County graphs 
 

@@ -415,8 +415,6 @@ colnames(LABEL7)<-c("2001.7","2011.7","2021.7","2031.7","2041.7", "2051.7","2061
 #Save CSV #MUST CHANGE
 Scenario<-"Q2" #delete / 
 
-Comb_outputMelt<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Zonal_Histogram/Test/"
-Comb_outputReshape<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Zonal_Histogram/Test/"
 
 CombinedReshape<-cbind(LABEL3, LABEL5,LABEL6,LABEL7) 
 write.csv(CombinedReshape, paste0(Comb_outputReshape,"CombinedReshape", Scenario,".csv")) 
@@ -487,16 +485,11 @@ ggsave(file="FrederickQ2Graph.png", dpi=300)
 #Combines all scenarios 
 
 #Read in Melt csvs
-Folder<-list.files(Comb_outputMelt, pattern=".csv", full.names = TRUE) 
-CSV_Melt<-lapply(Folder,function(i){
+FolderM<-list.files(Comb_outputMelt, pattern=".csv", full.names = TRUE) 
+CSV_Melt<-lapply(FolderM,function(i){
   read.csv(i)
 })
 
-##read in region sum csv
-Folder<-list.files(Comb_outputRegion, pattern=".csv", full.names = TRUE) 
-CSV_Region<-lapply(Folder,function(i){
-  read.csv(i)
-})
 
 
 #ADD SCENARIO 
@@ -512,6 +505,12 @@ CombinedMeltLC<-subset(CombinedMeltLC, CombinedMeltLC$TimeStep > 1)
 write.csv(CombinedMeltLC, paste0(Comb_outputMelt,"CombinedMeltLC", ".csv"), row.names=FALSE)
 
 
+##read in region sum csv
+FolderR<-list.files(Comb_outputRegion, pattern=".csv", full.names = TRUE) 
+CSV_Region<-lapply(FolderR,function(i){
+  read.csv(i)
+})
+
 CSV_Region[[1]]$Scenario<-"Q1"
 CSV_Region[[2]]$Scenario<-"Q2"
 CSV_Region[[3]]$Scenario<-"Q3"
@@ -519,24 +518,44 @@ CSV_Region[[4]]$Scenario<-"Q4"
 CSV_Region[[5]]$Scenario<-"RT"
 
 CombinedRegionLC<-do.call(rbind.data.frame,CSV_Region)
-#CombinedRegionLC$valuekm<-CombinedRegionLC$value*(900/1000000) if valuekm exists do not need 
-write.csv(region_sum, paste0(Comb_outputRegion,"CombinedRegionLC", Scenario, ".csv"), row.names=FALSE)
+CombinedRegionLC$valuekm<-CombinedRegionLC$value*(900/1000000) # if valuekm exists do not need 
+write.csv(CombinedRegionLC, paste0(Comb_outputRegion,"CombinedRegionLC", ".csv"), row.names=FALSE)
 
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#PERCENT CHANGE INDIVIDUAL COUNTIES
+CombinedMeltLC$Rowid_<-NULL
+
+CombinedMeltLCT2<-subset(CombinedMeltLC, CombinedMeltLC$TimeStep ==2)
+CombinedMeltLCT7<-subset(CombinedMeltLC, CombinedMeltLC$TimeStep ==7)
+CombinedMeltLC27<-cbind(CombinedMeltLCT2,CombinedMeltLCT7)
+
+
+CombinedMeltLC27<-CombinedMeltLC27[,c(1,2,3,5,6,12)]
+CombinedMeltLC27<-mutate(CombinedMeltLC27, PercentChange=((valuekm.1-valuekm)/valuekm)*100)
+CombinedMeltLC27$PercentChange<-round(CombinedMeltLC27$PercentChange, digits = 2)
+
+
+CombinedMeltLC27$TimeStep<-7
+PercentChangeMelt<-CombinedMeltLC27[,c(1,2,3,4,7)]
+
+CombinedMeltPC<-merge(CombinedMeltLC,PercentChangeMelt, by=c("Scenario","TimeStep","LABEL","variable"), all.x=TRUE)
 
 
 #Subset by land cover type 
-DevelopmentM<-subset(CombinedMeltLC, CombinedMeltLC$LABEL == "3")
-ForestM<-subset(CombinedMeltLC, CombinedMeltLC$LABEL == "5")
-GrassM<-subset(CombinedMeltLC, CombinedMeltLC$LABEL == "6")
-CropM<-subset(CombinedMeltLC, CombinedMeltLC$LABEL == "7")
+DevelopmentM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "3")
+ForestM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "5")
+GrassM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "6")
+CropM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "7")
 
 #Subset by county examples
-Loudoun<-subset(CombinedMeltLC, CombinedMeltLC$variable == "GEOID_51107")
-Frederick<-subset(CombinedMeltLC, CombinedMeltLC$variable == "GEOID_51069")
-Fauquier<-subset(CombinedMeltLC, CombinedMeltLC$variable == "GEOID_51061")
-Shenandoah<-subset(CombinedMeltLC, CombinedMeltLC$variable == "GEOID_51171")
-Albemarle<-subset(CombinedMeltLC, CombinedMeltLC$variable == "GEOID_51003")
-Rockingham<-subset(CombinedMeltLC, CombinedMeltLC$variable == "GEOID_51165")
+Loudoun<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51107")
+Frederick<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51069")
+Fauquier<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51061")
+Shenandoah<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51171")
+Albemarle<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51003")
+Rockingham<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51165")
 
 
 AlbemarleD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51003")
@@ -562,7 +581,10 @@ FrederickC<-subset(CropM, CropM$variable == "GEOID_51069")
 #IF GRAPH LOOKS weird make sure LABEL is set as a factor 
 #Graphs for individual counties 
 windows()
-IALE_v2015_Fred_Crop<-ggplot(FrederickC, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
+IALE_v2015_Fred_Crop<-
+  
+  windows()
+ggplot(FrederickD, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
   geom_line(size=2)+
   #facet_grid(~LABEL)+
   scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c("2011", "2021", "2031", "2041", "2051", "2061"))+
@@ -573,7 +595,8 @@ IALE_v2015_Fred_Crop<-ggplot(FrederickC, aes(x=TimeStep, y=valuekm, colour=Scena
   theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
   theme(axis.text=element_text(size=40),
         axis.title.x=element_text(size=40,face="bold"), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
-  theme(plot.margin=unit(c(1,1,1,1), "in"))
+  theme(plot.margin=unit(c(1,1,1,1), "in"))+
+geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), hjust=2,vjust=2, size=5, show.legend=FALSE)
 
 
 #export graph 
@@ -586,24 +609,40 @@ dev.off()
 ggsave(file="IALE_v2015_Fred_Crop.png", dpi=300)
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#PERCENT CHANGE STUDY AREA
+CombinedRegionLCT2<-subset(CombinedRegionLC, CombinedRegionLC$TimeStep ==2)
+CombinedRegionLCT7<-subset(CombinedRegionLC, CombinedRegionLC$TimeStep ==7)
+CombinedRegionLC27<-cbind(CombinedRegionLCT2,CombinedRegionLCT7)
+CombinedRegionLC27<-CombinedRegionLC27[,c(1,2,4,5,7,10)]
+CombinedRegionLC27<-mutate(CombinedRegionLC27, PercentChange=((valuekm.1-valuekm)/valuekm)*100) #calculate percent change after only haveing time step 2 and 7
+CombinedRegionLC27$PercentChange<-round(CombinedRegionLC27$PercentChange, digits = 2)
 
-#Subset by land cover for entire SA
 
-Development<-subset(CombinedRegionLC, CombinedRegionLC$LABEL == "3")
-Forest<-subset(CombinedRegionLC, CombinedRegionLC$LABEL == "5")
-Grass<-subset(CombinedRegionLC, CombinedRegionLC$LABEL == "6")
-Crop<-subset(CombinedRegionLC, CombinedRegionLC$LABEL == "7")
+CombinedRegionLC27$TimeStep<-7
+PercentChange<-CombinedRegionLC27[,c(1,2,3,7)]
 
-#Remove 2001 if needed 
-#Development<-subset(Development, Development$TimeStep > 1)
-#Forest<-subset(Forest, Forest$TimeStep > 1)
-#Grass<-subset(Grass, Grass$TimeStep >1)
-#Crop<-subset(Crop, Crop$TimeStep>1)
+CombinedRegionPC<-merge(CombinedRegionLC,PercentChange, by=c("Scenario","TimeStep","LABEL"), all.x=TRUE)
+
+#Subset By Land Cover
+DevelopmentPC<-subset(CombinedRegionPC, CombinedRegionPC$LABEL == "3")
+ForestPC<-subset(CombinedRegionPC, CombinedRegionPC$LABEL == "5")
+GrassPC<-subset(CombinedRegionPC, CombinedRegionPC$LABEL == "6")
+CropPC<-subset(CombinedRegionPC, CombinedRegionPC$LABEL == "7")
+
+#Remove Timestep 1
+DevelopmentPC<-subset(DevelopmentPC, DevelopmentPC$TimeStep > 1)
+ForestPC<-subset(ForestPC, ForestPC$TimeStep > 1)
+GrassPC<-subset(GrassPC, GrassPC$TimeStep >1)
+CropPC<-subset(CropPC, CropPC$TimeStep>1)
+
+
 
 #NAME ggplot 
 #Graphs for entire study region 
+#-------------------------------------#
 windows()
-CropSA<-ggplot(Crop, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
+ggplot(DevelopmentPC, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
   geom_line(size=2)+
   scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c( "2011", "2021", "2031", "2041", "2051", "2061"))+
   scale_colour_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
@@ -613,7 +652,8 @@ CropSA<-ggplot(Crop, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario)
   theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
   theme(axis.text=element_text(size=40),
         axis.title.x=element_text(size=40,face="bold"), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
-  theme(plot.margin=unit(c(1,1,1,1), "in"))
+  theme(plot.margin=unit(c(1,1,1,1), "in"))+
+  geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), hjust=2,vjust=2, size=5, show.legend=FALSE)
 
 
 #export graph 
@@ -624,4 +664,24 @@ dev.off()
 
 
 ggsave(file="CropSA.png", dpi=300)
+
+
+#-------------------------------------------------------#
+#change color of geom_text for development
+windows()
+ggplot(DevelopmentPC, aes(x=Scenario, y=PercentChange, fill=Scenario))+
+  geom_bar(stat="identity", position = 'dodge')+
+  scale_fill_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
+  scale_y_continuous(name="Percent Change", limits=c(-100,120), labels=c("-100%","-50%", "-0%","50%", "100%", "120%"))+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
+  theme(axis.text.y =element_text(size=40),
+        axis.text.x =element_blank(),
+        axis.title.x=element_blank(), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
+  theme(plot.margin=unit(c(1,1,1,1), "in"))+
+  theme(panel.border=element_blank())+
+  geom_hline(yintercept=0, size=1.5)+
+  geom_text(aes(label=paste0(PercentChange,"%")), vjust=1.6, size=10, colour="white")+
+  theme(axis.line.y =element_line(size=1.5))
 
