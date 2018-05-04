@@ -55,14 +55,14 @@ library(ggpubr)
 
 #Version Input: MUST CHANGE
 version<-"/StudyArea_V201/SA_V2015"
-version_input<-paste0("V:/IaraSpatialLayers/Dinamica_Runs",version, "/FutureLandscapes/")
+version_input<-paste0("U:/CLI/Dinamica_Runs",version, "/FutureLandscapes/")
 Scenario<-"Q3/" #Say "All" for all scenarios 
 
 # ----------------------------------------------
 # FILE PATHS
 
 # Set location for the input study area rasters
-cntyRasterLoc <- "V:/IaraSpatialLayers/PreparedRasters/StudyAreaBndy/" 
+cntyRasterLoc <- "U:/CLI/PreparedRasters/StudyAreaBndy/" 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TURN ON FOR NL
@@ -93,9 +93,9 @@ Comb_output<-paste0(Comb_output, Scenario)
 # READ INPUT FILES:
 
 # Land Cover Rasters:
-# nl01 <- raster("V:/IaraSpatialLayers/PreparedRasters/StudyAreaBndy/nlcd01_anC.img")
-# nl06 <- raster("V:/IaraSpatialLayers/PreparedRasters/StudyAreaBndy/nlcd06_anC.img")
-# nl11 <- raster("V:/IaraSpatialLayers/PreparedRasters/StudyAreaBndy/nlcd11_anC.img")
+# nl01 <- raster("U:/CLI/PreparedRasters/StudyAreaBndy/nlcd01_anC.img")
+# nl06 <- raster("U:/CLI/PreparedRasters/StudyAreaBndy/nlcd06_anC.img")
+# nl11 <- raster("U:/CLI/PreparedRasters/StudyAreaBndy/nlcd11_anC.img")
 
 # COUNTY RASTERS #currently set to regions 
 regions <- raster(paste(cntyRasterLoc, "regions_StudyArea", ".tif", sep="")) # this is for the raster.
@@ -106,9 +106,9 @@ counties_vals <- getValues(regions) #defining the region
 # int [1:64956544] NA NA NA NA NA NA NA NA NA NA ...
 
 # COUNTY TABLES
-sa_ctyGEOID<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SAcntyOnly.csv")#SCBI V: #Geological ID for the county. 
+sa_ctyGEOID<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SAcntyOnly.csv")#SCBI V: #Geological ID for the county. 
   
-#sa_ctyGEOID<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/FullGEOID.csv") #Geological ID for the region. May want to change to say region in the future. Regions 
+#sa_ctyGEOID<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/FullGEOID.csv") #Geological ID for the region. May want to change to say region in the future. Regions 
 
 
 colnames(sa_ctyGEOID)<-c("Din_cty", "GEOID","NAME")
@@ -120,7 +120,7 @@ sa_ctyGEOIDzero<-sa_ctyGEOID
 sa_ctyGEOIDzero$Din_cty<-sapply(sa_ctyGEOIDzero$Din_cty, function(x){if(nchar(x)<2){paste0(0,x)}else{x}}) #values 1-8 for the region. 
 
 #select only the Study Area counties to run basic analyses
-S20_GEOID <-  read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SAcntyOnly.csv")#SCBI V: #Geological ID for the county. 
+S20_GEOID <-  read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SAcntyOnly.csv")#SCBI V: #Geological ID for the county. 
 
 
 ############################################################################################
@@ -335,7 +335,7 @@ print(new)
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------#
 #START HERE IF TABLES PRODUCED ALREADY AND ONLY WANT TO RESHAPE AND PRODUCE GRAPHS 
-version_table<-paste0("V:/IaraSpatialLayers/Dinamica_Runs",version, "/BasicDataAnalyses/Zonal_Histogram/")
+version_table<-paste0("U:/CLI/Dinamica_Runs",version, "/BasicDataAnalyses/Zonal_Histogram/")
 
 #Set Output
 Comb_outputMelt<-paste0(version_table,"Tables/Melt/")
