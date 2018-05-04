@@ -80,14 +80,14 @@ ggplot(FrederickC, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
   theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
   theme(axis.text=element_text(size=40),
         axis.title.x=element_text(size=40,face="bold"), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
-  theme(plot.margin=unit(c(1,1,1,1), "in"))
+  theme(plot.margin=unit(c(1,1,1,1), "in"))+
+  geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), hjust=2,vjust=2, size=5, show.legend=FALSE)
 
 
 #Compare landcover types 
-
 ggplot(CombinedMelt, aes(x=TimeStep, y=valuekm, colour=LABEL, group=LABEL))+
   geom_line(size=2)+
-  facet_grid(.~variable, scales="free")+
+  #facet_grid(.~variable, scales="free")+
   scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c("2011", "2021", "2031", "2041", "2051", "2061"))+
   scale_colour_manual(values=c("#5c5252", "#9fb480","#f7e68c", "#e17d63"), labels=c("Development", "Forest", "Grass/Pasture", "Tilled Cropland"))+
   scale_y_continuous(name =expression('Total Area km'^2))+
@@ -96,4 +96,5 @@ ggplot(CombinedMelt, aes(x=TimeStep, y=valuekm, colour=LABEL, group=LABEL))+
   theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
   theme(axis.text=element_text(size=40),
         axis.title.x=element_text(size=40,face="bold"), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
-  theme(plot.margin=unit(c(1,1,1,1), "in"))
+  theme(plot.margin=unit(c(1,1,1,1), "in"))+
+  geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), hjust=2,vjust=2, size=5, show.legend=FALSE)

@@ -46,6 +46,8 @@ library(raster) # read and edit rasters
 library(rgdal)
 library(reshape) #manipulation of output tables 
 library(ggplot2) #graphs 
+library(ggpubr)
+
 
 # SET TEMP DIRECTORY
 # rasterOptions(tmpdir = "Y:/Lacher/RTempCLEARME/")
@@ -491,7 +493,6 @@ CSV_Melt<-lapply(FolderM,function(i){
 })
 
 
-
 #ADD SCENARIO 
 CSV_Melt[[1]]$Scenario<-"Q1"
 CSV_Melt[[2]]$Scenario<-"Q2"
@@ -534,7 +535,8 @@ CombinedMeltLC27<-cbind(CombinedMeltLCT2,CombinedMeltLCT7)
 
 CombinedMeltLC27<-CombinedMeltLC27[,c(1,2,3,5,6,12)]
 CombinedMeltLC27<-mutate(CombinedMeltLC27, PercentChange=((valuekm.1-valuekm)/valuekm)*100)
-CombinedMeltLC27$PercentChange<-round(CombinedMeltLC27$PercentChange, digits = 2)
+CombinedMeltLC27$PercentChange<-round(CombinedMeltLC27$PercentChange, digits = 0)
+CombinedMeltLC27$PercentChange<-paste0(CombinedMeltLC27$PercentChange,"%")
 
 
 CombinedMeltLC27$TimeStep<-7
@@ -577,38 +579,116 @@ FrederickC<-subset(CropM, CropM$variable == "GEOID_51069")
 
 
 
-
 #IF GRAPH LOOKS weird make sure LABEL is set as a factor 
 #Graphs for individual counties 
-windows()
-IALE_v2015_Fred_Crop<-
-  
+#When saved as individual graph v2015_Fred_crop
+#when saved for ggarrange crop,development, forest, grass 
+
+#CHANGE TO SIZE 40 IF GRAPHS ARE NOT GOING TO BE ARRANGED
   windows()
-ggplot(FrederickD, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
+  
+  #FAUQUIER
+  v2015_Fauq_development<-ggplot(FauquierD, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
+    geom_line(size=2)+
+    scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c("2011", "2021", "2031", "2041", "2051", "2061"))+
+    scale_colour_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
+    #Forest#scale_y_continuous(name =expression('Total Area km'^2), limits = c(650,800), breaks=c(650,675,700,725,750,775,800))+
+    #grass# scale_y_continuous(name =expression('Total Area km'^2), limits=c(550,650), breaks=c(550,575,600,625))+
+    #development#
+    scale_y_continuous(name =expression('Total Area km'^2),  limits=c(0,200), breaks=c(50,100,150,200))+
+    #crop#scale_y_continuous(name =expression('Total Area km'^2), limits=c(100,175), breaks=c(100,125,150,175))+
+    theme_bw()+
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+    theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
+    theme(axis.text=element_text(size=20, colour="black"),
+          axis.title.x=element_text(size=20), axis.title.y =element_text(size=20, face="bold"), legend.text=element_text(size=20), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
+    theme(plot.margin=unit(c(1,1,1,1), "in"))+
+    geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), size=10, show.legend=FALSE)+
+    theme(panel.border=element_blank())+
+    theme(axis.line = element_line(size=1.5, colour="black")) 
+  
+  #FREDERICK
+v2015_Fred_forest<-ggplot(FauquierF, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
   geom_line(size=2)+
-  #facet_grid(~LABEL)+
   scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c("2011", "2021", "2031", "2041", "2051", "2061"))+
   scale_colour_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
-  scale_y_continuous(name =expression('Total Area km'^2))+
+  #Forest# scale_y_continuous(name =expression('Total Area km'^2), limits=c(525,625), breaks=c(525,550,575,600,625))+
+  #grass#scale_y_continuous(name =expression('Total Area km'^2), limits=c(250,350), breaks=c(250,275,300,325,350))+
+  #development#scale_y_continuous(name =expression('Total Area km'^2), limits=c(50,200), breaks=c(50,100,150,200))+
+  #crop#scale_y_continuous(name =expression('Total Area km'^2), limits=c(5,20), breaks=c(5,10,15,20))+
   theme_bw()+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
-  theme(axis.text=element_text(size=40),
-        axis.title.x=element_text(size=40,face="bold"), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
+  theme(axis.text=element_text(size=20, colour="black"),
+        axis.title.x=element_text(size=20), axis.title.y =element_text(size=20, face="bold"), legend.text=element_text(size=20), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
   theme(plot.margin=unit(c(1,1,1,1), "in"))+
-geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), hjust=2,vjust=2, size=5, show.legend=FALSE)
+geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), size=10, show.legend=FALSE)+
+    theme(panel.border=element_blank())+
+    theme(axis.line = element_line(size=1.5, colour="black")) 
+
+
+#-----------------------------------------------------------#
+#Table
+
+#Frederick County 
+Fred_PC<-subset(PercentChangeMelt, variable=="GEOID_51069")
+Fred_Q1<-subset(Fred_PC, Scenario =="Q1")
+Fred_Q2<-subset(Fred_PC, Scenario =="Q2")
+Fred_Q3<-subset(Fred_PC, Scenario =="Q3")
+Fred_Q4<-subset(Fred_PC, Scenario =="Q4")
+Fred_RT<-subset(Fred_PC, Scenario =="RT")
+
+Fred_Table<-cbind(Fred_RT[,5],Fred_Q1[,5],Fred_Q2[,5],Fred_Q3[,5],Fred_Q4[,5])
+Fred_Table<-as.data.frame(Fred_Table)
+colnames(Fred_Table)<-c("RT", "Q1", "Q2", "Q3", "Q4")
+rownames(Fred_Table)<-c("Development", "Forest", "Grass", "Crop")
+
+Fred_Table_plot<-ggtexttable(Fred_Table, theme=ttheme("mBlackWhite", base_size=15))
+
+windows()
+FrederickGraph<-ggarrange(development, forest, grass, crop, labels=c("Development", "Forest", "Grass", "Crop"), common.legend= TRUE, legend="left")
+
+windows()
+ggarrange(FrederickGraph, Fred_Table_plot, ncol=2, nrow=1, widths =c(1,.35))
+
+
+#Fauquier County 
+Fauq_PC<-subset(PercentChangeMelt, variable=="GEOID_51061")
+Fauq_Q1<-subset(Fauq_PC, Scenario =="Q1")
+Fauq_Q2<-subset(Fauq_PC, Scenario =="Q2")
+Fauq_Q3<-subset(Fauq_PC, Scenario =="Q3")
+Fauq_Q4<-subset(Fauq_PC, Scenario =="Q4")
+Fauq_RT<-subset(Fauq_PC, Scenario =="RT")
+
+Fauq_Table<-cbind(Fauq_RT[,5],Fauq_Q1[,5],Fauq_Q2[,5],Fauq_Q3[,5],Fauq_Q4[,5])
+Fauq_Table<-as.data.frame(Fauq_Table)
+colnames(Fauq_Table)<-c("RT", "Q1", "Q2", "Q3", "Q4")
+rownames(Fauq_Table)<-c("Development", "Forest", "Grass", "Crop")
+
+Fauq_Table_plot<-ggtexttable(Fauq_Table, theme=ttheme("mBlackWhite", base_size=15))
+
+windows()
+FauqerickGraph<-ggarrange(development, forest, grass, crop, labels=c("Development", "Forest", "Grass", "Crop"), common.legend= TRUE, legend="left")
+
+windows()
+ggarrange(FauqerickGraph, Fauq_Table_plot, ncol=2, nrow=1, widths =c(1,.35))
 
 
 #export graph 
-setwd("X:/Scenario Planning/Graphics/Map Images/IALE Presentation")
-png("IALE_v2015_Fred_Crop.png", width=1000, height=100, units="in", res=300) #can't put units and resolution
-IALE_v2015_Fred_Crop
+setwd("X:/Scenario Planning/Graphics/Map Images/4_17")
+png("v2015_Fauq_development.png", width=480, height=480, units="px", res=300) #can't put units and resolution
+v2015_Fauq_development
 dev.off()
 
 
-ggsave(file="IALE_v2015_Fred_Crop.png", dpi=300)
+ggsave(file="v2015_Fauq_development.png", dpi=300,width=15, height=15)
 
 
+
+
+#NAME ggplot 
+#Graphs for entire study region 
+#-------------------------------------#
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #PERCENT CHANGE STUDY AREA
 CombinedRegionLCT2<-subset(CombinedRegionLC, CombinedRegionLC$TimeStep ==2)
@@ -635,12 +715,8 @@ DevelopmentPC<-subset(DevelopmentPC, DevelopmentPC$TimeStep > 1)
 ForestPC<-subset(ForestPC, ForestPC$TimeStep > 1)
 GrassPC<-subset(GrassPC, GrassPC$TimeStep >1)
 CropPC<-subset(CropPC, CropPC$TimeStep>1)
+#-------------------------------------------------------------------------#
 
-
-
-#NAME ggplot 
-#Graphs for entire study region 
-#-------------------------------------#
 windows()
 ggplot(DevelopmentPC, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
   geom_line(size=2)+
@@ -658,12 +734,12 @@ ggplot(DevelopmentPC, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario
 
 #export graph 
 setwd("X:/Scenario Planning/Graphics/Map Images/IALE Presentation")
-png("CropSA.png", width=1000, height=100, units="in", res=300) #can't put units and resolution
+png("CropSA.png", width=480, height=480, units="px", res=300) #can't put units and resolution
 CropSA
 dev.off()
 
 
-ggsave(file="CropSA.png", dpi=300)
+ggsave(file="CropSA.png", dpi=300, width=15, height=15)
 
 
 #-------------------------------------------------------#
