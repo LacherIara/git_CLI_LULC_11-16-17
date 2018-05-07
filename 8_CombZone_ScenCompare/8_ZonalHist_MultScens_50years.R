@@ -603,7 +603,7 @@ FrederickC<-subset(CropM, CropM$variable == "GEOID_51069")
     theme(axis.text=element_text(size=20, colour="black"),
           axis.title.x=element_text(size=20), axis.title.y =element_text(size=20, face="bold"), legend.text=element_text(size=20), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
     theme(plot.margin=unit(c(1,1,1,1), "in"))+
-    geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), size=10, show.legend=FALSE)+
+    geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), size=20, show.legend=FALSE)+
     theme(panel.border=element_blank())+
     theme(axis.line = element_line(size=1.5, colour="black")) 
   
