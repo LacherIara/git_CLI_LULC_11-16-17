@@ -64,8 +64,9 @@ Scenario<-"Q3/" #Say "All" for all scenarios
 # Set location for the input study area rasters
 cntyRasterLoc <- "U:/CLI/PreparedRasters/StudyAreaBndy/" 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#TURN ON FOR NL
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ *Whatever is turned on must match the designated scenario 
+
+#TURN ON FOR NL 
 inRasterLoc<-paste0(version_input, "NL/nlcd_nlcd/")
 
 #TURN ON FOR ALL INDIVIDUAL SCENARIOS 
@@ -130,7 +131,7 @@ S20_GEOID <-  read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SAcntyOnly.csv")#SCB
 
 # ----------------------------------------------
 # TRANSITIONS
-# ----------------------------------------------
+# ---------------------------------------------- *Must match above 
 version_LS_trans<-"v2015"
 
 #TURN on FOR NL
@@ -147,11 +148,10 @@ LS_trans <-  list('LS01' = c(paste0(version_LS_trans,"_Q1_Landscape01.tif")),'LS
 LS_trans <-  list('LS01' = c(paste0(version_LS_trans,"_Q2_Landscape01.tif")),'LS02' = c(paste0(version_LS_trans, "_Q2_Landscape02.tif")),'LS03' = c(paste0(version_LS_trans,"_Q2_Landscape03.tif")),'LS04' = c(paste0(version_LS_trans,"_Q2_Landscape04.tif")),'LS05' = c(paste0(version_LS_trans,"_Q2_Landscape05.tif")))
 
 #TURN ON FOR Q3
-LS_trans <-  list('LS01' = c(paste0(version_LS_trans,"_RT_Landscape01.tif")),'LS02' = c(paste0(version_LS_trans, "_RT_Landscape02.tif")),'LS03' = c(paste0(version_LS_trans,"_RT_Landscape03.tif")),'LS04' = c(paste0(version_LS_trans,"_RT_Landscape04.tif")),'LS05' = c(paste0(version_LS_trans,"_RT_Landscape05.tif")))
-
+LS_trans <-  list('LS01' = c(paste0(version_LS_trans,"_Q3_Landscape01.tif")),'LS02' = c(paste0(version_LS_trans, "_Q3_Landscape02.tif")),'LS03' = c(paste0(version_LS_trans,"_Q3_Landscape03.tif")),'LS04' = c(paste0(version_LS_trans,"_Q3_Landscape04.tif")),'LS05' = c(paste0(version_LS_trans,"_Q3_Landscape05.tif")))
 
 #TURN ON FOR Q4
-LS_trans <-  list('LS01' = c(paste0(version_LS_trans,"_RT_Landscape01.tif")),'LS02' = c(paste0(version_LS_trans, "_RT_Landscape02.tif")),'LS03' = c(paste0(version_LS_trans,"_RT_Landscape03.tif")),'LS04' = c(paste0(version_LS_trans,"_RT_Landscape04.tif")),'LS05' = c(paste0(version_LS_trans,"_RT_Landscape05.tif")))
+LS_trans <-  list('LS01' = c(paste0(version_LS_trans,"_Q4_Landscape01.tif")),'LS02' = c(paste0(version_LS_trans, "_Q4_Landscape02.tif")),'LS03' = c(paste0(version_LS_trans,"_Q4_Landscape03.tif")),'LS04' = c(paste0(version_LS_trans,"_Q4_Landscape04.tif")),'LS05' = c(paste0(version_LS_trans,"_Q4_Landscape05.tif")))
 
 
 #TURN ON FOR ALL SCENARIOS 
