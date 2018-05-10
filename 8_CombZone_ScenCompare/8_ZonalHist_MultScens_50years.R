@@ -1,5 +1,5 @@
 ############################ 
-#PURPOSE: TESTSTESTS  Do Combine and Hist for **NLCD Land Cover years 2001 & 2012**. Avoid using ArcMap and doing all the steps by hand.
+#PURPOSE: Do Combine and Hist for **NLCD Land Cover years 2001 & 2012**. Avoid using ArcMap and doing all the steps by hand.
 #INPUT: Region layer and county table with "Din_cty" and "GEOID", intial landscape layer, final landscape layer. # check
 #OUTPUT: Zonal histogram of transitions between initial and final, zonal historgram of final landscape, raster of change in landscape. # check
 #DEVELOPED: 
@@ -25,9 +25,11 @@
 # For version 2012, use nlcd landcover data WITH protected lands 
 #any where there is a "version" you will need to change based on desired inputs and outputs 
 
-### NEXT STEPS####
-# add code to loop through different scenarios and comparison plots of scenarios based on development type over the timesteps #Updated by Sarah Halperin 
-# add compatibility to code for creating transitions raster with multiple landscapes (second suite of code on page)
+### ADDED STEPS#### 
+#3/2018 - Sarah Halperin  
+# added code to loop through different scenarios and comparison plots of scenarios based on development type over the timesteps #Updated by Sarah Halperin 
+# added compatibility to code for creating transitions raster with multiple landscapes (second suite of code on page)
+#added visual graphs of zonal histogram outputs 
 
 ############################
 
@@ -52,11 +54,11 @@ library(ggpubr)
 # SET TEMP DIRECTORY
 # rasterOptions(tmpdir = "Y:/Lacher/RTempCLEARME/")
 
-
-#Version Input: MUST CHANGE
+#----------------------------------------------
+#Set Version and version input 
 version<-"/StudyArea_V201/SA_V2015"
 version_input<-paste0("U:/CLI/Dinamica_Runs",version, "/FutureLandscapes/")
-Scenario<-"Q3/" #Say "All" for all scenarios 
+Scenario<-"Q3/" #set scenario desired to run. If want all scenarios to run say "All" for all scenarios (NOTE: when all scenarios you must use the second set of code)
 
 # ----------------------------------------------
 # FILE PATHS
@@ -64,7 +66,8 @@ Scenario<-"Q3/" #Say "All" for all scenarios
 # Set location for the input study area rasters
 cntyRasterLoc <- "U:/CLI/PreparedRasters/StudyAreaBndy/" 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ *Whatever is turned on must match the designated scenario 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+#TURN ON SCENARIO INPUTS: Whatever is turned on must match the designated scenario 
 
 #TURN ON FOR NL 
 inRasterLoc<-paste0(version_input, "NL/nlcd_nlcd/")
@@ -83,7 +86,7 @@ inRasterLoc <-paste0(inRasterLoc, Folders)
 # Define paths for output files
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#ADJUST FOR DESURED FOLDER
+#ADJUST FOR DESIRED FOLDER
 version_output<-"BasicDataAnalyses/Zonal_Histogram/"
 Comb_output<-gsub("FutureLandscapes/", version_output, version_input)
 Comb_output<-paste0(Comb_output, Scenario)
@@ -99,9 +102,9 @@ Comb_output<-paste0(Comb_output, Scenario)
 # nl11 <- raster("U:/CLI/PreparedRasters/StudyAreaBndy/nlcd11_anC.img")
 
 # COUNTY RASTERS #currently set to regions 
-regions <- raster(paste(cntyRasterLoc, "regions_StudyArea", ".tif", sep="")) # this is for the raster.
+regions <- raster(paste(cntyRasterLoc, "ctny_StudyArea", ".tif", sep="")) # this is for the raster.
 counties_vals <- getValues(regions) #defining the region 
-#NOTE: Craig said the only correct region raster was region_an2. I updated to region_an2 was region_an. I changed it to counties (regions_StudyArea.tif)
+#NOTE: Craig said the only correct region raster was region_an2. I updated to region_an2 was region_an. I changed it to counties (regions_StudyArea.tif), which has now been renamed to ctny_StudyArea
 
 # str(counties_vals)
 # int [1:64956544] NA NA NA NA NA NA NA NA NA NA ...
@@ -131,7 +134,8 @@ S20_GEOID <-  read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SAcntyOnly.csv")#SCB
 
 # ----------------------------------------------
 # TRANSITIONS
-# ---------------------------------------------- *Must match above 
+# ---------------------------------------------- 
+#Version_LS_trans Must match above 
 version_LS_trans<-"v2015"
 
 #TURN on FOR NL
@@ -177,7 +181,9 @@ LS_trans<-do.call(c,(list(Q1, Q2, Q3, Q4,RT))) #create list for ALL SCENARIOS
 # ------------------------------------------------------
 # ------------------------------------------------------
 
-#SEE CODE BELOW FOR ALL SCENARIOS. 
+#FOR ONE SCENARIO AT A TIME
+#SEE CODE BELOW FOR ALL SCENARIOS 
+#LINE 269
 # ----------------------------------------------
 # Loop through transitions
 # ----------------------------------------------
@@ -196,8 +202,7 @@ fin_vals <- getValues(Final_Landscape)
 
 
 #----------------------------------------------------#
-#SEE CODE BELOW FOR ALL SCENARIOS 
-#LINE 269
+
 
 
 # ZONAL HISTOGRAM ON FINAL LANDSCAPE 
@@ -258,8 +263,7 @@ new<-Sys.time()-old # TIMING SCRIPT
 print(new) # Time difference of 6.276551 mins
 #-----------------------------------------------------------------------------------------------------------------#
 
-#ALL SCENARIOS 
-#CODE REPEATS 
+#CODE REPEATED FOR ALL SCENARIOS 
 ## ----------------------------------------------
 # Loop through transitions
 # ----------------------------------------------
@@ -345,7 +349,7 @@ Comb_outputReshape<-paste0(version_table,"Tables/")
 #~~~~~~~~~~~~~~~~~~~~~~~~
 #TABLES FOR INDIVIDUAL SCENARIOS 
 
-#BRING IN TABLES FOR NCLD. Leave on inorder to have scenario tables starting at 2001 and go to 2061. Full time frame 
+#BRING IN TABLES FOR NCLD. Leave on inorder to have scenario tables starting at 2001 and go to 2061. Full time frame. cHANGE IF ONLY WANT FROM 2011 
 
 
 Folder<-list.files(paste0(version_table, "NLCD"), pattern=".txt", full.names = TRUE) #Read in NCLD files 
@@ -414,7 +418,7 @@ LABEL7<-LABEL7[1:20,]
 colnames(LABEL7)<-c("2001.7","2011.7","2021.7","2031.7","2041.7", "2051.7","2061.7")
 
 
-#Save CSV #MUST CHANGE
+#Save CSV #MAKE SURE CHANGE BASED ON SCENARIO DESIRED 
 Scenario<-"Q2" #delete / 
 
 
@@ -427,15 +431,18 @@ CombinedMelt<-melt(Combined, id=c("Rowid_", "LABEL", "TimeStep" ))
 CombinedMelt$LABEL<-as.factor(CombinedMelt$LABEL) #turn Label to factor from integer
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#NEED TO CHANGE NAME BASED ON INPUT
+
+#NEED TO CHANGE NAME BASED ON SCENARIO INPUT
 #convert pixels 
 CombinedMelt$valuekm<-CombinedMelt$value*(900/1000000)
-write.csv(CombinedMelt, paste0(Comb_outputMelt,"CombinedMelt", Scenario, ".csv"), row.names=FALSE)
 
 
-#Remove 2001 (optional)
+#Remove 2001 (optional) or IF ONLY USED NLCD 2011 
 CombinedMelt<-subset(CombinedMelt, CombinedMelt$TimeStep > 1)
+
+
+write.csv(CombinedMelt, paste0(Comb_outputMelt,"CombinedMeltQ2", Scenario, ".csv"), row.names=FALSE) #CHANGE NAME 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #Sum by Region 
 region_sum<-aggregate(valuekm~LABEL+TimeStep,CombinedMelt, sum)
@@ -486,7 +493,7 @@ ggsave(file="FrederickQ2Graph.png", dpi=300)
 #TABLES COMPARED ACROSS SCENARIOS OVER TIME 
 #Combines all scenarios 
 
-#Read in Melt csvs
+#Read in Melt csvs to combine all scnenarios 
 FolderM<-list.files(Comb_outputMelt, pattern=".csv", full.names = TRUE) 
 CSV_Melt<-lapply(FolderM,function(i){
   read.csv(i)
@@ -502,11 +509,11 @@ CSV_Melt[[5]]$Scenario<-"RT"
 
 CombinedMeltLC<-do.call(rbind.data.frame,CSV_Melt)
 CombinedMeltLC$valuekm<-CombinedMeltLC$value*(900/1000000) #if valuekm exists do not need
-CombinedMeltLC<-subset(CombinedMeltLC, CombinedMeltLC$TimeStep > 1)
+CombinedMeltLC<-subset(CombinedMeltLC, CombinedMeltLC$TimeStep > 1) #IF STILL NEED AFTER 2001
 write.csv(CombinedMeltLC, paste0(Comb_outputMelt,"CombinedMeltLC", ".csv"), row.names=FALSE)
 
 
-##read in region sum csv
+##read in region sum csv to combine all scenarios 
 FolderR<-list.files(Comb_outputRegion, pattern=".csv", full.names = TRUE) 
 CSV_Region<-lapply(FolderR,function(i){
   read.csv(i)
@@ -524,7 +531,6 @@ write.csv(CombinedRegionLC, paste0(Comb_outputRegion,"CombinedRegionLC", ".csv")
 
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #PERCENT CHANGE INDIVIDUAL COUNTIES
 CombinedMeltLC$Rowid_<-NULL
 
@@ -560,12 +566,9 @@ Albemarle<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51003")
 Rockingham<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51165")
 
 
-AlbemarleD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51003")
-AlbemarleF<-subset(ForestM, ForestM$variable == "GEOID_51003")
-AlbemarleG<-subset(GrassM, GrassM$variable == "GEOID_51003")
-AlbemarleC<-subset(CropM, CropM$variable == "GEOID_51003")
 
-#subset by country and land cover type 
+
+#subset by county and land cover type 
 FauquierD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51061")
 FauquierF<-subset(ForestM, ForestM$variable == "GEOID_51061")
 FauquierG<-subset(GrassM, GrassM$variable == "GEOID_51061")
@@ -577,6 +580,10 @@ FrederickF<-subset(ForestM, ForestM$variable == "GEOID_51069")
 FrederickG<-subset(GrassM, GrassM$variable == "GEOID_51069")
 FrederickC<-subset(CropM, CropM$variable == "GEOID_51069")
 
+AlbemarleD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51003")
+AlbemarleF<-subset(ForestM, ForestM$variable == "GEOID_51003")
+AlbemarleG<-subset(GrassM, GrassM$variable == "GEOID_51003")
+AlbemarleC<-subset(CropM, CropM$variable == "GEOID_51003")
 
 
 #IF GRAPH LOOKS weird make sure LABEL is set as a factor 
@@ -628,53 +635,54 @@ geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"
 
 
 #-----------------------------------------------------------#
-#Table
+#Table to show percent change
 
 #Frederick County 
-Fred_PC<-subset(PercentChangeMelt, variable=="GEOID_51069")
-Fred_Q1<-subset(Fred_PC, Scenario =="Q1")
-Fred_Q2<-subset(Fred_PC, Scenario =="Q2")
-Fred_Q3<-subset(Fred_PC, Scenario =="Q3")
-Fred_Q4<-subset(Fred_PC, Scenario =="Q4")
-Fred_RT<-subset(Fred_PC, Scenario =="RT")
+#Fred_PC<-subset(PercentChangeMelt, variable=="GEOID_51069")
+#Fred_Q1<-subset(Fred_PC, Scenario =="Q1")
+#Fred_Q2<-subset(Fred_PC, Scenario =="Q2")
+#Fred_Q3<-subset(Fred_PC, Scenario =="Q3")
+#Fred_Q4<-subset(Fred_PC, Scenario =="Q4")
+#Fred_RT<-subset(Fred_PC, Scenario =="RT")
 
-Fred_Table<-cbind(Fred_RT[,5],Fred_Q1[,5],Fred_Q2[,5],Fred_Q3[,5],Fred_Q4[,5])
-Fred_Table<-as.data.frame(Fred_Table)
-colnames(Fred_Table)<-c("RT", "Q1", "Q2", "Q3", "Q4")
-rownames(Fred_Table)<-c("Development", "Forest", "Grass", "Crop")
+#Fred_Table<-cbind(Fred_RT[,5],Fred_Q1[,5],Fred_Q2[,5],Fred_Q3[,5],Fred_Q4[,5])
+#Fred_Table<-as.data.frame(Fred_Table)
+#colnames(Fred_Table)<-c("RT", "Q1", "Q2", "Q3", "Q4")
+#rownames(Fred_Table)<-c("Development", "Forest", "Grass", "Crop")
 
-Fred_Table_plot<-ggtexttable(Fred_Table, theme=ttheme("mBlackWhite", base_size=15))
+#Fred_Table_plot<-ggtexttable(Fred_Table, theme=ttheme("mBlackWhite", base_size=15))
 
-windows()
-FrederickGraph<-ggarrange(development, forest, grass, crop, labels=c("Development", "Forest", "Grass", "Crop"), common.legend= TRUE, legend="left")
+#windows()
+#FrederickGraph<-ggarrange(development, forest, grass, crop, labels=c("Development", "Forest", "Grass", "Crop"), common.legend= TRUE, legend="left")
 
-windows()
-ggarrange(FrederickGraph, Fred_Table_plot, ncol=2, nrow=1, widths =c(1,.35))
+#windows()
+#ggarrange(FrederickGraph, Fred_Table_plot, ncol=2, nrow=1, widths =c(1,.35))
 
 
 #Fauquier County 
-Fauq_PC<-subset(PercentChangeMelt, variable=="GEOID_51061")
-Fauq_Q1<-subset(Fauq_PC, Scenario =="Q1")
-Fauq_Q2<-subset(Fauq_PC, Scenario =="Q2")
-Fauq_Q3<-subset(Fauq_PC, Scenario =="Q3")
-Fauq_Q4<-subset(Fauq_PC, Scenario =="Q4")
-Fauq_RT<-subset(Fauq_PC, Scenario =="RT")
+#Fauq_PC<-subset(PercentChangeMelt, variable=="GEOID_51061")
+#Fauq_Q1<-subset(Fauq_PC, Scenario =="Q1")
+#Fauq_Q2<-subset(Fauq_PC, Scenario =="Q2")
+#Fauq_Q3<-subset(Fauq_PC, Scenario =="Q3")
+#Fauq_Q4<-subset(Fauq_PC, Scenario =="Q4")
+#Fauq_RT<-subset(Fauq_PC, Scenario =="RT")
 
-Fauq_Table<-cbind(Fauq_RT[,5],Fauq_Q1[,5],Fauq_Q2[,5],Fauq_Q3[,5],Fauq_Q4[,5])
-Fauq_Table<-as.data.frame(Fauq_Table)
-colnames(Fauq_Table)<-c("RT", "Q1", "Q2", "Q3", "Q4")
-rownames(Fauq_Table)<-c("Development", "Forest", "Grass", "Crop")
+#Fauq_Table<-cbind(Fauq_RT[,5],Fauq_Q1[,5],Fauq_Q2[,5],Fauq_Q3[,5],Fauq_Q4[,5])
+#Fauq_Table<-as.data.frame(Fauq_Table)
+#colnames(Fauq_Table)<-c("RT", "Q1", "Q2", "Q3", "Q4")
+#rownames(Fauq_Table)<-c("Development", "Forest", "Grass", "Crop")
 
-Fauq_Table_plot<-ggtexttable(Fauq_Table, theme=ttheme("mBlackWhite", base_size=15))
+#Fauq_Table_plot<-ggtexttable(Fauq_Table, theme=ttheme("mBlackWhite", base_size=15))
 
-windows()
-FauqerickGraph<-ggarrange(development, forest, grass, crop, labels=c("Development", "Forest", "Grass", "Crop"), common.legend= TRUE, legend="left")
+#windows()
+#FauqerickGraph<-ggarrange(development, forest, grass, crop, labels=c("Development", "Forest", "Grass", "Crop"), common.legend= TRUE, legend="left")
 
-windows()
-ggarrange(FauqerickGraph, Fauq_Table_plot, ncol=2, nrow=1, widths =c(1,.35))
+#windows()
+#ggarrange(FauqerickGraph, Fauq_Table_plot, ncol=2, nrow=1, widths =c(1,.35))
 
 
-#export graph 
+#-------------------------------------------------------------#
+#export graphs 
 setwd("X:/Scenario Planning/Graphics/Map Images/4_17")
 png("v2015_Fauq_development.png", width=480, height=480, units="px", res=300) #can't put units and resolution
 v2015_Fauq_development
@@ -685,10 +693,7 @@ ggsave(file="v2015_Fauq_development.png", dpi=300,width=15, height=15)
 
 
 
-
-#NAME ggplot 
-#Graphs for entire study region 
-#-------------------------------------#
+#Graphs for entire study region. All scenarios but one type of land cover 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #PERCENT CHANGE STUDY AREA
 CombinedRegionLCT2<-subset(CombinedRegionLC, CombinedRegionLC$TimeStep ==2)
@@ -743,7 +748,7 @@ ggsave(file="CropSA.png", dpi=300, width=15, height=15)
 
 
 #-------------------------------------------------------#
-#change color of geom_text for development
+#Graph of Percent Change 
 windows()
 ggplot(DevelopmentPC, aes(x=Scenario, y=PercentChange, fill=Scenario))+
   geom_bar(stat="identity", position = 'dodge')+
