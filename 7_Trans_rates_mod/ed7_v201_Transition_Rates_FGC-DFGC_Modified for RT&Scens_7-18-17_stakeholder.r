@@ -191,17 +191,17 @@ modify.rate <- function(Transitions,Regions,ModifiersDF,TransitionDF){
 # MODIFIER RASTERS (SPECIFIC FOR EACH SCENARIO) **!!Run these one at a time**!!
 # ----------------------------------------------
  # **!! These are specific to each Scenario!!**
-Modifier_Q1 <- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2011/Parameters/Transition_Rates/modifiers/Rate_Modifier_Q1_6-26-17.csv")
-new_rates <- modify.rate(Modifier_Q1$Transition_Number, regioncols, Modifier_Q1,sa_cty_transitions_lum)
+#Modifier_Q1 <- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/Parameters/Transition_Rates/modifiers/flat.csv")
+#new_rates <- modify.rate(Modifier_Q1$Transition_Number, regioncols, Modifier_Q1,sa_cty_transitions_lum)
 
-Modifier_Q2 <- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2011/Parameters/Transition_Rates/modifiers/Rate_Modifier_Q2_8-18-17.csv")
-new_rates <- modify.rate(Modifier_Q2$Transition_Number, regioncols, Modifier_Q2,sa_cty_transitions_lum)
+#Modifier_Q2 <- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/Parameters/Transition_Rates/modifiers/Rate_Modifier_Stakeholder_Q2.csv")
+#new_rates <- modify.rate(Modifier_Q2$Transition_Number, regioncols, Modifier_Q2,sa_cty_transitions_lum)
 
-Modifier_Q3 <- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2011/Parameters/Transition_Rates/modifiers/Rate_Modifier_Q3_7-18-17.csv")
+Modifier_Q3 <- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/Parameters/Transition_Rates/modifiers/Rate_Modifier_Stakeholder_Q3.csv")
 new_rates <- modify.rate(Modifier_Q3$Transition_Number, regioncols, Modifier_Q3,sa_cty_transitions_lum)
 
-Modifier_Q4 <- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2011/Parameters/Transition_Rates/modifiers/Rate_Modifier_Q4_6-26-17.csv")
-new_rates <- modify.rate(Modifier_Q4$Transition_Number, regioncols, Modifier_Q4,sa_cty_transitions_lum)
+#Modifier_Q4 <-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2013/Parameters/Transition_Rates/modifiers/flat.csv")
+#new_rates <- modify.rate(Modifier_Q4$Transition_Number, regioncols, Modifier_Q4,sa_cty_transitions_lum)
 
 
 
@@ -231,10 +231,13 @@ for(county in 1:8){
   
   for(time in seq_len(tsteps)){
     # Need to change TRANSITIONS for loop call so that it calls the name, not the list # remove ?
-    
+	print(time)
+
     for(t in 1:length(TRANSITIONS)){
       dec <- TRANSITIONS[[t]][2]; inc <- TRANSITIONS[[t]][1]
       decdf <- cty[cty$LABEL %in% unlist(dec),]; incdf <- cty[cty$LABEL %in% unlist(inc),]
+
+	 
 	   # modifier <- ddply(decdf, .(LABEL),summarise,  Sum = sum(get(cnames[county]))); modifier$Prop <- modifier$Sum / sum(modifier$Sum)
       Tdec <- sum(decdf[,2], na.rm = T); Tinc <- sum(incdf[,2], na.rm = T)
       tempA <- area[time,t] - Tdec 
@@ -250,7 +253,7 @@ for(county in 1:8){
           # cty[which(cty$LABEL %in% modifier$LABEL), cnames[county]]  <- modifier$Prop * area[time, t]
           #area[(time+1):11,which(names(area) %in% modifier$ToLU)] <- mapply('-',area[(time + 1):11,which(names(area) %in% modifier$ToLU)], modifier$Sum)
           #lapply(as.character(modifier$ToLU), function(LU)  area[time+1,LU] - modifier[which(modifier$ToLU == LU),"Sum"])
-		   trigger <- decdf$LABEL
+
           WarningDF <- rbind(WarningDF,c(cnames[county],time,names(TRANSITIONS[t]))) ## writes to a csv the year/timestep/county if a landuse is used up
         }
       }else if(area[time,t] == 0 & time == 1){
@@ -261,11 +264,12 @@ for(county in 1:8){
           area[time+1,t] <- newA
         }
       }
-	   
+
       
       }
 	      if(trigger[1] != 0) cty[which(cty$LABEL %in% trigger), cnames[county]] <- 0
-
+		
+		
       }
     
   area$Total <- rowSums(area)
@@ -285,9 +289,8 @@ for(county in 1:8){
 ####################
 ####################
 # I stuck this to write the area files down. pay close attention to what it is exporting...   
-  write.csv(area, file=paste0("V:/IaraSpatialLayers/Dinamica_Runs/", county, time, t, "test.csv"),row.names=FALSE, quote=FALSE)
+  # write.csv(area, file=paste0("V:/IaraSpatialLayers/Dinamica_Runs/Predicted_Hist/Q3/", county, time, t, "test_stakeholder.csv"),row.names=FALSE, quote=FALSE)
 
-  
   TRdf <- rbind(TRdf,melt(out,id = c("From","To","County")))
     
 }
@@ -306,16 +309,16 @@ FINAL$Rate <- as.numeric(substr(as.character(FINAL$Rate),1,10))
 
 
 # Q1:
-write.csv(FINAL, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2011/Parameters/Transition_Rates/sa_Trans_Rates_FGC-DFGC_Q1_0717.csv",row.names=FALSE, quote=FALSE)
+#write.csv(FINAL, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2011/Parameters/Transition_Rates/sa_Trans_Rates_FGC-DFGC_flat.csv",row.names=FALSE, quote=FALSE)
 
 # Q2:
-write.csv(FINAL, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2011/Parameters/Transition_Rates/sa_Trans_Rates_FGC-DFGC_Q2_0818.csv",row.names=FALSE, quote=FALSE)
+#write.csv(FINAL, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2011/Parameters/Transition_Rates/sa_Trans_Rates_FGC-DFGC_Q2_stakeholder.csv",row.names=FALSE, quote=FALSE)
 
 # Q3:
-write.csv(FINAL, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2011/Parameters/Transition_Rates/sa_Trans_Rates_FGC-DFGC_Q3_0717.csv",row.names=FALSE, quote=FALSE)
+write.csv(FINAL, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2011/Parameters/Transition_Rates/sa_Trans_Rates_FGC-DFGC_Q3_stakeholder.csv",row.names=FALSE, quote=FALSE)
 
 # Q4:
-write.csv(FINAL, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2011/Parameters/Transition_Rates/sa_Trans_Rates_FGC-DFGC_Q4_0717.csv",row.names=FALSE, quote=FALSE)
+#write.csv(FINAL, file="V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2011/Parameters/Transition_Rates/sa_Trans_Rates_FGC-DFGC_Q4_stakeholder.csv",row.names=FALSE, quote=FALSE)
 # write.csv(WarningDF,"V:/IaraSpatialLayers/Dinamica_Runs/PatchesTransitions_SA/SA_V201/Transition_Rates/Warnings.csv")
 
 new2<-Sys.time()-old2

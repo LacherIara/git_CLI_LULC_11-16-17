@@ -3,11 +3,11 @@
 #INPUT: Region layer and county table with "Din_cty" and "GEOID", intial landscape layer, final landscape layer. # check
 #OUTPUT: Zonal histogram of transitions between initial and final, zonal historgram of final landscape, raster of change in landscape. # check
 #DEVELOPED: 
-	#	V1	2/18/2016 - Valentine Herrmann 
-	#	V2	5/2016 - Valentine Herrmann 
-	#	V3	6/1/2016 - Iara Lacher - Created raster with persistent land use in addition to changes in land use.
-	#	V4	3/30/2017 - Iara Lacher - Loop through recent trends and scenarios 50 years out
-  # V5 4/3/2018 - Sarah Halperin - Options for each scenario over 5 timesteps 
+#	V1	2/18/2016 - Valentine Herrmann 
+#	V2	5/2016 - Valentine Herrmann 
+#	V3	6/1/2016 - Iara Lacher - Created raster with persistent land use in addition to changes in land use.
+#	V4	3/30/2017 - Iara Lacher - Loop through recent trends and scenarios 50 years out
+# V5 4/3/2018 - Sarah Halperin - Options for each scenario over 5 timesteps 
 
 #CONTACT: LacherI@si.edu 
 #NOTES: 
@@ -58,7 +58,7 @@ library(ggpubr)
 #Set Version and version input 
 version<-"/StudyArea_V201/SA_V2016"
 version_input<-paste0("U:/CLI/Dinamica_Runs",version, "/FutureLandscapes/")
-Scenario<-"Q4/" #set scenario desired to run. If want all scenarios to run say "All" for all scenarios (NOTE: when all scenarios you must use the second set of code)
+Scenario<-"NL/" #set scenario desired to run. If want all scenarios to run say "All" for all scenarios (NOTE: when all scenarios you must use the second set of code)
 
 # ----------------------------------------------
 # FILE PATHS
@@ -109,12 +109,9 @@ counties_vals <- getValues(regions) #defining the region
 # str(counties_vals)
 # int [1:64956544] NA NA NA NA NA NA NA NA NA NA ...
 
-# COUNTY TABLES
-sa_ctyGEOID<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SAcntyOnly.csv")#SCBI V: #Geological ID for the county. 
 
-#Change for REGIONS 
 sa_ctyGEOID<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/CountyNmsGEOID.csv")
-  
+
 #sa_ctyGEOID<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/FullGEOID.csv") #Geological ID for the region. May want to change to say region in the future. Regions 
 
 
@@ -196,72 +193,72 @@ LS_trans<-do.call(c,(list(Q1, Q2, Q3, Q4,RT))) #create list for ALL SCENARIOS
 old <- Sys.time() # TIMING SCRIPT
 
 #-----------------------------------------------------#
-#USE FOR NCLD and individual scenarios 
+#USE FOR NCLD and individual scenarios. Change .tif to .img for NLCD
 for(in_to_fin in names(LS_trans)){ # Makes code flexible for use with more than 2 landscapes. ##CF- so not actual loop here?
-
-Final_Landscape <-paste0(inRasterLoc, LS_trans[[in_to_fin]][1]) #full file path using inRasterLoc as the base
-#Final_hist_output <- paste0(Comb_output, gsub(".img","_hist.txt",LS_trans[[in_to_fin]][1])) #For NCLD 
-Final_hist_output <- paste0(Comb_output, gsub(".tif","_hist.txt",LS_trans[[in_to_fin]][1])) #naming the file output. Taking the name of the raster to make the name of the output table. Remove tif. put _hist.txt
-Final_Landscape <- raster(Final_Landscape) 
-fin_vals <- getValues(Final_Landscape) 
+  
+  Final_Landscape <-paste0(inRasterLoc, LS_trans[[in_to_fin]][1]) #full file path using inRasterLoc as the base
+  #Final_hist_output <- paste0(Comb_output, gsub(".img","_hist.txt",LS_trans[[in_to_fin]][1])) #For NCLD 
+  Final_hist_output <- paste0(Comb_output, gsub(".tif","_hist.txt",LS_trans[[in_to_fin]][1])) #naming the file output. Taking the name of the raster to make the name of the output table. Remove tif. put _hist.txt
+  Final_Landscape <- raster(Final_Landscape) 
+  fin_vals <- getValues(Final_Landscape) 
   #plot of different land use types. 
-
-
-#----------------------------------------------------#
-
-
-
-# ZONAL HISTOGRAM ON FINAL LANDSCAPE 
-# ----------------------------------------------
-# ----------------------------------------------
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Select desired transitions 
-final <- ifelse(fin_vals %in%  c("3","5","6","7"), fin_vals, 0)
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
-#add county values
-final <- paste0(final, ".", counties_vals)
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
-#summarise pixels
-final_hist0 <- summary(factor(final), maxsum = length(unique(final))) # had to add mmaxsum = length(unique(final)) because otherwise doesn't show all possible values and there is a column called "others" - Val
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
-#remove values that we don't want
-final_hist0 <- final_hist0[-grep("^(-?)0.", names(final_hist0))]
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
-#Reorganize #CF- create table with county as row, landuse as column
-final_hist <- sa_ctyGEOID
-
-for(i in final_hist$Din_cty){
- 
- for (j in c("3","5","6","7")){ 
-   if(any(names(final_hist0) == paste(j, i, sep = "."))){
-     final_hist[final_hist$Din_cty == i, as.character(j)] <- final_hist0[names(final_hist0) == paste(j, i, sep = ".")]
-   }}}
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Reformat Table #CF- create table with county as column, landuse as row
-final_hist <- t(final_hist[-1])
-colnames(final_hist) <- paste0("GEOID_", final_hist[1,])
-final_hist <- final_hist[-1,]
-final_hist <- cbind(data.frame(Rowid_ = 1:nrow(final_hist),LABEL = rownames(final_hist)), final_hist)
-final_hist<-arrange(final_hist, LABEL)   
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Remove NAs #CF- conveRT NA to 0
-final_hist[is.na(final_hist)]<-0
-
-#result is for first timestep
-#need it to iteratate through the scenarios --> list for RT and paste that goes through that
-#want all the time steps to then combine to a new table 
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# WRITE TO FILE
-write.table(final_hist, file = Final_hist_output, row.names=FALSE, col.names=TRUE, sep=",")  
-
+  
+  
+  #----------------------------------------------------#
+  
+  
+  
+  # ZONAL HISTOGRAM ON FINAL LANDSCAPE 
+  # ----------------------------------------------
+  # ----------------------------------------------
+  
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Select desired transitions 
+  final <- ifelse(fin_vals %in%  c("3","5","6","7"), fin_vals, 0)
+  
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~
+  #add county values
+  final <- paste0(final, ".", counties_vals)
+  
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~
+  #summarise pixels
+  final_hist0 <- summary(factor(final), maxsum = length(unique(final))) # had to add mmaxsum = length(unique(final)) because otherwise doesn't show all possible values and there is a column called "others" - Val
+  
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~
+  #remove values that we don't want
+  final_hist0 <- final_hist0[-grep("^(-?)0.", names(final_hist0))]
+  
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~
+  #Reorganize #CF- create table with county as row, landuse as column
+  final_hist <- sa_ctyGEOID
+  
+  for(i in final_hist$Din_cty){
+    
+    for (j in c("3","5","6","7")){ 
+      if(any(names(final_hist0) == paste(j, i, sep = "."))){
+        final_hist[final_hist$Din_cty == i, as.character(j)] <- final_hist0[names(final_hist0) == paste(j, i, sep = ".")]
+      }}}
+  
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Reformat Table #CF- create table with county as column, landuse as row
+  final_hist <- t(final_hist[-1])
+  colnames(final_hist) <- paste0("GEOID_", final_hist[1,])
+  final_hist <- final_hist[-1,]
+  final_hist <- cbind(data.frame(Rowid_ = 1:nrow(final_hist),LABEL = rownames(final_hist)), final_hist)
+  final_hist<-arrange(final_hist, LABEL)   
+  
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Remove NAs #CF- conveRT NA to 0
+  final_hist[is.na(final_hist)]<-0
+  
+  #result is for first timestep
+  #need it to iteratate through the scenarios --> list for RT and paste that goes through that
+  #want all the time steps to then combine to a new table 
+  
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # WRITE TO FILE
+  write.table(final_hist, file = Final_hist_output, row.names=FALSE, col.names=TRUE, sep=",")  
+  
 }
 
 
@@ -395,37 +392,7 @@ Combined<-do.call(rbind.data.frame,Tables)
 Combined<-rbind(NLCD,Combined)
 
 
-#USE FOR COUNTY 
-#---------------------------------------#
-#Land Cover Type #3 
-LABEL3<-Combined %>%
-  filter(LABEL==3)
-LABEL3<-LABEL3[,3:23]
-  LABEL3<-t(LABEL3)
-LABEL3<-LABEL3[1:20,]
-colnames(LABEL3)<-c("2001.3","2011.3","2021.3","2031.3","2041.3", "2051.3","2061.3")
-#Land Cover Type #5
-LABEL5<-Combined %>%
-  filter(LABEL==5)
-LABEL5<-LABEL5[,3:23]
-LABEL5<-t(LABEL5)
-LABEL5<-LABEL5[1:20,]
-colnames(LABEL5)<-c("2001.5","2011.5","2021.5","2031.5","2041.5", "2051.5","2061.5")
-#Land Cover Type #6
-LABEL6<-Combined %>%
-  filter(LABEL==6)
-LABEL6<-LABEL6[,3:23]
-LABEL6<-t(LABEL6)
-LABEL6<-LABEL6[1:20,]
-colnames(LABEL6)<-c("2001.6","2011.6","2021.6","2031.6","2041.6", "2051.6","2061.6")
-#Land Cover Type #7
-LABEL7<-Combined %>%
-  filter(LABEL==7)
-LABEL7<-LABEL7[,3:23]
-LABEL7<-t(LABEL7)
-LABEL7<-LABEL7[1:20,]
-colnames(LABEL7)<-c("2001.7","2011.7","2021.7","2031.7","2041.7", "2051.7","2061.7")
-#--------------------------------------------------------#
+#Will need to adjust when have NLCD 2011 
 
 #Use for REGION 
 LABEL3<-Combined %>%
@@ -575,7 +542,7 @@ write.csv(CombinedRegionLC, paste0(Comb_outputRegion,"CombinedRegionLC", ".csv")
 
 
 
-#PERCENT CHANGE INDIVIDUAL COUNTIES
+#PERCENT CHANGE INDIVIDUAL Regions
 CombinedMeltLC$Rowid_<-NULL
 
 CombinedMeltLCT2<-subset(CombinedMeltLC, CombinedMeltLC$TimeStep ==2)
@@ -601,33 +568,16 @@ ForestM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "5")
 GrassM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "6")
 CropM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "7")
 
-#Subset by county examples
-Loudoun<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51107")
-Frederick<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51069")
-Fauquier<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51061")
-Shenandoah<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51171")
-Albemarle<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51003")
-Rockingham<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51165")
+#Subset by Region
+GEOID_51001<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51001")
+
 
 
 
 
 #subset by county and land cover type 
-FauquierD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51061")
-FauquierF<-subset(ForestM, ForestM$variable == "GEOID_51061")
-FauquierG<-subset(GrassM, GrassM$variable == "GEOID_51061")
-FauquierC<-subset(CropM, CropM$variable == "GEOID_51061")
+GEOID_51001D<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51001")
 
-
-FrederickD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51069")
-FrederickF<-subset(ForestM, ForestM$variable == "GEOID_51069")
-FrederickG<-subset(GrassM, GrassM$variable == "GEOID_51069")
-FrederickC<-subset(CropM, CropM$variable == "GEOID_51069")
-
-AlbemarleD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51003")
-AlbemarleF<-subset(ForestM, ForestM$variable == "GEOID_51003")
-AlbemarleG<-subset(GrassM, GrassM$variable == "GEOID_51003")
-AlbemarleC<-subset(CropM, CropM$variable == "GEOID_51003")
 
 
 #IF GRAPH LOOKS weird make sure LABEL is set as a factor 
@@ -636,46 +586,28 @@ AlbemarleC<-subset(CropM, CropM$variable == "GEOID_51003")
 #when saved for ggarrange crop,development, forest, grass 
 
 #CHANGE TO SIZE 40 IF GRAPHS ARE NOT GOING TO BE ARRANGED
-  windows()
-  
-  #FAUQUIER
-  v2015_Fauq_development<-ggplot(FauquierD, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
-    geom_line(size=2)+
-    scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c("2011", "2021", "2031", "2041", "2051", "2061"))+
-    scale_colour_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
-    #Forest#scale_y_continuous(name =expression('Total Area km'^2), limits = c(650,800), breaks=c(650,675,700,725,750,775,800))+
-    #grass# scale_y_continuous(name =expression('Total Area km'^2), limits=c(550,650), breaks=c(550,575,600,625))+
-    #development#
-    scale_y_continuous(name =expression('Total Area km'^2),  limits=c(0,200), breaks=c(50,100,150,200))+
-    #crop#scale_y_continuous(name =expression('Total Area km'^2), limits=c(100,175), breaks=c(100,125,150,175))+
-    theme_bw()+
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
-    theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
-    theme(axis.text=element_text(size=20, colour="black"),
-          axis.title.x=element_text(size=20), axis.title.y =element_text(size=20, face="bold"), legend.text=element_text(size=20), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
-    theme(plot.margin=unit(c(1,1,1,1), "in"))+
-    geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), size=20, show.legend=FALSE)+
-    theme(panel.border=element_blank())+
-    theme(axis.line = element_line(size=1.5, colour="black")) 
-  
-  #FREDERICK
-v2015_Fred_forest<-ggplot(FauquierF, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
+windows()
+
+#GEOID_51001
+ggplot(GEOID_51001D, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
   geom_line(size=2)+
   scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c("2011", "2021", "2031", "2041", "2051", "2061"))+
   scale_colour_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
-  #Forest# scale_y_continuous(name =expression('Total Area km'^2), limits=c(525,625), breaks=c(525,550,575,600,625))+
-  #grass#scale_y_continuous(name =expression('Total Area km'^2), limits=c(250,350), breaks=c(250,275,300,325,350))+
-  #development#scale_y_continuous(name =expression('Total Area km'^2), limits=c(50,200), breaks=c(50,100,150,200))+
-  #crop#scale_y_continuous(name =expression('Total Area km'^2), limits=c(5,20), breaks=c(5,10,15,20))+
+  #Forest#scale_y_continuous(name =expression('Total Area km'^2), limits = c(650,800), breaks=c(650,675,700,725,750,775,800))+
+  #grass# scale_y_continuous(name =expression('Total Area km'^2), limits=c(550,650), breaks=c(550,575,600,625))+
+  #development#
+  scale_y_continuous(name =expression('Total Area km'^2),  limits=c(0,200), breaks=c(50,100,150,200))+
+  #crop#scale_y_continuous(name =expression('Total Area km'^2), limits=c(100,175), breaks=c(100,125,150,175))+
   theme_bw()+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
   theme(axis.text=element_text(size=20, colour="black"),
         axis.title.x=element_text(size=20), axis.title.y =element_text(size=20, face="bold"), legend.text=element_text(size=20), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
   theme(plot.margin=unit(c(1,1,1,1), "in"))+
-geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), size=10, show.legend=FALSE)+
-    theme(panel.border=element_blank())+
-    theme(axis.line = element_line(size=1.5, colour="black")) 
+  geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), size=20, show.legend=FALSE)+
+  theme(panel.border=element_blank())+
+  theme(axis.line = element_line(size=1.5, colour="black")) 
+
 
 
 #-----------------------------------------------------------#
@@ -786,7 +718,7 @@ ggplot(GrassPC, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
   theme(axis.text=element_text(size=40),
         axis.title.x=element_text(size=40,face="bold"), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
   theme(plot.margin=unit(c(1,1,1,1), "in"))#+
-  #geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), hjust=2,vjust=2, size=5, show.legend=FALSE)
+#geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), hjust=2,vjust=2, size=5, show.legend=FALSE)
 
 
 #export graph 

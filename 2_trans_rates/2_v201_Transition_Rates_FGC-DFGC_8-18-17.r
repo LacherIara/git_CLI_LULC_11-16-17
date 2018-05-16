@@ -256,7 +256,6 @@ for(county in 1:8){
       }
     
   area$Total <- rowSums(area)
- 
   TR <- ldply(TRANSITIONS)
   TR <- merge(TR,RT_CTY, by.x = 'dec',by.y = 'LABEL'); names(TR) <- c("TR", "LandUse","OID","CTY") # I remember that I have come across this question before. Why just the decreasing column??
 		   # TR <- full_join(TR,RT_CTY, by = 'LABEL'); names(TR) <- c("TR", "LandUse","OID","CTY") # try full_join instead?
@@ -270,7 +269,8 @@ for(county in 1:8){
   out <- cbind(rates[,3:(tsteps+2)], rates[c("County","From","To")])# the 2nd col of rates is year0 (current time). the third is year1.
   colnames(out)<-c("V1", "V2", "V3", "V4", "V5", "County", "From", "To") #this sets year 1 to the rate that represents an incremental increase from the year before. a more conservative approach would be to leave the rate for the first projected year as equal to the difference between nlcd 2001-2011.
   
-  
+   write.csv(area, file=paste0("V:/IaraSpatialLayers/Dinamica_Runs/", county, time, t, "test.csv"),row.names=FALSE, quote=FALSE)
+
   TRdf <- rbind(TRdf,melt(out,id = c("From","To","County")))
    
 # write... insert county name.. in output...    
