@@ -77,7 +77,8 @@ ggplot(FrederickC, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
   scale_y_continuous(name =expression('Total Area km'^2))+
   theme_bw()+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
-  theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
+  theme(axis.title.y = element_text(margin = margin(t = 20, r = 20, b = 20, l = 20)))+
+  theme(axis.title.y = element_text(margin = margin(t = 20, r = 20, b = 20, l = 20)))+
   theme(axis.text=element_text(size=40),
         axis.title.x=element_text(size=40,face="bold"), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
   theme(plot.margin=unit(c(1,1,1,1), "in"))+

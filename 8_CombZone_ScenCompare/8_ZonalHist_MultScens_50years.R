@@ -112,9 +112,7 @@ counties_vals <- getValues(regions) #defining the region
 # COUNTY TABLES
 sa_ctyGEOID<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SAcntyOnly.csv")#SCBI V: #Geological ID for the county. 
 
-#Change for REGIONS 
-sa_ctyGEOID<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/CountyNmsGEOID.csv")
-  
+
 #sa_ctyGEOID<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/FullGEOID.csv") #Geological ID for the region. May want to change to say region in the future. Regions 
 
 
@@ -358,7 +356,7 @@ Comb_outputReshape<-paste0(version_table,"Tables/")
 #BRING IN TABLES FOR NCLD. Leave on inorder to have scenario tables starting at 2001 and go to 2061. Full time frame. cHANGE IF ONLY WANT FROM 2011 
 
 
-Folder<-list.files(paste0(version_table, "NLCD"), pattern=".txt", full.names = TRUE) #Read in NCLD files 
+Folder<-list.files(paste0(version_table, "NL"), pattern=".txt", full.names = TRUE) #Read in NCLD files 
 NCLD<-lapply(Folder,function(i){
   read.csv(i)
 })

@@ -58,7 +58,7 @@ library(ggpubr)
 #Set Version and version input 
 version<-"/StudyArea_V201/SA_V2016"
 version_input<-paste0("U:/CLI/Dinamica_Runs",version, "/FutureLandscapes/")
-Scenario<-"NL/" #set scenario desired to run. If want all scenarios to run say "All" for all scenarios (NOTE: when all scenarios you must use the second set of code)
+Scenario<-"All/" #set scenario desired to run. If want all scenarios to run say "All" for all scenarios (NOTE: when all scenarios you must use the second set of code)
 
 # ----------------------------------------------
 # FILE PATHS
@@ -355,7 +355,7 @@ Comb_outputReshape<-paste0(version_table,"Tables/")
 #BRING IN TABLES FOR NCLD. Leave on inorder to have scenario tables starting at 2001 and go to 2061. Full time frame. cHANGE IF ONLY WANT FROM 2011 
 
 
-Folder<-list.files(paste0(version_table, "NLCD"), pattern=".txt", full.names = TRUE) #Read in NCLD files 
+Folder<-list.files(paste0(version_table, "NL"), pattern=".txt", full.names = TRUE) #Read in NCLD files 
 NCLD<-lapply(Folder,function(i){
   read.csv(i)
 })
@@ -368,7 +368,7 @@ NLCD<-do.call(rbind.data.frame,NCLD)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #Change based on scenario
 #BRING IN TABLES
-Scenario<-"Q4/"
+Scenario<-"RT/"
 
 Folder<-list.files(paste0(version_table,Scenario), pattern=".txt", full.names = TRUE) 
 Tables<-lapply(Folder,function(i){
@@ -388,44 +388,44 @@ Tables[[4]]$TimeStep<-6
 Tables[[5]]$TimeStep<-7
 
 Combined<-do.call(rbind.data.frame,Tables)
-#NCLD<-do.call(rbind.data.frame,NCLD) #only do once
 Combined<-rbind(NLCD,Combined)
 
 
 #Will need to adjust when have NLCD 2011 
 
 #Use for REGION 
+#Land Cover Type #3
 LABEL3<-Combined %>%
   filter(LABEL==3)
-LABEL3<-LABEL3[,3:10]
+LABEL3<-LABEL3[,2:11]
 LABEL3<-t(LABEL3)
-LABEL3<-LABEL3[1:8,]
-colnames(LABEL3)<-c("2021.3","2031.3","2041.3", "2051.3","2061.3")
+LABEL3<-LABEL3[1:9,]
+colnames(LABEL3)<-c("2001.3", "2011.3", "2021.3","2031.3","2041.3", "2051.3","2061.3")
 #Land Cover Type #5
 LABEL5<-Combined %>%
   filter(LABEL==5)
-LABEL5<-LABEL5[,3:10]
+LABEL5<-LABEL5[,2:11]
 LABEL5<-t(LABEL5)
-LABEL5<-LABEL5[1:8,]
-colnames(LABEL5)<-c("2021.3","2031.3","2041.3", "2051.3","2061.3")
+LABEL5<-LABEL5[1:9,]
+colnames(LABEL5)<-c("2001.5", "2011.5","2021.5","2031.5","2041.5", "2051.5","2061.5")
 #Land Cover Type #6
 LABEL6<-Combined %>%
   filter(LABEL==6)
-LABEL6<-LABEL6[,3:10]
+LABEL6<-LABEL6[,2:11]
 LABEL6<-t(LABEL6)
-LABEL6<-LABEL6[1:8,]
-colnames(LABEL6)<-c("2021.3","2031.3","2041.3", "2051.3","2061.3")
+LABEL6<-LABEL6[1:9,]
+colnames(LABEL6)<-c("2001.6", "2011.6", "2021.6","2031.6","2041.6", "2051.6","2061.6")
 #Land Cover Type #7
 LABEL7<-Combined %>%
   filter(LABEL==7)
-LABEL7<-LABEL7[,3:10]
+LABEL7<-LABEL7[,2:11]
 LABEL7<-t(LABEL7)
-LABEL7<-LABEL7[1:8,]
-colnames(LABEL7)<-c("2021.3","2031.3","2041.3", "2051.3","2061.3")
+LABEL7<-LABEL7[1:9,]
+colnames(LABEL7)<-c("2001.7", "2011.7"," 2021.7","2031.7","2041.7", "2051.7","2061.7")
 
 
 #Save CSV #MAKE SURE CHANGE BASED ON SCENARIO DESIRED 
-Scenario<-"Q4" #delete / 
+Scenario<-"RT" #delete / 
 
 
 CombinedReshape<-cbind(LABEL3, LABEL5,LABEL6,LABEL7) 
@@ -505,9 +505,6 @@ CSV_Melt<-lapply(FolderM,function(i){
   read.csv(i)
 })
 
-CSV_Melt[[1]]$Scenario<-"Q3"
-CSV_Melt[[2]]$Scenario<-"Q4"
-
 #ADD SCENARIO 
 CSV_Melt[[1]]$Scenario<-"Q1"
 CSV_Melt[[2]]$Scenario<-"Q2"
@@ -516,7 +513,6 @@ CSV_Melt[[4]]$Scenario<-"Q4"
 CSV_Melt[[5]]$Scenario<-"RT"
 
 CombinedMeltLC<-do.call(rbind.data.frame,CSV_Melt)
-CombinedMeltLC$valuekm<-CombinedMeltLC$value*(900/1000000) #if valuekm exists do not need
 CombinedMeltLC<-subset(CombinedMeltLC, CombinedMeltLC$TimeStep > 1) #IF STILL NEED AFTER 2001
 write.csv(CombinedMeltLC, paste0(Comb_outputMelt,"CombinedMeltLC", ".csv"), row.names=FALSE)
 
@@ -527,8 +523,6 @@ CSV_Region<-lapply(FolderR,function(i){
   read.csv(i)
 })
 
-CSV_Region[[1]]$Scenario<-"Q3"
-CSV_Region[[2]]$Scenario<-"Q4"
 
 CSV_Region[[1]]$Scenario<-"Q1"
 CSV_Region[[2]]$Scenario<-"Q2"
@@ -567,6 +561,7 @@ DevelopmentM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "3")
 ForestM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "5")
 GrassM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "6")
 CropM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "7")
+
 
 #Subset by Region
 GEOID_51001<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51001")
@@ -675,13 +670,13 @@ ggsave(file="v2015_Fauq_development.png", dpi=300,width=15, height=15)
 CombinedRegionLCT2<-subset(CombinedRegionLC, CombinedRegionLC$TimeStep ==2)
 CombinedRegionLCT7<-subset(CombinedRegionLC, CombinedRegionLC$TimeStep ==7)
 CombinedRegionLC27<-cbind(CombinedRegionLCT2,CombinedRegionLCT7)
-CombinedRegionLC27<-CombinedRegionLC27[,c(1,2,4,5,7,10)]
+CombinedRegionLC27<-CombinedRegionLC27[,c(1,2,3,4,6,7)]
 CombinedRegionLC27<-mutate(CombinedRegionLC27, PercentChange=((valuekm.1-valuekm)/valuekm)*100) #calculate percent change after only haveing time step 2 and 7
 CombinedRegionLC27$PercentChange<-round(CombinedRegionLC27$PercentChange, digits = 2)
 
 
 CombinedRegionLC27$TimeStep<-7
-PercentChange<-CombinedRegionLC27[,c(1,2,3,7)]
+PercentChange<-CombinedRegionLC27[,c(1,2,4,7)]
 
 CombinedRegionPC<-merge(CombinedRegionLC,PercentChange, by=c("Scenario","TimeStep","LABEL"), all.x=TRUE)
 
@@ -691,11 +686,6 @@ ForestPC<-subset(CombinedRegionPC, CombinedRegionPC$LABEL == "5")
 GrassPC<-subset(CombinedRegionPC, CombinedRegionPC$LABEL == "6")
 CropPC<-subset(CombinedRegionPC, CombinedRegionPC$LABEL == "7")
 
-#USE FOR NOW (WITHOUT Percent)
-DevelopmentPC<-subset(CombinedRegionLC, CombinedRegionLC$LABEL == "3")
-ForestPC<-subset(CombinedRegionLC, CombinedRegionLC$LABEL == "5")
-GrassPC<-subset(CombinedRegionLC, CombinedRegionLC$LABEL == "6")
-CropPC<-subset(CombinedRegionLC, CombinedRegionLC$LABEL == "7")
 
 
 #Remove Timestep 1
@@ -704,21 +694,24 @@ ForestPC<-subset(ForestPC, ForestPC$TimeStep > 1)
 GrassPC<-subset(GrassPC, GrassPC$TimeStep >1)
 CropPC<-subset(CropPC, CropPC$TimeStep>1)
 #-------------------------------------------------------------------------#
+library(ggrepel)
 library(ggplot2)
 
+
 windows()
-ggplot(GrassPC, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
+ggplot(DevelopmentPC, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
   geom_line(size=2)+
   scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c( "2011", "2021", "2031", "2041", "2051", "2061"))+
   scale_colour_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
   scale_y_continuous(name =expression('Total Area km'^2))+
   theme_bw()+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
-  theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
+  theme(axis.title.y = element_text(margin = margin(t = 20, r = 20, b = 20, l = 20)))+
+  theme(axis.title.x = element_text(margin = margin(t = 20, r = 20, b = 20, l = 20)))+
   theme(axis.text=element_text(size=40),
         axis.title.x=element_text(size=40,face="bold"), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
-  theme(plot.margin=unit(c(1,1,1,1), "in"))#+
-#geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), hjust=2,vjust=2, size=5, show.legend=FALSE)
+  theme(plot.margin=unit(c(1,1,1,1), "in"))+
+geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), hjust=2,vjust=2, size=10, show.legend=FALSE)
 
 
 #export graph 
