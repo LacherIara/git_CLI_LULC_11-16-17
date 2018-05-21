@@ -58,7 +58,7 @@ library(ggpubr)
 #Set Version and version input 
 version<-"/StudyArea_V201/SA_V2016"
 version_input<-paste0("U:/CLI/Dinamica_Runs",version, "/FutureLandscapes/")
-Scenario<-"All/" #set scenario desired to run. If want all scenarios to run say "All" for all scenarios (NOTE: when all scenarios you must use the second set of code)
+Scenario<-"NL/" #set scenario desired to run. If want all scenarios to run say "All" for all scenarios (NOTE: when all scenarios you must use the second set of code)
 
 # ----------------------------------------------
 # FILE PATHS
@@ -102,7 +102,7 @@ Comb_output<-paste0(Comb_output, Scenario)
 # nl11 <- raster("U:/CLI/PreparedRasters/StudyAreaBndy/nlcd11_anC.img")
 
 # COUNTY RASTERS #currently set to regions 
-regions <- raster(paste(cntyRasterLoc, "region_an2", ".img", sep="")) # this is for the raster.
+regions <- raster(paste(cntyRasterLoc, "region_sa_an_sh", ".tif", sep="")) # this is for the raster.
 counties_vals <- getValues(regions) #defining the region 
 #NOTE: Craig said the only correct region raster was region_an2. I updated to region_an2 was region_an. I changed it to counties (regions_StudyArea.tif), which has now been renamed to ctny_StudyArea
 
@@ -110,7 +110,7 @@ counties_vals <- getValues(regions) #defining the region
 # int [1:64956544] NA NA NA NA NA NA NA NA NA NA ...
 
 
-sa_ctyGEOID<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/CountyNmsGEOID.csv")
+sa_ctyGEOID<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/CountyNmsGEOID_sa.csv")
 
 #sa_ctyGEOID<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/FullGEOID.csv") #Geological ID for the region. May want to change to say region in the future. Regions 
 
@@ -198,7 +198,7 @@ for(in_to_fin in names(LS_trans)){ # Makes code flexible for use with more than 
   
   Final_Landscape <-paste0(inRasterLoc, LS_trans[[in_to_fin]][1]) #full file path using inRasterLoc as the base
   #Final_hist_output <- paste0(Comb_output, gsub(".img","_hist.txt",LS_trans[[in_to_fin]][1])) #For NCLD 
-  Final_hist_output <- paste0(Comb_output, gsub(".tif","_hist.txt",LS_trans[[in_to_fin]][1])) #naming the file output. Taking the name of the raster to make the name of the output table. Remove tif. put _hist.txt
+  Final_hist_output <- paste0(Comb_output, gsub(".img","_hist.txt",LS_trans[[in_to_fin]][1])) #naming the file output. Taking the name of the raster to make the name of the output table. Remove tif. put _hist.txt
   Final_Landscape <- raster(Final_Landscape) 
   fin_vals <- getValues(Final_Landscape) 
   #plot of different land use types. 
@@ -347,7 +347,7 @@ version_table<-paste0("U:/CLI/Dinamica_Runs",version, "/BasicDataAnalyses/Zonal_
 #Set Output
 Comb_outputMelt<-paste0(version_table,"Tables/Melt/")
 Comb_outputRegion<-paste0(version_table,"Tables/Region/")
-Comb_outputReshape<-paste0(version_table,"Tables/")
+Comb_outputReshape<-paste0(version_table,"Tables/Reshape/")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~
 #TABLES FOR INDIVIDUAL SCENARIOS 
@@ -368,7 +368,7 @@ NLCD<-do.call(rbind.data.frame,NCLD)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #Change based on scenario
 #BRING IN TABLES
-Scenario<-"RT/"
+Scenario<-"Q4/"
 
 Folder<-list.files(paste0(version_table,Scenario), pattern=".txt", full.names = TRUE) 
 Tables<-lapply(Folder,function(i){
@@ -425,7 +425,7 @@ colnames(LABEL7)<-c("2001.7", "2011.7"," 2021.7","2031.7","2041.7", "2051.7","20
 
 
 #Save CSV #MAKE SURE CHANGE BASED ON SCENARIO DESIRED 
-Scenario<-"RT" #delete / 
+Scenario<-"Q4" #delete / 
 
 
 CombinedReshape<-cbind(LABEL3, LABEL5,LABEL6,LABEL7) 
@@ -514,7 +514,7 @@ CSV_Melt[[5]]$Scenario<-"RT"
 
 CombinedMeltLC<-do.call(rbind.data.frame,CSV_Melt)
 CombinedMeltLC<-subset(CombinedMeltLC, CombinedMeltLC$TimeStep > 1) #IF STILL NEED AFTER 2001
-write.csv(CombinedMeltLC, paste0(Comb_outputMelt,"CombinedMeltLC", ".csv"), row.names=FALSE)
+write.csv(CombinedMeltLC, paste0(Comb_outputMelt,"CombinedMelt", ".csv"), row.names=FALSE)
 
 
 ##read in region sum csv to combine all scenarios 
@@ -531,8 +531,7 @@ CSV_Region[[4]]$Scenario<-"Q4"
 CSV_Region[[5]]$Scenario<-"RT"
 
 CombinedRegionLC<-do.call(rbind.data.frame,CSV_Region)
-CombinedRegionLC$valuekm<-CombinedRegionLC$value*(900/1000000) # if valuekm exists do not need 
-write.csv(CombinedRegionLC, paste0(Comb_outputRegion,"CombinedRegionLC", ".csv"), row.names=FALSE)
+write.csv(CombinedRegionLC, paste0(Comb_outputRegion,"CombinedRegion", ".csv"), row.names=FALSE)
 
 
 

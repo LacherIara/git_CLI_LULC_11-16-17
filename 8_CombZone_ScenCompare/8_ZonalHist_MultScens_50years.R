@@ -58,7 +58,7 @@ library(ggpubr)
 #Set Version and version input 
 version<-"/StudyArea_V201/SA_V2016"
 version_input<-paste0("U:/CLI/Dinamica_Runs",version, "/FutureLandscapes/")
-Scenario<-"Q4/" #set scenario desired to run. If want all scenarios to run say "All" for all scenarios (NOTE: when all scenarios you must use the second set of code)
+Scenario<-"NL/" #set scenario desired to run. If want all scenarios to run say "All" for all scenarios (NOTE: when all scenarios you must use the second set of code)
 
 # ----------------------------------------------
 # FILE PATHS
@@ -90,6 +90,7 @@ inRasterLoc <-paste0(inRasterLoc, Folders)
 version_output<-"BasicDataAnalyses/Zonal_Histogram/"
 Comb_output<-gsub("FutureLandscapes/", version_output, version_input)
 Comb_output<-paste0(Comb_output, Scenario)
+#Comb_output<-paste0(Comb_output, "Test/")
 # ----------------------------------------------
 # READ OUTPUT FILES:
 
@@ -102,7 +103,7 @@ Comb_output<-paste0(Comb_output, Scenario)
 # nl11 <- raster("U:/CLI/PreparedRasters/StudyAreaBndy/nlcd11_anC.img")
 
 # COUNTY RASTERS #currently set to regions 
-regions <- raster(paste(cntyRasterLoc, "region_an2", ".img", sep="")) # this is for the raster.
+regions <- raster(paste(cntyRasterLoc, "cnty_an", ".img", sep="")) # this is for the raster.
 counties_vals <- getValues(regions) #defining the region 
 #NOTE: Craig said the only correct region raster was region_an2. I updated to region_an2 was region_an. I changed it to counties (regions_StudyArea.tif), which has now been renamed to ctny_StudyArea
 
@@ -110,7 +111,7 @@ counties_vals <- getValues(regions) #defining the region
 # int [1:64956544] NA NA NA NA NA NA NA NA NA NA ...
 
 # COUNTY TABLES
-sa_ctyGEOID<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SAcntyOnly.csv")#SCBI V: #Geological ID for the county. 
+sa_ctyGEOID<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/CountyNmsGEOID_cnty.csv")#SCBI V: #Geological ID for the county. 
 
 
 #sa_ctyGEOID<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/FullGEOID.csv") #Geological ID for the region. May want to change to say region in the future. Regions 
@@ -127,7 +128,7 @@ sa_ctyGEOIDzero<-sa_ctyGEOID
 sa_ctyGEOIDzero$Din_cty<-sapply(sa_ctyGEOIDzero$Din_cty, function(x){if(nchar(x)<2){paste0(0,x)}else{x}}) #values 1-8 for the region. 
 
 
-#select only the Study Area counties to run basic analyses
+ #select only the Study Area counties to run basic analyses
 S20_GEOID <-  read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SAcntyOnly.csv")#SCBI V: #Geological ID for the county. 
 
 
@@ -199,7 +200,7 @@ for(in_to_fin in names(LS_trans)){ # Makes code flexible for use with more than 
 
 Final_Landscape <-paste0(inRasterLoc, LS_trans[[in_to_fin]][1]) #full file path using inRasterLoc as the base
 #Final_hist_output <- paste0(Comb_output, gsub(".img","_hist.txt",LS_trans[[in_to_fin]][1])) #For NCLD 
-Final_hist_output <- paste0(Comb_output, gsub(".tif","_hist.txt",LS_trans[[in_to_fin]][1])) #naming the file output. Taking the name of the raster to make the name of the output table. Remove tif. put _hist.txt
+Final_hist_output <- paste0(Comb_output, gsub(".img","_hist.txt",LS_trans[[in_to_fin]][1])) #naming the file output. Taking the name of the raster to make the name of the output table. Remove tif. put _hist.txt
 Final_Landscape <- raster(Final_Landscape) 
 fin_vals <- getValues(Final_Landscape) 
   #plot of different land use types. 
@@ -425,35 +426,6 @@ LABEL7<-LABEL7[1:20,]
 colnames(LABEL7)<-c("2001.7","2011.7","2021.7","2031.7","2041.7", "2051.7","2061.7")
 #--------------------------------------------------------#
 
-#Use for REGION 
-LABEL3<-Combined %>%
-  filter(LABEL==3)
-LABEL3<-LABEL3[,3:10]
-LABEL3<-t(LABEL3)
-LABEL3<-LABEL3[1:8,]
-colnames(LABEL3)<-c("2021.3","2031.3","2041.3", "2051.3","2061.3")
-#Land Cover Type #5
-LABEL5<-Combined %>%
-  filter(LABEL==5)
-LABEL5<-LABEL5[,3:10]
-LABEL5<-t(LABEL5)
-LABEL5<-LABEL5[1:8,]
-colnames(LABEL5)<-c("2021.3","2031.3","2041.3", "2051.3","2061.3")
-#Land Cover Type #6
-LABEL6<-Combined %>%
-  filter(LABEL==6)
-LABEL6<-LABEL6[,3:10]
-LABEL6<-t(LABEL6)
-LABEL6<-LABEL6[1:8,]
-colnames(LABEL6)<-c("2021.3","2031.3","2041.3", "2051.3","2061.3")
-#Land Cover Type #7
-LABEL7<-Combined %>%
-  filter(LABEL==7)
-LABEL7<-LABEL7[,3:10]
-LABEL7<-t(LABEL7)
-LABEL7<-LABEL7[1:8,]
-colnames(LABEL7)<-c("2021.3","2031.3","2041.3", "2051.3","2061.3")
-
 
 #Save CSV #MAKE SURE CHANGE BASED ON SCENARIO DESIRED 
 Scenario<-"Q4" #delete / 
@@ -530,14 +502,12 @@ ggsave(file="FrederickQ2Graph.png", dpi=300)
 #TABLES COMPARED ACROSS SCENARIOS OVER TIME 
 #Combines all scenarios 
 
-#Read in Melt csvs to combine all scnenarios 
+#Read in county Melt csvs to combine all scnenarios 
 FolderM<-list.files(Comb_outputMelt, pattern=".csv", full.names = TRUE) 
 CSV_Melt<-lapply(FolderM,function(i){
   read.csv(i)
 })
 
-CSV_Melt[[1]]$Scenario<-"Q3"
-CSV_Melt[[2]]$Scenario<-"Q4"
 
 #ADD SCENARIO 
 CSV_Melt[[1]]$Scenario<-"Q1"
@@ -547,20 +517,17 @@ CSV_Melt[[4]]$Scenario<-"Q4"
 CSV_Melt[[5]]$Scenario<-"RT"
 
 CombinedMeltLC<-do.call(rbind.data.frame,CSV_Melt)
-CombinedMeltLC$valuekm<-CombinedMeltLC$value*(900/1000000) #if valuekm exists do not need
 CombinedMeltLC<-subset(CombinedMeltLC, CombinedMeltLC$TimeStep > 1) #IF STILL NEED AFTER 2001
-write.csv(CombinedMeltLC, paste0(Comb_outputMelt,"CombinedMeltLC", ".csv"), row.names=FALSE)
+write.csv(CombinedMeltLC, paste0(Comb_outputMelt,"CombinedMelt_C", ".csv"), row.names=FALSE)
 
-
-##read in region sum csv to combine all scenarios 
-FolderR<-list.files(Comb_outputRegion, pattern=".csv", full.names = TRUE) 
-CSV_Region<-lapply(FolderR,function(i){
+#read in region melt csvs to combine all scenarios 
+FolderMR<-list.files(Comb_outputMeltRegion, pattern=".csv", full.names = TRUE) 
+CSV_Region<-lapply(FolderM,function(i){
   read.csv(i)
 })
 
-CSV_Region[[1]]$Scenario<-"Q3"
-CSV_Region[[2]]$Scenario<-"Q4"
 
+#ADD SCENARIO 
 CSV_Region[[1]]$Scenario<-"Q1"
 CSV_Region[[2]]$Scenario<-"Q2"
 CSV_Region[[3]]$Scenario<-"Q3"
@@ -568,9 +535,27 @@ CSV_Region[[4]]$Scenario<-"Q4"
 CSV_Region[[5]]$Scenario<-"RT"
 
 CombinedRegionLC<-do.call(rbind.data.frame,CSV_Region)
-CombinedRegionLC$valuekm<-CombinedRegionLC$value*(900/1000000) # if valuekm exists do not need 
-write.csv(CombinedRegionLC, paste0(Comb_outputRegion,"CombinedRegionLC", ".csv"), row.names=FALSE)
+CombinedRegionLC<-subset(CombinedRegionLC, CombinedRegionLC$TimeStep > 1) #IF STILL NEED AFTER 2001
+write.csv(CombinedRegionLC, paste0(Comb_outputMeltRegion,"CombinedMelt_R", ".csv"), row.names=FALSE)
 
+
+##read in sum csv to combine all scenarios 
+FolderS<-list.files(Comb_outputSum, pattern=".csv", full.names = TRUE) 
+CSV_Sum<-lapply(FolderR,function(i){
+  read.csv(i)
+})
+
+CSV_Sum[[1]]$Scenario<-"Q3"
+CSV_Sum[[2]]$Scenario<-"Q4"
+
+CSV_Sum[[1]]$Scenario<-"Q1"
+CSV_Sum[[2]]$Scenario<-"Q2"
+CSV_Sum[[3]]$Scenario<-"Q3"
+CSV_Sum[[4]]$Scenario<-"Q4"
+CSV_Sum[[5]]$Scenario<-"RT"
+
+CombinedSumLC<-do.call(rbind.data.frame,CSV_Sum)
+write.csv(CombinedSumLC, paste0(Comb_outputSum,"Combined_sum", ".csv"), row.names=FALSE)
 
 
 #PERCENT CHANGE INDIVIDUAL COUNTIES
@@ -609,7 +594,6 @@ Rockingham<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51165")
 
 
 
-
 #subset by county and land cover type 
 FauquierD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51061")
 FauquierF<-subset(ForestM, ForestM$variable == "GEOID_51061")
@@ -626,6 +610,67 @@ AlbemarleD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51003")
 AlbemarleF<-subset(ForestM, ForestM$variable == "GEOID_51003")
 AlbemarleG<-subset(GrassM, GrassM$variable == "GEOID_51003")
 AlbemarleC<-subset(CropM, CropM$variable == "GEOID_51003")
+#---------------------------------------------------#
+#PERCENT CHANGE REGION
+CombinedRegionLC$Rowid_<-NULL
+
+CombinedRegionLCT2<-subset(CombinedRegionLC, CombinedRegionLC$TimeStep ==2)
+CombinedRegionLCT7<-subset(CombinedRegionLC, CombinedRegionLC$TimeStep ==7)
+CombinedRegionLC27<-cbind(CombinedRegionLCT2,CombinedRegionLCT7)
+
+
+CombinedRegionLC27<-CombinedRegionLC27[,c(1,2,3,5,6,12)]
+CombinedRegionLC27<-mutate(CombinedRegionLC27, PercentChange=((valuekm.1-valuekm)/valuekm)*100)
+CombinedRegionLC27$PercentChange<-round(CombinedRegionLC27$PercentChange, digits = 0)
+CombinedRegionLC27$PercentChange<-paste0(CombinedRegionLC27$PercentChange,"%")
+
+
+CombinedRegionLC27$TimeStep<-7
+PercentChangeRegion<-CombinedRegionLC27[,c(1,2,3,4,7)]
+
+CombinedRegionPC<-merge(CombinedRegionLC,PercentChangeRegion, by=c("Scenario","TimeStep","LABEL","variable"), all.x=TRUE)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#PERCENT CHANGE of SUM 
+CombinedSumLCT2<-subset(CombinedSumLC, CombinedSumLC$TimeStep ==2)
+CombinedSumLCT7<-subset(CombinedSumLC, CombinedSumLC$TimeStep ==7)
+CombinedSumLC27<-cbind(CombinedSumLCT2,CombinedSumLCT7)
+CombinedSumLC27<-CombinedSumLC27[,c(1,2,4,5,7,10)]
+CombinedSumLC27<-mutate(CombinedSumLC27, PercentChange=((valuekm.1-valuekm)/valuekm)*100) #calculate percent change after only haveing time step 2 and 7
+CombinedSumLC27$PercentChange<-round(CombinedSumLC27$PercentChange, digits = 2)
+
+
+CombinedSumLC27$TimeStep<-7
+PercentChange<-CombinedSumLC27[,c(1,2,3,7)]
+
+CombinedSumPC<-merge(CombinedSumLC,PercentChange, by=c("Scenario","TimeStep","LABEL"), all.x=TRUE)
+
+#Subset By Land Cover
+DevelopmentPC<-subset(CombinedSumPC, CombinedSumPC$LABEL == "3")
+ForestPC<-subset(CombinedSumPC, CombinedSumPC$LABEL == "5")
+GrassPC<-subset(CombinedSumPC, CombinedSumPC$LABEL == "6")
+CropPC<-subset(CombinedSumPC, CombinedSumPC$LABEL == "7")
+
+#USE FOR NOW (WITHOUT Percent)
+DevelopmentPC<-subset(CombinedSumLC, CombinedSumLC$LABEL == "3")
+ForestPC<-subset(CombinedSumLC, CombinedSumLC$LABEL == "5")
+GrassPC<-subset(CombinedSumLC, CombinedSumLC$LABEL == "6")
+CropPC<-subset(CombinedSumLC, CombinedSumLC$LABEL == "7")
+
+
+#Remove Timestep 1
+DevelopmentPC<-subset(DevelopmentPC, DevelopmentPC$TimeStep > 1)
+ForestPC<-subset(ForestPC, ForestPC$TimeStep > 1)
+GrassPC<-subset(GrassPC, GrassPC$TimeStep >1)
+CropPC<-subset(CropPC, CropPC$TimeStep>1)
+
+#--------------------------------------------------------#
+
+#--------------------------------------------------------------#
+#Graphs
+
+
+
 
 
 #IF GRAPH LOOKS weird make sure LABEL is set as a factor 
@@ -736,39 +781,7 @@ ggsave(file="v2015_Fauq_development.png", dpi=300,width=15, height=15)
 
 
 #Graphs for entire study region. All scenarios but one type of land cover 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-#PERCENT CHANGE STUDY AREA
-CombinedRegionLCT2<-subset(CombinedRegionLC, CombinedRegionLC$TimeStep ==2)
-CombinedRegionLCT7<-subset(CombinedRegionLC, CombinedRegionLC$TimeStep ==7)
-CombinedRegionLC27<-cbind(CombinedRegionLCT2,CombinedRegionLCT7)
-CombinedRegionLC27<-CombinedRegionLC27[,c(1,2,4,5,7,10)]
-CombinedRegionLC27<-mutate(CombinedRegionLC27, PercentChange=((valuekm.1-valuekm)/valuekm)*100) #calculate percent change after only haveing time step 2 and 7
-CombinedRegionLC27$PercentChange<-round(CombinedRegionLC27$PercentChange, digits = 2)
 
-
-CombinedRegionLC27$TimeStep<-7
-PercentChange<-CombinedRegionLC27[,c(1,2,3,7)]
-
-CombinedRegionPC<-merge(CombinedRegionLC,PercentChange, by=c("Scenario","TimeStep","LABEL"), all.x=TRUE)
-
-#Subset By Land Cover
-DevelopmentPC<-subset(CombinedRegionPC, CombinedRegionPC$LABEL == "3")
-ForestPC<-subset(CombinedRegionPC, CombinedRegionPC$LABEL == "5")
-GrassPC<-subset(CombinedRegionPC, CombinedRegionPC$LABEL == "6")
-CropPC<-subset(CombinedRegionPC, CombinedRegionPC$LABEL == "7")
-
-#USE FOR NOW (WITHOUT Percent)
-DevelopmentPC<-subset(CombinedRegionLC, CombinedRegionLC$LABEL == "3")
-ForestPC<-subset(CombinedRegionLC, CombinedRegionLC$LABEL == "5")
-GrassPC<-subset(CombinedRegionLC, CombinedRegionLC$LABEL == "6")
-CropPC<-subset(CombinedRegionLC, CombinedRegionLC$LABEL == "7")
-
-
-#Remove Timestep 1
-DevelopmentPC<-subset(DevelopmentPC, DevelopmentPC$TimeStep > 1)
-ForestPC<-subset(ForestPC, ForestPC$TimeStep > 1)
-GrassPC<-subset(GrassPC, GrassPC$TimeStep >1)
-CropPC<-subset(CropPC, CropPC$TimeStep>1)
 #-------------------------------------------------------------------------#
 library(ggplot2)
 
