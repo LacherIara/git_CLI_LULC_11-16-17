@@ -2,15 +2,24 @@
 #Creator: Sarah Halperin 
 #Contact: halperins@si.edu
 #------------------------------------------------#
+library(plyr) # General data manipulation
+library(dplyr) # General data manipulation
+library(raster) # read and edit rasters
+library(rgdal)
+library(reshape) #manipulation of output tables 
+library(ggplot2) #graphs 
+library(ggpubr)
+
+
 
 #set inputs
 version<-"/StudyArea_V201/SA_V2016"
 version_table<-paste0("U:/CLI/Dinamica_Runs",version, "/BasicDataAnalyses/Zonal_Histogram/")
 
 #--------------------------------------------------------------------#
-Comb_outputMelt<-paste0(version_table,"Tables/Melt/")
+Comb_outputCounty<-paste0(version_table,"Tables/County/")
 Comb_outputSum<-paste0(version_table,"Tables/Sum/")
-Comb_outputSA<-paste0(version_table, "Tables/SA/")
+Comb_outputRegion<-paste0(version_table, "Tables/Region/")
 
 Region_SA<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/CountyNmsGEOIDRegion_cnty.csv")
 Region_SA$variable<-paste0(Region_SA$GEOID_, Region_SA$GEOID)
@@ -105,11 +114,11 @@ CombinedList<-list(CombinedRT, CombinedQ1, CombinedQ2, CombinedQ3, CombinedQ4)
 #------------------------------------------------#
 #Melt Tables and Region sum tables 
 ScenarioMelt<-list("RT_MeltC.csv", "Q1_MeltC.csv", "Q2_MeltC.csv", "Q3_MeltC.csv", "Q4_MeltC.csv")
+ScenarioRegion<-list("RT_MeltR.csv", "Q1_MeltR.csv", "Q2_MeltR.csv", "Q3_MeltR.csv", "Q4_MeltR.csv")
 ScenarioSum<-list("RT_Sum.csv", "Q1_Sum.csv", "Q2_Sum.csv", "Q3_Sum.csv", "Q4_Sum.csv")
 ScenarioSA_sum<-list("RT_SAsum.csv", "Q1_SAsum.csv", "Q2_SAsum.csv", "Q3_SAsum.csv", "Q4_SAsum.csv")
-ScenarioSA_Region<-list("RT_SAr.csv", "Q1_SAr.csv", "Q2_SAr.csv", "Q3_SAr.csv", "Q4_SAr.csv")
-ScenarioSA_County<-list("RT_SAc.csv", "Q1_SAc.csv", "Q2_SAc.csv", "Q3_SAc.csv", "Q4_SAc.csv")
-ScenarioRegion<-list("RT_MeltR.csv", "Q1_MeltR.csv", "Q2_MeltR.csv", "Q3_MeltR.csv", "Q4_MeltR.csv")
+ScenarioSA_Region<-list("RT_MeltR_SA.csv", "Q1_MeltR_SA.csv", "Q2_MeltR_SA.csv", "Q3_MeltR_SA.csv", "Q4_MeltR_SA.csv")
+ScenarioSA_County<-list("RT_MeltC_SA.csv", "Q1_MeltC_SA.csv", "Q2_MeltC_SA.csv", "Q3_MeltC_SA.csv", "Q4_MeltC_SA.csv")
 
 
 CombinedMelt<-lapply(CombinedList, function(x){
@@ -121,58 +130,58 @@ CombinedMelt<-lapply(CombinedList, function(x){
 for(i in 1:length(CombinedMelt)){
       CombinedMelt[[i]]$valuekm<-CombinedMelt[[i]]$value*(900/1000000)
       CombinedMelt[[i]]<-merge(CombinedMelt[[i]], Region_SA, by="variable")
-        write.csv(CombinedMelt[[i]], paste0(Comb_outputMelt,(ScenarioMelt[[i]])), row.names=FALSE)
-      region<-aggregate(valuekm~LABEL+TimeStep+Region,CombinedMelt[[i]], sum)
-      write.csv(region, paste0(Comb_outputMelt,(ScenarioRegion[[i]])), row.names=FALSE)
+        write.csv(CombinedMelt[[i]], paste0(Comb_outputCounty,(ScenarioMelt[[i]])), row.names=FALSE)
+      Melt_region<-aggregate(valuekm~LABEL+TimeStep+Region,CombinedMelt[[i]], sum)
+      write.csv(Melt_region, paste0(Comb_outputRegion,(ScenarioRegion[[i]])), row.names=FALSE)
       Full_sum<-aggregate(valuekm~LABEL + TimeStep, CombinedMelt[[i]], sum)
-      SA_Region<-subset(region, region$Region %in% c(1,2,3,4,5))
+      SA_Region<-subset(Melt_region, Melt_region$Region %in% c(1,2,3,4,5))
       SA_County<-subset(CombinedMelt[[i]], CombinedMelt[[i]]$SA==1)
-      SA_Sum<-aggregate(valuekm~LABEL + TimeStep, region, sum)
-      write.csv(SA_Region,paste0(Comb_outputSA,(ScenarioSA_Region[[i]])), row.names=FALSE )
+      SA_Sum<-aggregate(valuekm~LABEL + TimeStep, SA_Region, sum)
+      write.csv(SA_Region,paste0(Comb_outputRegion,(ScenarioSA_Region[[i]])), row.names=FALSE )
       write.csv(SA_Sum,paste0(Comb_outputSum,(ScenarioSA_sum[[i]])), row.names=FALSE )
       write.csv(Full_sum,paste0(Comb_outputSum,(ScenarioSum[[i]])), row.names=FALSE )
-      write.csv(SA_Region, paste0(Comb_outputSA,(ScenarioSA_Region[[i]])), row.names=FALSE)
-      write.csv(SA_County, paste0(Comb_outputSA,(ScenarioSA_County[[i]])), row.names=FALSE)
+      write.csv(SA_Region, paste0(Comb_outputRegion,(ScenarioSA_Region[[i]])), row.names=FALSE)
+      write.csv(SA_County, paste0(Comb_outputCounty,(ScenarioSA_County[[i]])), row.names=FALSE)
 }
 
 
 
 #-----------------------------------------------------------------#
 #Reshape Tables 
-ScenarioReshape<-list("RT_Reshape", "Q1_Reshape", "Q2_Reshape", "Q3_Reshape", "Q4_Reshape")
+#ScenarioReshape<-list("RT_Reshape", "Q1_Reshape", "Q2_Reshape", "Q3_Reshape", "Q4_Reshape")
 
-for( i in 1:length(CombinedList)){
-  Combined<-CombinedList[[i]]
-LABEL3<-Combined %>%
-  filter(LABEL==3)
-LABEL3<-LABEL3[,2:11]
-LABEL3<-t(LABEL3)
-LABEL3<-LABEL3[1:9,]
-colnames(LABEL3)<-c("2001.3", "2011.3", "2021.3","2031.3","2041.3", "2051.3","2061.3")
+#for( i in 1:length(CombinedList)){
+  #Combined<-CombinedList[[i]]
+#LABEL3<-Combined %>%
+  #filter(LABEL==3)
+#LABEL3<-LABEL3[,2:11]
+#LABEL3<-t(LABEL3)
+#LABEL3<-LABEL3[1:9,]
+#colnames(LABEL3)<-c("2001.3", "2011.3", "2021.3","2031.3","2041.3", "2051.3","2061.3")
 #Land Cover Type #5
-LABEL5<-Combined %>%
-  filter(LABEL==5)
-LABEL5<-LABEL5[,2:11]
-LABEL5<-t(LABEL5)
-LABEL5<-LABEL5[1:9,]
-colnames(LABEL5)<-c("2001.5", "2011.5","2021.5","2031.5","2041.5", "2051.5","2061.5")
+#LABEL5<-Combined %>%
+ # filter(LABEL==5)
+#LABEL5<-LABEL5[,2:11]
+#LABEL5<-t(LABEL5)
+#LABEL5<-LABEL5[1:9,]
+#colnames(LABEL5)<-c("2001.5", "2011.5","2021.5","2031.5","2041.5", "2051.5","2061.5")
 #Land Cover Type #6
-LABEL6<-Combined %>%
-  filter(LABEL==6)
-LABEL6<-LABEL6[,2:11]
-LABEL6<-t(LABEL6)
-LABEL6<-LABEL6[1:9,]
-colnames(LABEL6)<-c("2001.6", "2011.6", "2021.6","2031.6","2041.6", "2051.6","2061.6")
+#LABEL6<-Combined %>%
+ # filter(LABEL==6)
+#LABEL6<-LABEL6[,2:11]
+#LABEL6<-t(LABEL6)
+#LABEL6<-LABEL6[1:9,]
+#colnames(LABEL6)<-c("2001.6", "2011.6", "2021.6","2031.6","2041.6", "2051.6","2061.6")
 #Land Cover Type #7
-LABEL7<-Combined %>%
+#LABEL7<-Combined %>%
   filter(LABEL==7)
-LABEL7<-LABEL7[,2:11]
-LABEL7<-t(LABEL7)
-LABEL7<-LABEL7[1:9,]
-colnames(LABEL7)<-c("2001.7", "2011.7"," 2021.7","2031.7","2041.7", "2051.7","2061.7")
+#LABEL7<-LABEL7[,2:11]
+#LABEL7<-t(LABEL7)
+#LABEL7<-LABEL7[1:9,]
+#colnames(LABEL7)<-c("2001.7", "2011.7"," 2021.7","2031.7","2041.7", "2051.7","2061.7")
 
-CombinedReshape<-cbind(LABEL3, LABEL5,LABEL6,LABEL7) 
-write.csv(CombinedReshape, paste0(Comb_outputReshape,(ScenarioReshape[[i]]),".csv")) 
+#CombinedReshape<-cbind(LABEL3, LABEL5,LABEL6,LABEL7) 
+#write.csv(CombinedReshape, paste0(Comb_outputReshape,(ScenarioReshape[[i]]),".csv")) 
 
-}
+#}
 

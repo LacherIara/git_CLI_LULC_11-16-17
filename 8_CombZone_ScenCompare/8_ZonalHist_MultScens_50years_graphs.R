@@ -9,17 +9,22 @@ library(rgdal)
 library(reshape) #manipulation of output tables 
 library(ggplot2) #graphs 
 library(ggpubr)
+library(ggrepel)
 
-Comb_outputMelt<-paste0(version_table,"Tables/Melt/")
-Comb_outputSum<-paste0(version_table,"Tables/Sum/")
-Comb_outputSA<-paste0(version_table, "Tables/SA/")
+#set inputs
+version<-"/StudyArea_V201/SA_V2016"
+version_table<-paste0("U:/CLI/Dinamica_Runs",version, "/BasicDataAnalyses/Zonal_Histogram/")
+
+Comb_outputMelt<-paste0(version_table,"Tables/County/")
+Comb_outputSum<-paste0(version_table,"Tables/Region/")
+Comb_outputSA<-paste0(version_table, "Tables/Sum/")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TABLES COMPARED ACROSS SCENARIOS OVER TIME 
 #Combines all scenarios 
 
-#Read in county Melt csvs to combine all scnenarios 
-FolderM<-list.files(Comb_outputMelt, pattern="C.csv", full.names = TRUE) 
+#Read in county Melt csvs to combine all scnenarios Full AREA
+FolderM<-list.files(Comb_outputCounty, pattern="C.csv", full.names = TRUE) 
 CSV_Melt<-lapply(FolderM,function(i){
   read.csv(i)
 })
@@ -34,11 +39,31 @@ CSV_Melt[[5]]$Scenario<-"RT"
 
 CombinedMeltLC<-do.call(rbind.data.frame,CSV_Melt)
 CombinedMeltLC<-subset(CombinedMeltLC, CombinedMeltLC$TimeStep > 1) #IF STILL NEED AFTER 2001
-write.csv(CombinedMeltLC, paste0(Comb_outputMelt,"CombinedMelt_C", ".csv"), row.names=FALSE)
+write.csv(CombinedMeltLC, paste0(Comb_outputCounty,"CombinedMelt_C", ".csv"), row.names=FALSE)
 
-#read in region melt csvs to combine all scenarios 
-FolderMR<-list.files(Comb_outputMelt, pattern="R.csv", full.names = TRUE) 
-CSV_Region<-lapply(FolderM,function(i){
+#--------------------------------------------------#
+FolderM_SA<-list.files(Comb_outputCounty, pattern="SA.csv", full.names = TRUE) 
+CSV_Melt_SA<-lapply(FolderM_SA,function(i){
+  read.csv(i)
+})
+
+
+#ADD SCENARIO 
+CSV_Melt_SA[[1]]$Scenario<-"Q1"
+CSV_Melt_SA[[2]]$Scenario<-"Q2"
+CSV_Melt_SA[[3]]$Scenario<-"Q3"
+CSV_Melt_SA[[4]]$Scenario<-"Q4"
+CSV_Melt_SA[[5]]$Scenario<-"RT"
+
+CombinedMeltLC_SA<-do.call(rbind.data.frame,CSV_Melt_SA)
+CombinedMeltLC_SA<-subset(CombinedMeltLC_SA, CombinedMeltLC_SA$TimeStep > 1) #IF STILL NEED AFTER 2001
+write.csv(CombinedMeltLC_SA, paste0(Comb_outputCounty,"CombinedMeltC_SA", ".csv"), row.names=FALSE)
+
+
+#read in region melt csvs to combine all scenarios
+#FULL AREA
+FolderMR<-list.files(Comb_outputRegion, pattern="R.csv", full.names = TRUE) 
+CSV_Region<-lapply(FolderMR,function(i){
   read.csv(i)
 })
 
@@ -52,12 +77,32 @@ CSV_Region[[5]]$Scenario<-"RT"
 
 CombinedRegionLC<-do.call(rbind.data.frame,CSV_Region)
 CombinedRegionLC<-subset(CombinedRegionLC, CombinedRegionLC$TimeStep > 1) #IF STILL NEED AFTER 2001
-write.csv(CombinedRegionLC, paste0(Comb_outputMeltRegion,"CombinedMelt_R", ".csv"), row.names=FALSE)
+write.csv(CombinedRegionLC, paste0(Comb_outputRegion,"CombinedMelt_R", ".csv"), row.names=FALSE)
+
+#read in region melt csvs to combine all scenarios 
+#STUDY AREA
+FolderMR_SA<-list.files(Comb_outputRegion, pattern="SA.csv", full.names = TRUE) 
+CSV_Region_SA<-lapply(FolderMR_SA,function(i){
+  read.csv(i)
+})
+
+
+#ADD SCENARIO 
+CSV_Region_SA[[1]]$Scenario<-"Q1"
+CSV_Region_SA[[2]]$Scenario<-"Q2"
+CSV_Region_SA[[3]]$Scenario<-"Q3"
+CSV_Region_SA[[4]]$Scenario<-"Q4"
+CSV_Region_SA[[5]]$Scenario<-"RT"
+
+CombinedRegionLC_SA<-do.call(rbind.data.frame,CSV_Region_SA)
+CombinedRegionLC_SA<-subset(CombinedRegionLC_SA, CombinedRegionLC_SA$TimeStep > 1) #IF STILL NEED AFTER 2001
+write.csv(CombinedRegionLC_SA, paste0(Comb_outputRegion,"CombinedMeltR_SA", ".csv"), row.names=FALSE)
 
 
 ##read in sum csv to combine all scenarios 
-FolderS<-list.files(Comb_outputSum, pattern=".csv", full.names = TRUE) 
-CSV_Sum<-lapply(FolderR,function(i){
+#FULL AREA
+FolderS<-list.files(Comb_outputSum, pattern="Sum.csv", full.names = TRUE) 
+CSV_Sum<-lapply(FolderS,function(i){
   read.csv(i)
 })
 
@@ -71,8 +116,27 @@ CSV_Sum[[5]]$Scenario<-"RT"
 CombinedSumLC<-do.call(rbind.data.frame,CSV_Sum)
 write.csv(CombinedSumLC, paste0(Comb_outputSum,"Combined_sum", ".csv"), row.names=FALSE)
 
+##read in sum csv to combine all scenarios 
+#STUDY AREA
+FolderS_SA<-list.files(Comb_outputSum, pattern="SAsum.csv", full.names = TRUE) 
+CSV_Sum_SA<-lapply(FolderS_SA,function(i){
+  read.csv(i)
+})
+
+
+CSV_Sum_SA[[1]]$Scenario<-"Q1"
+CSV_Sum_SA[[2]]$Scenario<-"Q2"
+CSV_Sum_SA[[3]]$Scenario<-"Q3"
+CSV_Sum_SA[[4]]$Scenario<-"Q4"
+CSV_Sum_SA[[5]]$Scenario<-"RT"
+
+CombinedSumLC_SA<-do.call(rbind.data.frame,CSV_Sum_SA)
+write.csv(CombinedSumLC_SA, paste0(Comb_outputSum,"CombinedSA_sum", ".csv"), row.names=FALSE)
+
 
 #PERCENT CHANGE INDIVIDUAL COUNTIES
+#CombinedMeltLC_SA<-CombinedMeltLC #set combinedmeltlc_sa to combinedmeltlc if want just study area 
+
 CombinedMeltLC$Rowid_<-NULL
 
 CombinedMeltLCT2<-subset(CombinedMeltLC, CombinedMeltLC$TimeStep ==2)
@@ -126,6 +190,8 @@ AlbemarleG<-subset(GrassM, GrassM$variable == "GEOID_51003")
 AlbemarleC<-subset(CropM, CropM$variable == "GEOID_51003")
 #---------------------------------------------------#
 #PERCENT CHANGE REGION
+#CombinedRegionLC<-CombinedRegionLC_SA #set study area equal if want graphs just for study area. Saves repeating a bunch of code.
+
 CombinedRegionLC$Rowid_<-NULL
 
 CombinedRegionLCT2<-subset(CombinedRegionLC, CombinedRegionLC$TimeStep ==2)
@@ -146,16 +212,18 @@ CombinedRegionPC<-merge(CombinedRegionLC,PercentChangeRegion, by=c("Scenario","T
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #PERCENT CHANGE of SUM 
+#CombinedSumLC<-CombinedSumLC_SA #set equal to study area if desired 
+
 CombinedSumLCT2<-subset(CombinedSumLC, CombinedSumLC$TimeStep ==2)
 CombinedSumLCT7<-subset(CombinedSumLC, CombinedSumLC$TimeStep ==7)
 CombinedSumLC27<-cbind(CombinedSumLCT2,CombinedSumLCT7)
-CombinedSumLC27<-CombinedSumLC27[,c(1,2,4,5,7,10)]
+CombinedSumLC27<-CombinedSumLC27[,c(1,2,3,4,7,8)]
 CombinedSumLC27<-mutate(CombinedSumLC27, PercentChange=((valuekm.1-valuekm)/valuekm)*100) #calculate percent change after only haveing time step 2 and 7
 CombinedSumLC27$PercentChange<-round(CombinedSumLC27$PercentChange, digits = 2)
 
 
 CombinedSumLC27$TimeStep<-7
-PercentChange<-CombinedSumLC27[,c(1,2,3,7)]
+PercentChange<-CombinedSumLC27[,c(1,2,4,7)]
 
 CombinedSumPC<-merge(CombinedSumLC,PercentChange, by=c("Scenario","TimeStep","LABEL"), all.x=TRUE)
 
@@ -165,11 +233,7 @@ ForestPC<-subset(CombinedSumPC, CombinedSumPC$LABEL == "5")
 GrassPC<-subset(CombinedSumPC, CombinedSumPC$LABEL == "6")
 CropPC<-subset(CombinedSumPC, CombinedSumPC$LABEL == "7")
 
-#USE FOR NOW (WITHOUT Percent)
-DevelopmentPC<-subset(CombinedSumLC, CombinedSumLC$LABEL == "3")
-ForestPC<-subset(CombinedSumLC, CombinedSumLC$LABEL == "5")
-GrassPC<-subset(CombinedSumLC, CombinedSumLC$LABEL == "6")
-CropPC<-subset(CombinedSumLC, CombinedSumLC$LABEL == "7")
+
 
 
 #Remove Timestep 1
@@ -182,10 +246,6 @@ CropPC<-subset(CropPC, CropPC$TimeStep>1)
 
 #--------------------------------------------------------------#
 #Graphs
-
-
-
-
 
 #IF GRAPH LOOKS weird make sure LABEL is set as a factor 
 #Graphs for individual counties 
@@ -300,7 +360,7 @@ ggsave(file="v2015_Fauq_development.png", dpi=300,width=15, height=15)
 library(ggplot2)
 
 windows()
-ggplot(GrassPC, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
+ggplot(DevelopmentPC, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
   geom_line(size=2)+
   scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c( "2011", "2021", "2031", "2041", "2051", "2061"))+
   scale_colour_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
@@ -310,8 +370,8 @@ ggplot(GrassPC, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
   theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
   theme(axis.text=element_text(size=40),
         axis.title.x=element_text(size=40,face="bold"), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
-  theme(plot.margin=unit(c(1,1,1,1), "in"))#+
-#geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), hjust=2,vjust=2, size=5, show.legend=FALSE)
+  theme(plot.margin=unit(c(1,1,1,1), "in"))+
+geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), hjust=2,vjust=2, size=5, show.legend=FALSE)
 
 
 #export graph 

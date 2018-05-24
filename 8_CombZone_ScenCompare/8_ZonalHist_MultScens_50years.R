@@ -60,11 +60,13 @@ version<-"/StudyArea_V201/SA_V2016"
 version_input<-paste0("U:/CLI/Dinamica_Runs",version, "/FutureLandscapes/")
 Scenario<-"NL/" #set scenario desired to run. If want all scenarios to run say "All" for all scenarios (NOTE: when all scenarios you must use the second set of code)
 
+
 # ----------------------------------------------
 # FILE PATHS
 
 # Set location for the input study area rasters
 cntyRasterLoc <- "U:/CLI/PreparedRasters/StudyAreaBndy/" 
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 #TURN ON SCENARIO INPUTS: Whatever is turned on must match the designated scenario 
@@ -76,7 +78,7 @@ inRasterLoc<-paste0(version_input, "NL/nlcd_nlcd/")
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 inRasterLoc <- paste0(version_input, Scenario)
 
-#TURN ON FOR ALL SCENARIOS 
+#TURN ON FOR ALL SCENARIOS (not NL)
 inRasterLoc<-version_input
 Folders <-  list('Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'RT' = c("RT/"),'RT' = c("RT/"),'RT' = c("RT/"),'RT' = c("RT/"),'RT' = c("RT/"))
 inRasterLoc <-paste0(inRasterLoc, Folders)
@@ -87,10 +89,10 @@ inRasterLoc <-paste0(inRasterLoc, Folders)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #ADJUST FOR DESIRED FOLDER
-version_output<-"BasicDataAnalyses/Zonal_Histogram/"
+version_output<-"BasicDataAnalyses/Zonal_Histogram_Test/"
 Comb_output<-gsub("FutureLandscapes/", version_output, version_input)
 Comb_output<-paste0(Comb_output, Scenario)
-#Comb_output<-paste0(Comb_output, "Test/")
+
 # ----------------------------------------------
 # READ OUTPUT FILES:
 
@@ -112,7 +114,6 @@ counties_vals <- getValues(regions) #defining the region
 
 # COUNTY TABLES
 sa_ctyGEOID<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/CountyNmsGEOID_cnty.csv")#SCBI V: #Geological ID for the county. 
-
 
 #sa_ctyGEOID<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/FullGEOID.csv") #Geological ID for the region. May want to change to say region in the future. Regions 
 
@@ -141,7 +142,7 @@ S20_GEOID <-  read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SAcntyOnly.csv")#SCB
 # TRANSITIONS
 # ---------------------------------------------- 
 #Version_LS_trans Must match above 
-version_LS_trans<-"v2016"
+version_LS_trans<-"v2015"
 
 #TURN on FOR NL
 LS_trans <-  list('LS01' = c("nlcd01_anC.img"),'LS02' = c("nlcd11_anC.img"))
