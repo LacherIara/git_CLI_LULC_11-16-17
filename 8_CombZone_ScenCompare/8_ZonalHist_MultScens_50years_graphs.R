@@ -15,9 +15,9 @@ library(ggrepel)
 version<-"/StudyArea_V201/SA_V2016"
 version_table<-paste0("U:/CLI/Dinamica_Runs",version, "/BasicDataAnalyses/Zonal_Histogram/")
 
-Comb_outputMelt<-paste0(version_table,"Tables/County/")
-Comb_outputSum<-paste0(version_table,"Tables/Region/")
-Comb_outputSA<-paste0(version_table, "Tables/Sum/")
+Comb_outputCounty<-paste0(version_table,"Tables/County/")
+Comb_outputRegion<-paste0(version_table,"Tables/Region/")
+Comb_outputSum<-paste0(version_table, "Tables/Sum/")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TABLES COMPARED ACROSS SCENARIOS OVER TIME 
@@ -135,7 +135,8 @@ write.csv(CombinedSumLC_SA, paste0(Comb_outputSum,"CombinedSA_sum", ".csv"), row
 
 
 #PERCENT CHANGE INDIVIDUAL COUNTIES
-#CombinedMeltLC_SA<-CombinedMeltLC #set combinedmeltlc_sa to combinedmeltlc if want just study area 
+CombinedMeltLC<-CombinedSumLC_SA #set combinedmeltlc_sa to combinedmeltlc if want just study area 
+#CombinedMeltLC<-CombinedSumLC 
 
 CombinedMeltLC$Rowid_<-NULL
 
@@ -144,17 +145,18 @@ CombinedMeltLCT7<-subset(CombinedMeltLC, CombinedMeltLC$TimeStep ==7)
 CombinedMeltLC27<-cbind(CombinedMeltLCT2,CombinedMeltLCT7)
 
 
-CombinedMeltLC27<-CombinedMeltLC27[,c(1,2,3,5,6,7,8,13)]
+CombinedMeltLC27<-CombinedMeltLC27[,c(1,2,3,4,6,7)]
 CombinedMeltLC27<-mutate(CombinedMeltLC27, PercentChange=((valuekm.1-valuekm)/valuekm)*100)
-CombinedMeltLC27$PercentChange<-round(CombinedMeltLC27$PercentChange, digits = 0)
-CombinedMeltLC27$PercentChange<-paste0(CombinedMeltLC27$PercentChange,"%")
+CombinedMeltLC27$PercentChange<-round(CombinedMeltLC27$PercentChange, digits = 2)
+#CombinedMeltLC27$PercentChange<-paste0(CombinedMeltLC27$PercentChange,"%")
 
 
 CombinedMeltLC27$TimeStep<-7
-PercentChangeMelt<-CombinedMeltLC27[,c(1,2,3,7,9)]
+PercentChangeMelt<-CombinedMeltLC27[,c(1,2,4,7)]
 
-CombinedMeltPC<-merge(CombinedMeltLC,PercentChangeMelt, by=c("Scenario","TimeStep","LABEL","variable"), all.x=TRUE)
+CombinedMeltPC<-merge(CombinedMeltLC,PercentChangeMelt, by=c("Scenario","TimeStep","LABEL"), all.x=TRUE)
 
+CombinedMeltPC<-subset(CombinedMeltPC, TimeStep > 1)
 
 #Subset by land cover type 
 DevelopmentM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "3")
@@ -360,7 +362,7 @@ ggsave(file="v2015_Fauq_development.png", dpi=300,width=15, height=15)
 library(ggplot2)
 
 windows()
-ggplot(DevelopmentPC, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
+ggplot(DevelopmentM, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
   geom_line(size=2)+
   scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c( "2011", "2021", "2031", "2041", "2051", "2061"))+
   scale_colour_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
@@ -368,20 +370,21 @@ ggplot(DevelopmentPC, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario
   theme_bw()+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
+  theme(axis.title.x = element_text(margin = margin(t = 20, r = 0, b = 0, l = 0)))+
   theme(axis.text=element_text(size=40),
         axis.title.x=element_text(size=40,face="bold"), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
   theme(plot.margin=unit(c(1,1,1,1), "in"))+
-geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), hjust=2,vjust=2, size=5, show.legend=FALSE)
+geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), size=10, show.legend=FALSE)
 
 
 #export graph 
-setwd("X:/Scenario Planning/Graphics/Map Images/IALE Presentation")
-png("CropSA.png", width=480, height=480, units="px", res=300) #can't put units and resolution
-CropSA
+setwd("U:/CLI/Presentations/52418_presentation")
+png("Forest.png", width=300, height=300, units="px", res=300) #can't put units and resolution
+Forest
 dev.off()
 
 
-ggsave(file="CropSA.png", dpi=300, width=15, height=15)
+ggsave(file="Forest.png", dpi=300, width=15, height=12)
 
 
 #-------------------------------------------------------#
@@ -403,3 +406,263 @@ ggplot(DevelopmentPC, aes(x=Scenario, y=PercentChange, fill=Scenario))+
   geom_text(aes(label=paste0(PercentChange,"%")), vjust=1.6, size=10, colour="white")+
   theme(axis.line.y =element_line(size=1.5))
 
+#--------------------------------------------------------------#
+#Exploratory Initial county 
+
+FolderReshape<-list.files(Comb_outputReshape, pattern=".csv", full.names = TRUE) 
+CSV_Reshape<-lapply(FolderReshape,function(i){
+  read.csv(i)
+})
+
+Q1<-CSV_Reshape[[1]]
+Q2<-CSV_Reshape[[2]]
+Q3<-CSV_Reshape[[3]]
+Q4<-CSV_Reshape[[4]]
+RT<-CSV_Reshape[[5]]
+
+#Development
+Q1_Dev<-Q1[2:57,1:9]
+Q1_Dev<-mutate(Q1_Dev, PercentChange3=((Change3/Q1_Dev$X2011)*100))
+Q1_Dev$Scenario<-"Q1"
+
+Q2_Dev<-Q2[2:57,1:9]
+Q2_Dev<-mutate(Q2_Dev, PercentChange3=((Change3/Q2_Dev$X2011)*100))
+Q2_Dev$Scenario<-"Q2"
+
+Q3_Dev<-Q3[2:57,1:9]
+Q3_Dev<-mutate(Q3_Dev, PercentChange3=((Change3/Q3_Dev$X2011)*100))
+Q3_Dev$Scenario<-"Q3"
+
+Q4_Dev<-Q4[2:57,1:9]
+Q4_Dev<-mutate(Q4_Dev, PercentChange3=((Change3/Q4_Dev$X2011)*100))
+Q4_Dev$Scenario<-"Q4"
+
+RT_Dev<-RT[2:57,1:9]
+RT_Dev<-mutate(RT_Dev, PercentChange3=((Change3/RT_Dev$X2011)*100))
+RT_Dev$Scenario<-"RT"
+
+Development<-rbind(Q1_Dev, Q2_Dev, Q3_Dev, Q4_Dev, RT_Dev)
+colnames(Development)<-c("GEOID", "2001", "2011", "2021", "2031", "2041", "2051", "2061", "Change", "PercentChange", "Scenario")
+
+
+Development<-Development %>% 
+  filter(PercentChange > 44.17)
+
+Development$Change<-NULL
+Development$PercentChange<-NULL
+
+Development<-melt(Development, id=c("GEOID", "Scenario"))
+Development$valuekm<-Development$value*(900/1000000)
+colnames(Development)<-c("GEOID",  "Scenario", "TimeStep", "value", "valuekm")
+
+
+#counties in the study area
+Development<-subset(Development, Development$GEOID %in% c( "GEOID_51069" , "GEOID_51107" , "GEOID_51171" , "GEOID_51061" , "GEOID_51157" , "GEOID_51113" , "GEOID_51137" , "GEOID_51139",  "GEOID_51015" , "GEOID_51047" , "GEOID_51043",  "GEOID_51187",  "GEOID_51079" , "GEOID_51165" , "GEOID_51003", "GEOID_51840" ,  "GEOID_51540",  "GEOID_51660" , "GEOID_51790" , "GEOID_51820"))
+
+
+
+windows()
+ggplot(Development, aes(x=TimeStep, y=valuekm, colour=GEOID, group=GEOID))+
+  geom_line(size=2)+
+  facet_grid(.~Scenario)
+
+#Forest 
+Q1_For<-Q1[2:57,c(1,10,11,12,13,14,15,16,17)]
+Q1_For<-mutate(Q1_For, PercentChange5=((Change5/Q1_For$X2011)*100))
+Q1_For$Scenario<-"Q1"
+
+Q2_For<-Q2[2:57,c(1,10,11,12,13,14,15,16,17)]
+Q2_For<-mutate(Q2_For, PercentChange5=((Change5/Q2_For$X2011)*100))
+Q2_For$Scenario<-"Q2"
+
+Q3_For<-Q3[2:57,c(1,10,11,12,13,14,15,16,17)]
+Q3_For<-mutate(Q3_For, PercentChange5=((Change5/Q3_For$X2011)*100))
+Q3_For$Scenario<-"Q3"
+
+Q4_For<-Q4[2:57,c(1,10,11,12,13,14,15,16,17)]
+Q4_For<-mutate(Q4_For, PercentChange5=((Change5/Q4_For$X2011)*100))
+Q4_For$Scenario<-"Q4"
+
+RT_For<-RT[2:57,c(1,10,11,12,13,14,15,16,17)]
+RT_For<-mutate(RT_For, PercentChange5=((Change5/RT_For$X2011)*100))
+RT_For$Scenario<-"RT"
+
+Forest<-rbind(Q1_For, Q2_For, Q3_For, Q4_For, RT_For)
+colnames(Forest)<-c("GEOID", "2001", "2011", "2021", "2031", "2041", "2051", "2061", "Change", "PercentChange", "Scenario")
+
+
+Forest<-Forest %>% 
+  filter(PercentChange < -4.02) # lowest for entire study area 
+
+Forest$Change<-NULL
+Forest$PercentChange<-NULL
+
+Forest<-melt(Forest, id=c("GEOID", "Scenario"))
+Forest$valuekm<-Forest$value*(900/1000000)
+
+Forest<-subset(Forest, Forest$GEOID %in% c( "GEOID_51069" , "GEOID_51107" , "GEOID_51171" , "GEOID_51061" , "GEOID_51157" , "GEOID_51113" , "GEOID_51137" , "GEOID_51139",  "GEOID_51015" , "GEOID_51047" , "GEOID_51043",  "GEOID_51187",  "GEOID_51079" , "GEOID_51165" , "GEOID_51003", "GEOID_51840" ,  "GEOID_51540",  "GEOID_51660" , "GEOID_51790" , "GEOID_51820"))
+
+
+colnames(Forest)<-c("GEOID",  "Scenario", "TimeStep", "value", "valuekm")
+
+
+Forest<-Forest %>%
+  filter(valuekm > 9.97) #greater than median 
+
+
+windows()
+ggplot(Forest, aes(x=TimeStep, y=valuekm, colour=GEOID, group=GEOID))+
+  geom_line(size=2)+
+  facet_grid(.~Scenario)
+
+#Grass
+Q1_Gras<-Q1[2:57,c(1,18,19,20,21,22,23,24,25)]
+Q1_Gras<-mutate(Q1_Gras, PercentChange6=((Change6/Q1_For$X2011)*100))
+Q1_Gras$Scenario<-"Q1"
+
+Q2_Gras<-Q2[2:57,c(1,18,19,20,21,22,23,24,25)]
+Q2_Gras<-mutate(Q2_Gras, PercentChange6=((Change6/Q2_Gras$X2011)*100))
+Q2_Gras$Scenario<-"Q2"
+
+Q3_Gras<-Q3[2:57,c(1,18,19,20,21,22,23,24,25)]
+Q3_Gras<-mutate(Q3_Gras, PercentChange6=((Change6/Q3_Gras$X2011)*100))
+Q3_Gras$Scenario<-"Q3"
+
+Q4_Gras<-Q4[2:57,c(1,18,19,20,21,22,23,24,25)]
+Q4_Gras<-mutate(Q4_Gras, PercentChange6=((Change6/Q4_Gras$X2011)*100))
+Q4_Gras$Scenario<-"Q4"
+
+RT_Gras<-RT[2:57,c(1,18,19,20,21,22,23,24,25)]
+RT_Gras<-mutate(RT_Gras, PercentChange6=((Change6/RT_Gras$X2011)*100))
+RT_Gras$Scenario<-"RT"
+
+Grass<-rbind(Q1_Gras, Q2_Gras, Q3_Gras, Q4_Gras, RT_Gras)
+colnames(Grass)<-c("GEOID", "2001", "2011", "2021", "2031", "2041", "2051", "2061", "Change", "PercentChange", "Scenario")
+
+
+Grass<-Grass%>% 
+  filter(PercentChange > 3.72)
+
+Grass$Change<-NULL
+Grass$PercentChange<-NULL
+
+Grass<-melt(Grass, id=c("GEOID", "Scenario"))
+Grass$valuekm<-Grass$value*(900/1000000)
+
+Grass<-subset(Grass, Grass$GEOID %in% c( "GEOID_51069" , "GEOID_51107" , "GEOID_51171" , "GEOID_51061" , "GEOID_51157" , "GEOID_51113" , "GEOID_51137" , "GEOID_51139",  "GEOID_51015" , "GEOID_51047" , "GEOID_51043",  "GEOID_51187",  "GEOID_51079" , "GEOID_51165" , "GEOID_51003", "GEOID_51840" ,  "GEOID_51540",  "GEOID_51660" , "GEOID_51790" , "GEOID_51820"))
+
+
+colnames(Grass)<-c("GEOID",  "Scenario", "TimeStep", "value", "valuekm")
+
+Grass<-Grass%>% 
+  filter(valuekm > 1)
+
+windows()
+ggplot(Grass, aes(x=TimeStep, y=valuekm, colour=GEOID, group=GEOID))+
+  geom_line(size=2)+
+  facet_grid(.~Scenario)
+
+#Crop
+Q1_Crop<-Q1[2:57,c(1,26,27,28,29,30,31,32,33)]
+Q1_Crop<-mutate(Q1_Crop, PercentChange7=((Change7/Q1_For$X2011)*100))
+Q1_Crop$Scenario<-"Q1"
+
+Q2_Crop<-Q2[2:57,c(1,26,27,28,29,30,31,32,33)]
+Q2_Crop<-mutate(Q2_Crop, PercentChange7=((Change7/Q2_Crop$X2011)*100))
+Q2_Crop$Scenario<-"Q2"
+
+Q3_Crop<-Q3[2:57,c(1,26,27,28,29,30,31,32,33)]
+Q3_Crop<-mutate(Q3_Crop, PercentChange7=((Change7/Q3_Crop$X2011)*100))
+Q3_Crop$Scenario<-"Q3"
+
+Q4_Crop<-Q4[2:57,c(1,26,27,28,29,30,31,32,33)]
+Q4_Crop<-mutate(Q4_Crop, PercentChange7=((Change7/Q4_Crop$X2011)*100))
+Q4_Crop$Scenario<-"Q4"
+
+RT_Crop<-RT[2:57,c(1,26,27,28,29,30,31,32,33)]
+RT_Crop<-mutate(RT_Crop, PercentChange7=((Change7/RT_Crop$X2011)*100))
+RT_Crop$Scenario<-"RT"
+
+Crop<-rbind(Q1_Crop, Q2_Crop, Q3_Crop, Q4_Crop, RT_Crop)
+colnames(Crop)<-c("GEOID", "2001", "2011", "2021", "2031", "2041", "2051", "2061", "Change", "PercentChange", "Scenario")
+
+
+Crop<-Crop%>% 
+  filter(PercentChange < -8.84)
+
+Crop$Change<-NULL
+Crop$PercentChange<-NULL
+
+Crop<-melt(Crop, id=c("GEOID", "Scenario"))
+Crop$valuekm<-Crop$value*(900/1000000)
+
+Crop<-subset(Crop, Crop$GEOID %in% c( "GEOID_51069" , "GEOID_51107" , "GEOID_51171" , "GEOID_51061" , "GEOID_51157" , "GEOID_51113" , "GEOID_51137" , "GEOID_51139",  "GEOID_51015" , "GEOID_51047" , "GEOID_51043",  "GEOID_51187",  "GEOID_51079" , "GEOID_51165" , "GEOID_51003", "GEOID_51840" ,  "GEOID_51540",  "GEOID_51660" , "GEOID_51790" , "GEOID_51820"))
+
+
+colnames(Crop)<-c("GEOID",  "Scenario", "TimeStep", "value", "valuekm")
+
+Crop<-Crop%>% 
+  filter(valuekm > 7.28) #median
+
+windows()
+ggplot(Crop, aes(x=TimeStep, y=valuekm, colour=GEOID, group=GEOID))+
+  geom_line(size=2)+
+  facet_grid(.~Scenario)
+
+#County no City 
+CombinedMeltC<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/Tables/County/CombinedMeltC_SA_NoCity.csv")
+
+Dev<-CombinedMeltC %>%
+  filter(LABEL ==3)
+For<-CombinedMeltC %>%
+  filter(LABEL ==5)
+Gras<-CombinedMeltC %>%
+  filter(LABEL == 6) 
+Crop<-CombinedMeltC %>%
+  filter(LABEL == 7)
+
+windows()
+ggplot(Crop, aes(x=TimeStep, y=valuekm, colour=variable, group=variable))+
+  geom_line(size=2)+
+  facet_grid(.~Scenario)
+#-------------------------------------------------------#
+#Region Exploratory
+
+Region<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/Tables/Region/CombinedMeltR_SA.csv")
+
+Region_dev<-Region %>%
+  filter(LABEL==3)
+Region_for<-Region %>%
+  filter(LABEL == 5)
+Region_gras<-Region %>%
+  filter(LABEL ==6)
+Region_crop<-Region %>%
+  filter(LABEL == 7)
+
+
+
+windows()
+ggplot(Region_crop, aes(x=TimeStep, y=valuekm, colour=factor(Region), group=factor(Region)))+
+  geom_line(size=2)+
+  facet_grid(.~Scenario)
+
+#based on regions exploratory county
+
+County<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/Tables/County/CombinedMeltC_SA.csv")
+
+Counties<-County %>%
+  filter(Region == 5 | Region == 2)
+
+Counties_dev<-Counties %>%
+  filter(LABEL ==3)
+Counties_for<-Counties %>%
+  filter(LABEL ==5)
+Counties_gras<-Counties %>%
+  filter(LABEL == 6)
+Counties_crop<-Counties %>%
+  filter(LABEL == 7)
+
+windows()
+ggplot(Counties_crop, aes(x=TimeStep, y=valuekm, colour=variable, group=variable))+
+  geom_line(size=2)+
+  facet_grid(. ~ Scenario)

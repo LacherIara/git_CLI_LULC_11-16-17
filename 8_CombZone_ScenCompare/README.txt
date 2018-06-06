@@ -6,10 +6,16 @@ Inputs:
 - NLCD 2001: Land cover 2001 
 - NLCD 2011: Land cover 2011
 Outputs: 
+8_ZonalHist_MultScens_50years
 - Future Landscapes histogram (ex. V2015_Q1_Landscape01_hist) with value representing area (units are in pixels that are later converted to km)
 - NLCD histogram (ex. Nlcd01_anC_hist) 
-- Reshaped tables (Melt): In order to use ggplot the histograms needed to be rearranged 
-- Reshaped tables (region): From the resulting melted data summed by county over land cover type. Allows display of histograms for entire study area
+
+8_ZonalHist_MultScens_50years_MergeTables 
+- County (Melt) : In order to use ggplot the histograms needed to be rearranged. Data kept on a county level. 
+- Region (Melt): From the resulting melted data summed up to region level. 
+- Sum (Melt): From the resulting melted county data summed up to the study area or the study area + buffer. 
+
+8_ZonalHist_MultScens_50years_Graphs
 Graphs: 
 - Contains ggplot code to make graphs that display final histograms. 
 o Graphs are generated to either compare scenarios over time for a specific land cover either for a specific county or the entire study area. 
