@@ -15,16 +15,18 @@ library(ggrepel)
 version<-"/StudyArea_V201/SA_V2016"
 version_table<-paste0("U:/CLI/Dinamica_Runs",version, "/BasicDataAnalyses/Zonal_Histogram/")
 
-Comb_outputCounty<-paste0(version_table,"Tables/County/")
-Comb_outputRegion<-paste0(version_table,"Tables/Region/")
-Comb_outputSum<-paste0(version_table, "Tables/Sum/")
+Comb_outputCounty<-paste0(version_table, tables, "County/")
+Comb_outputSA<-paste0(version_table, tables,"StudyArea/")
+Comb_outputBuffer<-paste0(version_table,tables, "Buffer/")
+Comb_outputRegion<-paste0(version_table, tables, "Region/")
+Comb_outputReshape<-paste0(version_table, tables, "County/v2016_Reshape/")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TABLES COMPARED ACROSS SCENARIOS OVER TIME 
 #Combines all scenarios 
 
 #Read in county Melt csvs to combine all scnenarios Full AREA
-FolderM<-list.files(Comb_outputCounty, pattern="C.csv", full.names = TRUE) 
+FolderM<-list.files(Comb_outputCounty, pattern="ctny.csv", full.names = TRUE) 
 CSV_Melt<-lapply(FolderM,function(i){
   read.csv(i)
 })
@@ -39,7 +41,7 @@ CSV_Melt[[5]]$Scenario<-"RT"
 
 CombinedMeltLC<-do.call(rbind.data.frame,CSV_Melt)
 CombinedMeltLC<-subset(CombinedMeltLC, CombinedMeltLC$TimeStep > 1) #IF STILL NEED AFTER 2001
-write.csv(CombinedMeltLC, paste0(Comb_outputCounty,"CombinedMelt_C", ".csv"), row.names=FALSE)
+write.csv(CombinedMeltLC, paste0(Comb_outputCounty,"v2016_ZonalHistogram_AllScenarios_ctny", ".csv"), row.names=FALSE)
 
 #--------------------------------------------------#
 FolderM_SA<-list.files(Comb_outputCounty, pattern="SA.csv", full.names = TRUE) 
@@ -57,12 +59,12 @@ CSV_Melt_SA[[5]]$Scenario<-"RT"
 
 CombinedMeltLC_SA<-do.call(rbind.data.frame,CSV_Melt_SA)
 CombinedMeltLC_SA<-subset(CombinedMeltLC_SA, CombinedMeltLC_SA$TimeStep > 1) #IF STILL NEED AFTER 2001
-write.csv(CombinedMeltLC_SA, paste0(Comb_outputCounty,"CombinedMeltC_SA", ".csv"), row.names=FALSE)
+write.csv(CombinedMeltLC_SA, paste0(Comb_outputCounty,"v2016_ZonalHistogram_AllScenarios_ctny_SA", ".csv"), row.names=FALSE)
 
 
 #read in region melt csvs to combine all scenarios
 #FULL AREA
-FolderMR<-list.files(Comb_outputRegion, pattern="R.csv", full.names = TRUE) 
+FolderMR<-list.files(Comb_outputRegion, pattern="rgn.csv", full.names = TRUE) 
 CSV_Region<-lapply(FolderMR,function(i){
   read.csv(i)
 })
@@ -77,7 +79,7 @@ CSV_Region[[5]]$Scenario<-"RT"
 
 CombinedRegionLC<-do.call(rbind.data.frame,CSV_Region)
 CombinedRegionLC<-subset(CombinedRegionLC, CombinedRegionLC$TimeStep > 1) #IF STILL NEED AFTER 2001
-write.csv(CombinedRegionLC, paste0(Comb_outputRegion,"CombinedMelt_R", ".csv"), row.names=FALSE)
+write.csv(CombinedRegionLC, paste0(Comb_outputRegion,"v2016_ZonalHistogram_AllScenarios_rgn", ".csv"), row.names=FALSE)
 
 #read in region melt csvs to combine all scenarios 
 #STUDY AREA
@@ -96,12 +98,12 @@ CSV_Region_SA[[5]]$Scenario<-"RT"
 
 CombinedRegionLC_SA<-do.call(rbind.data.frame,CSV_Region_SA)
 CombinedRegionLC_SA<-subset(CombinedRegionLC_SA, CombinedRegionLC_SA$TimeStep > 1) #IF STILL NEED AFTER 2001
-write.csv(CombinedRegionLC_SA, paste0(Comb_outputRegion,"CombinedMeltR_SA", ".csv"), row.names=FALSE)
+write.csv(CombinedRegionLC_SA, paste0(Comb_outputRegion,"V21016_ZonalHistogram_AllScenarios_rgn_SA", ".csv"), row.names=FALSE)
 
 
 ##read in sum csv to combine all scenarios 
 #FULL AREA
-FolderS<-list.files(Comb_outputSum, pattern="Sum.csv", full.names = TRUE) 
+FolderS<-list.files(Comb_outputBuffer, pattern=".csv", full.names = TRUE) 
 CSV_Sum<-lapply(FolderS,function(i){
   read.csv(i)
 })
@@ -114,11 +116,11 @@ CSV_Sum[[4]]$Scenario<-"Q4"
 CSV_Sum[[5]]$Scenario<-"RT"
 
 CombinedSumLC<-do.call(rbind.data.frame,CSV_Sum)
-write.csv(CombinedSumLC, paste0(Comb_outputSum,"Combined_sum", ".csv"), row.names=FALSE)
+write.csv(CombinedSumLC, paste0(Comb_outputSum,"v2016_ZonalHistogram_AllScenarios_Buffer.csv"), row.names=FALSE)
 
 ##read in sum csv to combine all scenarios 
 #STUDY AREA
-FolderS_SA<-list.files(Comb_outputSum, pattern="SAsum.csv", full.names = TRUE) 
+FolderS_SA<-list.files(Comb_outputSA, pattern=".csv", full.names = TRUE) 
 CSV_Sum_SA<-lapply(FolderS_SA,function(i){
   read.csv(i)
 })
@@ -131,7 +133,7 @@ CSV_Sum_SA[[4]]$Scenario<-"Q4"
 CSV_Sum_SA[[5]]$Scenario<-"RT"
 
 CombinedSumLC_SA<-do.call(rbind.data.frame,CSV_Sum_SA)
-write.csv(CombinedSumLC_SA, paste0(Comb_outputSum,"CombinedSA_sum", ".csv"), row.names=FALSE)
+write.csv(CombinedSumLC_SA, paste0(Comb_outputSA,"v2016_ZonalHistogram_AllScenarios_SA.csv"), row.names=FALSE)
 
 
 #PERCENT CHANGE INDIVIDUAL COUNTIES
