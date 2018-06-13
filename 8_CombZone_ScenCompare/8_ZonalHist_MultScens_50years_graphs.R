@@ -1,7 +1,10 @@
 #PURPOSE: Combine merged tables and use them to make graphs. 
 #Creator: Sarah Halperin 
 #Contact: halperins@si.edu
+#Notes: There are a lot of options here on how to organize the data and generate graphs. First imports all Scenario  tables and combines them. Then possible graphs. Followed by exploratory analysis for county and region. These exploratory analysis and very rough. 
+
 #------------------------------------------------#
+
 library(plyr) # General data manipulation
 library(dplyr) # General data manipulation
 library(raster) # read and edit rasters
@@ -10,6 +13,7 @@ library(reshape) #manipulation of output tables
 library(ggplot2) #graphs 
 library(ggpubr)
 library(ggrepel)
+
 
 #set inputs
 version<-"/StudyArea_V201/SA_V2016"
@@ -23,7 +27,7 @@ Comb_outputReshape<-paste0(version_table, tables, "County/v2016_Reshape/")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #TABLES COMPARED ACROSS SCENARIOS OVER TIME 
-#Combines all scenarios 
+#Import and Combines all scenarios 
 
 #Read in county Melt csvs to combine all scnenarios Full AREA
 FolderM<-list.files(Comb_outputCounty, pattern="ctny.csv", full.names = TRUE) 
@@ -409,7 +413,7 @@ ggplot(DevelopmentPC, aes(x=Scenario, y=PercentChange, fill=Scenario))+
   theme(axis.line.y =element_line(size=1.5))
 
 #--------------------------------------------------------------#
-#Exploratory Initial county 
+#Exploratory Analysis County 
 
 FolderReshape<-list.files(Comb_outputReshape, pattern=".csv", full.names = TRUE) 
 CSV_Reshape<-lapply(FolderReshape,function(i){

@@ -1,4 +1,4 @@
-#PURPOSE: Once tables are produced for timestpes 1-5 increase efficiency of the merged and region tables. 
+#PURPOSE: Once tables are produced for timestpes 1-5 increase efficiency of melted tables for use in ggplot and combining all scenarios. 
 #Creator: Sarah Halperin 
 #Contact: halperins@si.edu
 #------------------------------------------------#
