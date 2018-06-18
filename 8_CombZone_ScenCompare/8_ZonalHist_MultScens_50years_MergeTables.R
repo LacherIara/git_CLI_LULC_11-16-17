@@ -160,9 +160,9 @@ for( i in 1:length(CombinedList)){
   Combined<-CombinedList[[i]]
 LABEL3<-Combined %>%
   filter(LABEL==3)
-LABEL3<-LABEL3[,2:58]
+LABEL3<-LABEL3[,2:58] #change if number of rows changes (aka if want regions)
 LABEL3<-t(LABEL3)
-LABEL3<-LABEL3[1:57,]
+LABEL3<-LABEL3[1:57,] #change if number of rows changes (aka if want regions)
 colnames(LABEL3)<-c("2001", "2011", "2021","2031","2041", "2051","2061")
 LABEL3<-as.data.frame(LABEL3)
 LABEL3$Change3<-LABEL3$`2061`-LABEL3$`2011`
