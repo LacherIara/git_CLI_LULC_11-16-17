@@ -58,7 +58,7 @@ library(ggpubr)
 #Set Version and version input 
 version<-"/StudyArea_V201/SA_V2016"
 version_input<-paste0("U:/CLI/Dinamica_Runs",version, "/FutureLandscapes/")
-Scenario<-"NL/" #set scenario desired to run. If want all scenarios to run say "All" for all scenarios (NOTE: when all scenarios you must use the second set of code)
+Scenario<-"PL_Gap/" #set scenario desired to run. If want all scenarios to run say "All" for all scenarios (NOTE: when all scenarios you must use the second set of code)
 
 
 # ----------------------------------------------
@@ -83,13 +83,14 @@ inRasterLoc<-version_input
 Folders <-  list('Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'RT' = c("RT/"),'RT' = c("RT/"),'RT' = c("RT/"),'RT' = c("RT/"),'RT' = c("RT/"))
 inRasterLoc <-paste0(inRasterLoc, Folders)
 
-
+#TURN ON FOR PL_GAP 
+inRasterLoc <- paste0(version_input, Scenario)
 
 # Define paths for output files
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #ADJUST FOR DESIRED FOLDER
-version_output<-"BasicDataAnalyses/Zonal_Histogram_Test/"
+version_output<-"BasicDataAnalyses/Zonal_Histogram/"
 Comb_output<-gsub("FutureLandscapes/", version_output, version_input)
 Comb_output<-paste0(Comb_output, Scenario)
 
@@ -142,7 +143,7 @@ S20_GEOID <-  read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SAcntyOnly.csv")#SCB
 # TRANSITIONS
 # ---------------------------------------------- 
 #Version_LS_trans Must match above 
-version_LS_trans<-"v2015"
+version_LS_trans<-"v2016"
 
 #TURN on FOR NL
 LS_trans <-  list('LS01' = c("nlcd01_anC.img"),'LS02' = c("nlcd11_anC.img"))
@@ -179,6 +180,22 @@ Q4 <-  list('LSQ401' = c(paste0(version_LS_trans,"_Q4_Landscape01.tif")),'LSQ402
 
 
 LS_trans<-do.call(c,(list(Q1, Q2, Q3, Q4,RT))) #create list for ALL SCENARIOS 
+#TURN ON FOR GAP 
+NL<-list('LSNL01' = c("nldc01_anC.tif"),'LSNL02' = c("nldc11_anC.tif"))
+RT <-  list('LSRT01' = c(paste0(version_LS_trans,"_RT_Landscape01.tif")),'LSRT02' = c(paste0(version_LS_trans, "_RT_Landscape02.tif")),'LSRT03' = c(paste0(version_LS_trans,"_RT_Landscape03.tif")),'LSRT04' = c(paste0(version_LS_trans,"_RT_Landscape04.tif")),'LSRT05' = c(paste0(version_LS_trans,"_RT_Landscape05.tif"))) 
+
+Q1 <-  list('LSQ101' = c(paste0(version_LS_trans,"_Q1_Landscape01.tif")),'LSQ102' = c(paste0(version_LS_trans, "_Q1_Landscape02.tif")),'LSQ103' = c(paste0(version_LS_trans,"_Q1_Landscape03.tif")),'LSQ104' = c(paste0(version_LS_trans,"_Q1_Landscape04.tif")),'LSQ105' = c(paste0(version_LS_trans,"_Q1_Landscape05.tif")))
+
+Q2 <-  list('LSQ201' = c(paste0(version_LS_trans,"_Q2_Landscape01.tif")),'LSQ202' = c(paste0(version_LS_trans, "_Q2_Landscape02.tif")),'LSQ203' = c(paste0(version_LS_trans,"_Q2_Landscape03.tif")),'LSQ204' = c(paste0(version_LS_trans,"_Q2_Landscape04.tif")),'LSQ205' = c(paste0(version_LS_trans,"_Q2_Landscape05.tif")))
+
+
+Q3<-  list('LSQ301' = c(paste0(version_LS_trans,"_Q3_Landscape01.tif")),'LSQ302' = c(paste0(version_LS_trans, "_Q3_Landscape02.tif")),'LSQ303' = c(paste0(version_LS_trans,"_Q3_Landscape03.tif")),'LSQ304' = c(paste0(version_LS_trans,"_Q3_Landscape04.tif")),'LSQ305' = c(paste0(version_LS_trans,"_Q3_Landscape05.tif")))
+
+
+Q4 <-  list('LSQ401' = c(paste0(version_LS_trans,"_Q4_Landscape01.tif")),'LSQ402' = c(paste0(version_LS_trans, "_Q4_Landscape02.tif")),'LSQ403' = c(paste0(version_LS_trans,"_Q4_Landscape03.tif")),'LSQ404' = c(paste0(version_LS_trans,"_Q4_Landscape04.tif")),'LSQ405' = c(paste0(version_LS_trans,"_Q4_Landscape05.tif")))
+
+
+LS_trans<-do.call(c,(list(NL,Q1, Q2, Q3, Q4,RT))) 
 
 
 # ------------------------------------------------------

@@ -14,7 +14,7 @@ library(ggpubr)
 
 #set inputs
 version<-"/StudyArea_V201/SA_V2016"
-version_table<-paste0("U:/CLI/Dinamica_Runs",version, "/BasicDataAnalyses/Zonal_Histogram/")
+version_table<-paste0("U:/CLI/Dinamica_Runs",version, "/BasicDataAnalyses/Zonal_Histogram/PL_Gap/")
 tables<-paste0("Tables/", "v2016_")#make sure change version
 #--------------------------------------------------------------------#
 Comb_outputCounty<-paste0(version_table, tables, "County/")
