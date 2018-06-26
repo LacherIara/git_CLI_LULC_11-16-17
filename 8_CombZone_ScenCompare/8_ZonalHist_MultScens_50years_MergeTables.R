@@ -26,6 +26,7 @@ Comb_outputReshape<-paste0(version_table, tables, "County/v2016_Reshape/") #manu
 Region_SA<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/CountyNmsGEOIDRegion_cnty.csv")
 Region_SA$variable<-paste0(Region_SA$GEOID_, Region_SA$GEOID)
 Region_SA<-Region_SA[,5:7]
+Region_SA[1,]<-"LABEL"
 
 #Read in files for NLCD
 Folder<-list.files(paste0(version_table, "NL"), pattern=".txt", full.names = TRUE) #Read in NCLD files 
@@ -198,4 +199,5 @@ CombinedReshape<-cbind(LABEL3, LABEL5,LABEL6,LABEL7)
 write.csv(CombinedReshape, paste0(Comb_outputReshape,(ScenarioReshape[[i]]),".csv")) 
 
 }
+
 

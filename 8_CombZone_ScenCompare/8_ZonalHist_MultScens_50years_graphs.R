@@ -17,7 +17,8 @@ library(ggrepel)
 
 #set inputs
 version<-"/StudyArea_V201/SA_V2016"
-version_table<-paste0("U:/CLI/Dinamica_Runs",version, "/BasicDataAnalyses/Zonal_Histogram/")
+version_table<-paste0("U:/CLI/Dinamica_Runs",version, "/BasicDataAnalyses/Zonal_Histogram/PL_Gap/")
+tables<-"Tables/v2016_"
 
 Comb_outputCounty<-paste0(version_table, tables, "County/")
 Comb_outputSA<-paste0(version_table, tables,"StudyArea/")
@@ -120,7 +121,7 @@ CSV_Sum[[4]]$Scenario<-"Q4"
 CSV_Sum[[5]]$Scenario<-"RT"
 
 CombinedSumLC<-do.call(rbind.data.frame,CSV_Sum)
-write.csv(CombinedSumLC, paste0(Comb_outputSum,"v2016_ZonalHistogram_AllScenarios_Buffer.csv"), row.names=FALSE)
+write.csv(CombinedSumLC, paste0(Comb_outputBuffer,"v2016_ZonalHistogram_AllScenarios_Buffer.csv"), row.names=FALSE)
 
 ##read in sum csv to combine all scenarios 
 #STUDY AREA
@@ -138,6 +139,20 @@ CSV_Sum_SA[[5]]$Scenario<-"RT"
 
 CombinedSumLC_SA<-do.call(rbind.data.frame,CSV_Sum_SA)
 write.csv(CombinedSumLC_SA, paste0(Comb_outputSA,"v2016_ZonalHistogram_AllScenarios_SA.csv"), row.names=FALSE)
+#Read in Reshape csv to combine 
+FolderS_SA<-list.files(Comb_outputSA, pattern=".csv", full.names = TRUE) 
+CSV_Sum_SA<-lapply(FolderS_SA,function(i){
+  read.csv(i)
+})
+
+
+CSV_Sum_SA[[1]]$Scenario<-"Q1"
+CSV_Sum_SA[[2]]$Scenario<-"Q2"
+CSV_Sum_SA[[3]]$Scenario<-"Q3"
+CSV_Sum_SA[[4]]$Scenario<-"Q4"
+CSV_Sum_SA[[5]]$Scenario<-"RT"
+
+CombinedSumLC_SA<-do.call(rbind.data.frame,CSV_Sum_SA)
 
 
 #PERCENT CHANGE INDIVIDUAL COUNTIES
@@ -368,7 +383,7 @@ ggsave(file="v2015_Fauq_development.png", dpi=300,width=15, height=15)
 library(ggplot2)
 
 windows()
-ggplot(DevelopmentM, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
+ggplot(GrassM, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
   geom_line(size=2)+
   scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c( "2011", "2021", "2031", "2041", "2051", "2061"))+
   scale_colour_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
