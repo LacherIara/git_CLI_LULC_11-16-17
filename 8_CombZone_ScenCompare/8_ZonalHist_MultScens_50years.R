@@ -54,7 +54,9 @@ library(ggpubr)
 # SET TEMP DIRECTORY
 # rasterOptions(tmpdir = "Y:/Lacher/RTempCLEARME/")
 
-#----------------------------------------------
+
+# ----------------------------------------------
+# READ INPUT FILES:
 #Set Version and version input 
 version<-"/StudyArea_V201/SA_V2016"
 version_input<-paste0("U:/CLI/Dinamica_Runs",version, "/FutureLandscapes/")
@@ -71,41 +73,30 @@ cntyRasterLoc <- "U:/CLI/PreparedRasters/StudyAreaBndy/"
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 #TURN ON SCENARIO INPUTS: Whatever is turned on must match the designated scenario 
 
+# ----------------------------------------------
 #TURN ON FOR NL 
 inRasterLoc<-paste0(version_input, "NL/nlcd_nlcd/")
 
+# ----------------------------------------------
 #TURN ON FOR ALL INDIVIDUAL SCENARIOS 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 inRasterLoc <- paste0(version_input, Scenario)
 
+# ----------------------------------------------
 #TURN ON FOR ALL SCENARIOS (not NL)
 inRasterLoc<-version_input
 Folders <-  list('Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q1' = c("Q1/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q2' = c("Q2/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q3' = c("Q3/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'Q4' = c("Q4/"),'RT' = c("RT/"),'RT' = c("RT/"),'RT' = c("RT/"),'RT' = c("RT/"),'RT' = c("RT/"))
 inRasterLoc <-paste0(inRasterLoc, Folders)
 
+# ----------------------------------------------
 #TURN ON FOR PL_GAP 
 inRasterLoc <- paste0(version_input, Scenario)
 
-# Define paths for output files
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#ADJUST FOR DESIRED FOLDER
-version_output<-"BasicDataAnalyses/Zonal_Histogram/"
-Comb_output<-gsub("FutureLandscapes/", version_output, version_input)
-Comb_output<-paste0(Comb_output, Scenario)
+
 
 # ----------------------------------------------
-# READ OUTPUT FILES:
-
-# ----------------------------------------------
-# READ INPUT FILES:
-
-# Land Cover Rasters:
-# nl01 <- raster("U:/CLI/PreparedRasters/StudyAreaBndy/nlcd01_anC.img")
-# nl06 <- raster("U:/CLI/PreparedRasters/StudyAreaBndy/nlcd06_anC.img")
-# nl11 <- raster("U:/CLI/PreparedRasters/StudyAreaBndy/nlcd11_anC.img")
-
-# COUNTY RASTERS #currently set to regions 
+# COUNTY RASTERS 
+#currently set to regions 
 regions <- raster(paste(cntyRasterLoc, "cnty_an", ".img", sep="")) # this is for the raster.
 counties_vals <- getValues(regions) #defining the region 
 #NOTE: Craig said the only correct region raster was region_an2. I updated to region_an2 was region_an. I changed it to counties (regions_StudyArea.tif), which has now been renamed to ctny_StudyArea
@@ -132,6 +123,12 @@ sa_ctyGEOIDzero$Din_cty<-sapply(sa_ctyGEOIDzero$Din_cty, function(x){if(nchar(x)
 
  #select only the Study Area counties to run basic analyses
 S20_GEOID <-  read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SAcntyOnly.csv")#SCBI V: #Geological ID for the county. 
+
+# ----------------------------------------------
+#OUTPUT FOLDER
+version_output<-"BasicDataAnalyses/Zonal_Histogram/"
+Comb_output<-gsub("FutureLandscapes/", version_output, version_input)
+Comb_output<-paste0(Comb_output, Scenario)
 
 
 ############################################################################################
@@ -197,7 +194,7 @@ Q4 <-  list('LSQ401' = c(paste0(version_LS_trans,"_Q4_Landscape01.tif")),'LSQ402
 
 LS_trans<-do.call(c,(list(NL,Q1, Q2, Q3, Q4,RT))) 
 
-#LS_trans<-NL
+
 # ------------------------------------------------------
 # ------------------------------------------------------
 # ZONAL HISTOGRAM ONLY (not transitions)
@@ -206,14 +203,15 @@ LS_trans<-do.call(c,(list(NL,Q1, Q2, Q3, Q4,RT)))
 
 #FOR ONE SCENARIO AT A TIME
 #SEE CODE BELOW FOR ALL SCENARIOS 
-#LINE 269
-# ----------------------------------------------
-# Loop through transitions
-# ----------------------------------------------
+
+
 old <- Sys.time() # TIMING SCRIPT
 
 #-----------------------------------------------------#
-#USE FOR NCLD and individual scenarios 
+# ----------------------------------------------
+# ZONAL HISTOGRAM ON FINAL LANDSCAPE 
+# ----------------------------------------------
+#USE FOR NCLD AND INDIVIDUAL SCENARIOS
 for(in_to_fin in names(LS_trans)){ # Makes code flexible for use with more than 2 landscapes. ##CF- so not actual loop here?
 
 Final_Landscape <-paste0(inRasterLoc, LS_trans[[in_to_fin]][1]) #full file path using inRasterLoc as the base
@@ -223,14 +221,6 @@ Final_Landscape <- raster(Final_Landscape)
 fin_vals <- getValues(Final_Landscape) 
   #plot of different land use types. 
 
-
-#----------------------------------------------------#
-
-
-
-# ZONAL HISTOGRAM ON FINAL LANDSCAPE 
-# ----------------------------------------------
-# ----------------------------------------------
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Select desired transitions 
@@ -286,10 +276,15 @@ new<-Sys.time()-old # TIMING SCRIPT
 print(new) # Time difference of 6.276551 mins
 #-----------------------------------------------------------------------------------------------------------------#
 
+
+
 #CODE REPEATED FOR ALL SCENARIOS and GAP
-## ----------------------------------------------
-# Loop through transitions
 # ----------------------------------------------
+# ----------------------------------------------
+# ALL SCENARIOS: LOOP THROUGH
+# ----------------------------------------------
+# ----------------------------------------------
+
 old <- Sys.time() # TIMING SCRIPT
 
 InRasterLoc_LsTrans<-paste0(inRasterLoc, LS_trans)
@@ -302,10 +297,10 @@ for(i in 1:length(InRasterLoc_LsTrans)){ # Makes code flexible for use with more
   
   #plot of different land use types. 
   
-  # ZONAL HISTOGRAM ON FINAL LANDSCAPE 
   # ----------------------------------------------
-  # ----------------------------------------------
-  
+  #ZONAL HISTOGRAM ON FINAL LANDSCAPE 
+
+
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Select desired transitions 
   final <- ifelse(fin_vals %in%  c("3","5","6","7"), fin_vals, 0)

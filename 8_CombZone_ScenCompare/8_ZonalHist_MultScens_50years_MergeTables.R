@@ -1,7 +1,12 @@
+
+############################ 
 #PURPOSE: Once tables are produced for timestpes 1-5 increase efficiency of melted tables for use in ggplot and combining all scenarios. 
-#Creator: Sarah Halperin 
-#Contact: halperins@si.edu
+#CREATOR: Sarah Halperin 
+#CONTACT: halperins@si.edu
 #------------------------------------------------#
+###########################################
+
+# PACKAGES NEEDED
 library(plyr) # General data manipulation
 library(dplyr) # General data manipulation
 library(raster) # read and edit rasters
@@ -11,18 +16,24 @@ library(ggplot2) #graphs
 library(ggpubr)
 
 
-
-#set inputs
+# ----------------------------------------------
+# FILE LOCATIONS: 
+#INPUT FILE LOCATION: 
 version<-"/StudyArea_V201/SA_V2016"
 version_table<-paste0("U:/CLI/Dinamica_Runs",version, "/BasicDataAnalyses/Zonal_Histogram/PL_Gap/")
 tables<-paste0("Tables/", "v2016_")#make sure change version
 #--------------------------------------------------------------------#
+#OUTPUT FILES LOCATION: 
 Comb_outputCounty<-paste0(version_table, tables, "County/")
 Comb_outputSA<-paste0(version_table, tables,"StudyArea/")
 Comb_outputBuffer<-paste0(version_table,tables, "Buffer/")
 Comb_outputRegion<-paste0(version_table, tables, "Region/")
 Comb_outputReshape<-paste0(version_table, tables, "County/v2016_Reshape/") #manually change for this one
 
+# ----------------------------------------------
+# READ INPUT FILES:
+
+#Region Names 
 Region_SA<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/CountyNmsGEOIDRegion_cnty.csv")
 Region_SA$variable<-paste0(Region_SA$GEOID_, Region_SA$GEOID)
 Region_SA<-Region_SA[,5:7]
@@ -97,6 +108,11 @@ TablesQ4[[3]]$TimeStep<-5
 TablesQ4[[4]]$TimeStep<-6
 TablesQ4[[5]]$TimeStep<-7
 
+#------------------------------------------------------------------------
+###########################################
+# ~~~ CODE BEGINS ~~~ #
+###########################################
+
 #Combined timesteps 
 CombinedRT<-do.call(rbind.data.frame,TablesRT)
 CombinedQ1<-do.call(rbind.data.frame,TablesQ1)
@@ -111,11 +127,17 @@ CombinedQ2<-rbind(NLCD,CombinedQ2)
 CombinedQ3<-rbind(NLCD,CombinedQ3)
 CombinedQ4<-rbind(NLCD,CombinedQ4)
 
-CombinedList<-list(CombinedRT, CombinedQ1, CombinedQ2, CombinedQ3, CombinedQ4)
+CombinedList<-list(CombinedRT, CombinedQ1, CombinedQ2, CombinedQ3, CombinedQ4) #combine scenarios
 
 
-#------------------------------------------------#
-#Melt Tables and Region sum tables 
+# ----------------------------------------------
+# ----------------------------------------------
+# MELTED TABLES 
+# ----------------------------------------------
+# ----------------------------------------------
+
+# ----------------------------------------------
+# CREATE LIST TO RUN LOOP THROUGH 
 Version_Name<-"v2016_"
 
 ScenarioMelt<-list(paste0(Version_Name, "ZonalHistogram_RT_ctny.csv"), paste0(Version_Name,"ZonalHistogram_Q1_ctny.csv"), paste0(Version_Name, "ZonalHistogram_Q2_ctny.csv"), paste0(Version_Name, "ZonalHistogram_Q3_ctny.csv"), paste0(Version_Name, "ZonalHistogram_Q4_ctny.csv"))
@@ -127,13 +149,16 @@ ScenarioSA_Region<-list(paste0(Version_Name, "ZonalHistogram_RT_rgn_SA.csv"), pa
 ScenarioSA_County<-list(paste0(Version_Name, "ZonalHistogram_RT_ctny_SA.csv"), paste0(Version_Name, "ZonalHistogram_Q1_ctny_SA.csv"), paste0(Version_Name, "ZonalHistogram_Q2_ctny_SA.csv"),paste0(Version_Name,  "ZonalHistogram_Q3_ctny_SA.csv"),paste0(Version_Name,"ZonalHistogram_Q4_ctny_SA.csv"))
 
 
-
+# ----------------------------------------------
+# MELT ALL FILES
 CombinedMelt<-lapply(CombinedList, function(x){
   melt(x,id=c("Rowid_", "LABEL", "TimeStep"))
 })
 
 
 
+# ----------------------------------------------
+# GENERATE TABLES 
 for(i in 1:length(CombinedMelt)){
       CombinedMelt[[i]]$valuekm<-CombinedMelt[[i]]$value*(900/1000000)
       CombinedMelt[[i]]<-merge(CombinedMelt[[i]], Region_SA, by="variable")
@@ -153,10 +178,16 @@ for(i in 1:length(CombinedMelt)){
 
 
 
-#-----------------------------------------------------------------#
-#Reshape Tables 
+# ----------------------------------------------
+# RESHAPE TABLES
+# ----------------------------------------------
+
+# ----------------------------------------------
+# GENERATE NAMES
 ScenarioReshape<-list(paste0(Version_Name, "ZonalHistogram_RT_Reshape.csv"), paste0(Version_Name, "ZonalHistogram_Q1_Reshape.csv"), paste0(Version_Name, "ZonalHistogram_Q2_Reshape.csv"),paste0(Version_Name,  "ZonalHistogram_Q3_Reshape.csv"),paste0(Version_Name,"ZonalHistogram_Q4_Reshape.csv"))
 
+# ----------------------------------------------
+# REFORMAT 
 for( i in 1:length(CombinedList)){
   Combined<-CombinedList[[i]]
 LABEL3<-Combined %>%
