@@ -27,10 +27,10 @@ Q4file<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_S
 RTfile<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/Forest_FullArea/Polygon/RT05_ForestPoly.shp"
 
 #NL01
-NL01<-raster::shapefile(NL01file)
-NL01Core<-gBuffer(NL01, width=-60)
-NL01Core2<-as(NL01Core,"SpatialPolygonsDataFrame")
-writeOGR(obj=NL01Core2, ".", layer="NL01Core2", driver="ESRI Shapefile" )
+NL01<-raster::shapefile(NL01file) #read in shapefile
+NL01Core<-gBuffer(NL01, width=-60) #create a negative buffer of 60m 
+NL01Core2<-as(NL01Core,"SpatialPolygonsDataFrame") #turn into a spatialpolygonsdataframe
+writeOGR(obj=NL01Core2, ".", layer="NL01Core2", driver="ESRI Shapefile" ) #export the file
 
 #NL11
 NL11<-raster::shapefile(NL11file)
