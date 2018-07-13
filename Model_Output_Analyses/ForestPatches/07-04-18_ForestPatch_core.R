@@ -18,8 +18,8 @@ library(rgeos)
 setwd("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/Forest_FullArea/")
 
 #ForestFolder<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/Forest_FullArea/Polygon"
-NL01file<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/Forest_FullArea/Polygon/NL0105_ForestPoly.shp"
-NL11file<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/Forest_FullArea/Polygon/NL1105_ForestPoly.shp"
+NL01file<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/Forest_FullArea/Polygon/NL0105_ForestPoly2.shp"
+NL11file<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/Forest_FullArea/Polygon/NL1105_ForestPoly2.shp"
 Q1file<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/Forest_FullArea/Polygon/Q105_ForestPoly.shp"
 Q2file<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/Forest_FullArea/Polygon/Q205_ForestPoly.shp"
 Q3file<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/Forest_FullArea/Polygon/Q305_ForestPoly.shp"
@@ -30,13 +30,13 @@ RTfile<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_S
 NL01<-raster::shapefile(NL01file) #read in shapefile
 NL01Core<-gBuffer(NL01, width=-60) #create a negative buffer of 60m 
 NL01Core2<-as(NL01Core,"SpatialPolygonsDataFrame") #turn into a spatialpolygonsdataframe
-writeOGR(obj=NL01Core2, ".", layer="NL01Core2", driver="ESRI Shapefile" ) #export the file
+writeOGR(obj=NL01Core2, ".", layer="NL01Core3", driver="ESRI Shapefile" ) #export the file
 
 #NL11
 NL11<-raster::shapefile(NL11file)
 NL11Core<-gBuffer(NL11, width=-60)
 NL11Core2<-as(NL11Core,"SpatialPolygonsDataFrame")
-writeOGR(obj=NL11Core2, ".", layer="NL11Core2", driver="ESRI Shapefile" )
+writeOGR(obj=NL11Core2, ".", layer="NL11Core3", driver="ESRI Shapefile" )
 
 #Q1
 Q1<-raster::shapefile(Q1file)

@@ -68,9 +68,9 @@ RasterLoc <- version_input
 
 # ----------------------------------------------
 # NLCD 2001 & 2011:
-NL<-"NL/nlcd_nlcd/"
-nl01 <- raster(paste0(version_input,NL, "nlcd01_anC.img"))
-nl11 <- raster(paste0(version_input,NL, "nlcd11_anC.img"))
+#NL<-"NL/nlcd_nlcd/"
+#nl01 <- raster(paste0(version_input,NL, "nlcd01_anC.img"))
+#nl11 <- raster(paste0(version_input,NL, "nlcd11_anC.img"))
 
 # ----------------------------------------------
 # COUNTY RASTERS:
@@ -123,9 +123,9 @@ version_LS_trans<-"v2016"
 #RASTER FILES 
 LS_trans <-  list(
  'NL01' = list(
-   'xx01' = c("NL/nlcd_nlcd/NL01_5_StudyArea.tif", "NL/nlcd_nlcd/NL01_5_StudyArea.tif")), #should it be using this file? 
+   'xx01' = c("NL/nlcd_nlcd/nlcd01_anC.img", "NL/nlcd_nlcd/nlcd01_anC.img")), #should it be using this file? 
  'NL11' = list(
-  '0111' = c("NL/nlcd_nlcd/NL11_5_StudyArea.tif", "NL/nlcd_nlcd/NL11_5_StudyArea.tif")), 
+  '0111' = c("NL/nlcd_nlcd/nlcd11_anC.img", "NL/nlcd_nlcd/nlcd11_anC.img")), 
  'RT05'= list(
    'xxRT'= c(paste0("RT/", version_LS_trans,"_RT", "_Landscape05.tif") ,paste0("RT/", version_LS_trans, "_RT", "_Landscape05.tif"))), 
     'Q105'= list(
@@ -139,9 +139,9 @@ LS_trans <-  list(
 #test
 LS_trans <-  list(
   'NL01' = list(
-    'xx01' = c("NL/nlcd_nlcd/NL01_5.tif", "NL/nlcd_nlcd/NL01_5.tif")), #should it be using this file? 
+    'xx01' = c("NL/nlcd_nlcd/nlcd01_anC.img", "NL/nlcd_nlcd/nlcd01_anC.img")), #should it be using this file? 
   'NL11' = list(
-    '0111' = c("NL/nlcd_nlcd/NL11_5.tif", "NL/nlcd_nlcd/NL11_5.tif")))
+    '0111' = c("NL/nlcd_nlcd/nlcd11_anC.img", "NL/nlcd_nlcd/nlcd11_anC.img")))
 
 # ----------------------------------------------
 # ----------------------------------------------
@@ -170,15 +170,15 @@ for(scenario in names(LS_trans)){ # Makes code flexible for use with more than 2
 
     
     # MASK TO STUDY AREA 
-    #LS_5_StudyArea <- raster::mask(LS_5, cnty_saMASK)
+    LS_5_StudyArea <- raster::mask(LS_5, cnty_saMASK)
     #MASK TO COUNTIES 
-    for(county in 1:length(county_saMaskList)){
-      county_saMask<-raster(county_saMaskList[[county]][1])
-     LS_5_StudyArea<-raster::mask(LS_5,county_saMask)
+    #for(county in 1:length(county_saMaskList)){
+      #county_saMask<-raster(county_saMaskList[[county]][1])
+     #LS_5_StudyArea<-raster::mask(LS_5,county_saMask)
     
      # WRITE TO FILE
-    writeRaster(LS_5_StudyArea, filename=paste0(Output_Folder,names(county_saMaskList[county]), scenario,in_to_fin, "_Forest_StudyArea.tif"), format="GTiff", overwrite=TRUE)
-    #writeRaster(LS_5, filename=paste0(Output_Folder, scenario,in_to_fin, "_Forest_FullArea.tif"), format="GTiff", overwrite=TRUE)
+    #writeRaster(LS_5_StudyArea, filename=paste0(Output_Folder,names(county_saMaskList[county]), scenario,in_to_fin, "_Forest_StudyArea.tif"), format="GTiff", overwrite=TRUE)
+    writeRaster(LS_5, filename=paste0(Output_Folder, scenario,in_to_fin, "_Forest_FullArea.tif"), format="GTiff", overwrite=TRUE)
      
 
     # Note: For future runs, can start here by reading the above to file
@@ -302,6 +302,178 @@ new<-Sys.time()-old
 print(new)
     
     
+###########################################
+# ~~~ MERGE COUNTY CSTAT TABLES ~~~ #
+###########################################  
+
+version_table<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/County/"
+
+
+
+
+
+
+Folder<-list.files(paste0(version_table, "NL"), pattern="110111_Forest_Cstats.txt", full.names = TRUE) #Read in NCLD files 
+NL<-lapply(Folder,function(i){
+  read.csv(i)
+})
+
+NL[[1]]$county<-"Albemarle"
+NL[[2]]$county<-"Augusta"
+NL[[3]]$county<-"Clarke"
+NL[[4]]$county<-"Culpeper"
+NL[[5]]$county<-"Fauquier"
+NL[[6]]$county<-"Frederick"
+NL[[7]]$county<-"Greene"
+NL[[8]]$county<-"Loundon"
+NL[[9]]$county<-"Madison"
+NL[[10]]$county<-"Orange"
+NL[[11]]$county<-"Page"
+NL[[12]]$county<-"Rappahannock"
+NL[[13]]$county<-"Rockingham"
+NL[[14]]$county<-"Shenandoah"
+NL[[15]]$county<-"Warren"
+
+
+
+CombinedNL<-do.call(rbind.data.frame,NL)
+CombinedNL$Scenario<-"NL11"
+
+
+Folder<-list.files(paste0(version_table, "Q1"), pattern="Cstats.txt", full.names = TRUE) #Read in NCLD files 
+Q1<-lapply(Folder,function(i){
+  read.csv(i)
+})
+
+Q1[[1]]$county<-"Albemarle"
+Q1[[2]]$county<-"Augusta"
+Q1[[3]]$county<-"Clarke"
+Q1[[4]]$county<-"Culpeper"
+Q1[[5]]$county<-"Fauquier"
+Q1[[6]]$county<-"Frederick"
+Q1[[7]]$county<-"Greene"
+Q1[[8]]$county<-"Loundon"
+Q1[[9]]$county<-"Madison"
+Q1[[10]]$county<-"Orange"
+Q1[[11]]$county<-"Page"
+Q1[[12]]$county<-"Rappahannock"
+Q1[[13]]$county<-"Rockingham"
+Q1[[14]]$county<-"Shenandoah"
+Q1[[15]]$county<-"Warren"
+
+
+
+CombinedQ1<-do.call(rbind.data.frame,Q1)
+CombinedQ1$Scenario<-"Q1"
+
+Folder<-list.files(paste0(version_table, "Q2"), pattern="Cstats.txt", full.names = TRUE) #Read in NCLD files 
+Q2<-lapply(Folder,function(i){
+  read.csv(i)
+})
+
+Q2[[1]]$county<-"Albemarle"
+Q2[[2]]$county<-"Augusta"
+Q2[[3]]$county<-"Clarke"
+Q2[[4]]$county<-"Culpeper"
+Q2[[5]]$county<-"Fauquier"
+Q2[[6]]$county<-"Frederick"
+Q2[[7]]$county<-"Greene"
+Q2[[8]]$county<-"Loundon"
+Q2[[9]]$county<-"Madison"
+Q2[[10]]$county<-"Orange"
+Q2[[11]]$county<-"Page"
+Q2[[12]]$county<-"Rappahannock"
+Q2[[13]]$county<-"Rockingham"
+Q2[[14]]$county<-"Shenandoah"
+Q2[[15]]$county<-"Warren"
+
+
+
+CombinedQ2<-do.call(rbind.data.frame,Q2)
+CombinedQ2$Scenario<-"Q2"
+
+Folder<-list.files(paste0(version_table, "Q3"), pattern="Cstats.txt", full.names = TRUE) #Read in NCLD files 
+Q3<-lapply(Folder,function(i){
+  read.csv(i)
+})
+
+Q3[[1]]$county<-"Albemarle"
+Q3[[2]]$county<-"Augusta"
+Q3[[3]]$county<-"Clarke"
+Q3[[4]]$county<-"Culpeper"
+Q3[[5]]$county<-"Fauquier"
+Q3[[6]]$county<-"Frederick"
+Q3[[7]]$county<-"Greene"
+Q3[[8]]$county<-"Loundon"
+Q3[[9]]$county<-"Madison"
+Q3[[10]]$county<-"Orange"
+Q3[[11]]$county<-"Page"
+Q3[[12]]$county<-"Rappahannock"
+Q3[[13]]$county<-"Rockingham"
+Q3[[14]]$county<-"Shenandoah"
+Q3[[15]]$county<-"Warren"
+
+
+
+CombinedQ3<-do.call(rbind.data.frame,Q3)
+CombinedQ3$Scenario<-"Q3"
+
+Folder<-list.files(paste0(version_table, "Q4"), pattern="Cstats.txt", full.names = TRUE) #Read in NCLD files 
+Q4<-lapply(Folder,function(i){
+  read.csv(i)
+})
+
+Q4[[1]]$county<-"Albemarle"
+Q4[[2]]$county<-"Augusta"
+Q4[[3]]$county<-"Clarke"
+Q4[[4]]$county<-"Culpeper"
+Q4[[5]]$county<-"Fauquier"
+Q4[[6]]$county<-"Frederick"
+Q4[[7]]$county<-"Greene"
+Q4[[8]]$county<-"Loundon"
+Q4[[9]]$county<-"Madison"
+Q4[[10]]$county<-"Orange"
+Q4[[11]]$county<-"Page"
+Q4[[12]]$county<-"Rappahannock"
+Q4[[13]]$county<-"Rockingham"
+Q4[[14]]$county<-"Shenandoah"
+Q4[[15]]$county<-"Warren"
+
+
+
+CombinedQ4<-do.call(rbind.data.frame,Q4)
+CombinedQ4$Scenario<-"Q4"
+
+Folder<-list.files(paste0(version_table, "RT"), pattern="RT05xxRT_Forest_Cstats.txt", full.names = TRUE) #Read in NCLD files 
+RT<-lapply(Folder,function(i){
+  read.csv(i)
+})
+
+RT[[1]]$county<-"Albemarle"
+RT[[2]]$county<-"Augusta"
+RT[[3]]$county<-"Clarke"
+RT[[4]]$county<-"Culpeper"
+RT[[5]]$county<-"Fauquier"
+RT[[6]]$county<-"Frederick"
+RT[[7]]$county<-"Greene"
+RT[[8]]$county<-"Loundon"
+RT[[9]]$county<-"Madison"
+RT[[10]]$county<-"Orange"
+RT[[11]]$county<-"Page"
+RT[[12]]$county<-"Rappahannock"
+RT[[13]]$county<-"Rockingham"
+RT[[14]]$county<-"Shenandoah"
+RT[[15]]$county<-"Warren"
+
+
+
+CombinedRT<-do.call(rbind.data.frame,RT)
+CombinedRT$Scenario<-"RT"
+
+
+Allscenarios<-rbind(CombinedNL, CombinedRT, CombinedQ1, CombinedQ2, CombinedQ3, CombinedQ4)
+
+write.csv(Allscenarios, "U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/County/V2016_Fragstats_Ctny.csv", row.names = FALSE)
 
 ###########################################
     # ~~~ Majority ~~~ #
@@ -760,6 +932,11 @@ dev.off()
 
 
 ggsave(file="IALE_Area_Fred.png", dpi=300, width=15, height=15)
+
+
+
+
+
 
 
 
