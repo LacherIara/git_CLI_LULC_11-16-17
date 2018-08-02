@@ -37,7 +37,7 @@ Comb_outputReshape<-paste0(version_table, tables, "County/v2016_Reshape/") #manu
 Region_SA<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/CountyNmsGEOIDRegion_cnty.csv")
 Region_SA$variable<-paste0(Region_SA$GEOID_, Region_SA$GEOID)
 Region_SA<-Region_SA[,5:7]
-Region_SA[1,]<-"LABEL"
+
 
 #Read in files for NLCD
 Folder<-list.files(paste0(version_table, "NL"), pattern=".txt", full.names = TRUE) #Read in NCLD files 
@@ -48,6 +48,7 @@ NCLD<-lapply(Folder,function(i){
 
 NCLD[[1]]$TimeStep<-1
 NCLD[[2]]$TimeStep<-2
+
 
 NLCD<-do.call(rbind.data.frame,NCLD)
 
@@ -64,6 +65,7 @@ TablesRT[[4]]$TimeStep<-6
 TablesRT[[5]]$TimeStep<-7
 
 
+
 Q1Folder<-list.files(paste0(version_table,"Q1"), pattern=".txt", full.names = TRUE) 
 TablesQ1<-lapply(Q1Folder,function(i){
   read.csv(i)
@@ -74,6 +76,7 @@ TablesQ1[[2]]$TimeStep<-4
 TablesQ1[[3]]$TimeStep<-5
 TablesQ1[[4]]$TimeStep<-6
 TablesQ1[[5]]$TimeStep<-7
+
 
 Q2Folder<-list.files(paste0(version_table,"Q2"), pattern=".txt", full.names = TRUE) 
 TablesQ2<-lapply(Q2Folder,function(i){
@@ -86,6 +89,8 @@ TablesQ2[[3]]$TimeStep<-5
 TablesQ2[[4]]$TimeStep<-6
 TablesQ2[[5]]$TimeStep<-7
 
+
+
 Q3Folder<-list.files(paste0(version_table,"Q3"), pattern=".txt", full.names = TRUE) 
 TablesQ3<-lapply(Q3Folder,function(i){
   read.csv(i)
@@ -97,6 +102,8 @@ TablesQ3[[3]]$TimeStep<-5
 TablesQ3[[4]]$TimeStep<-6
 TablesQ3[[5]]$TimeStep<-7
 
+
+
 Q4Folder<-list.files(paste0(version_table,"Q4"), pattern=".txt", full.names = TRUE) 
 TablesQ4<-lapply(Q4Folder,function(i){
   read.csv(i)
@@ -107,6 +114,7 @@ TablesQ4[[2]]$TimeStep<-4
 TablesQ4[[3]]$TimeStep<-5
 TablesQ4[[4]]$TimeStep<-6
 TablesQ4[[5]]$TimeStep<-7
+
 
 #------------------------------------------------------------------------
 ###########################################
@@ -163,12 +171,12 @@ for(i in 1:length(CombinedMelt)){
       CombinedMelt[[i]]$valuekm<-CombinedMelt[[i]]$value*(900/1000000)
       CombinedMelt[[i]]<-merge(CombinedMelt[[i]], Region_SA, by="variable")
         write.csv(CombinedMelt[[i]], paste0(Comb_outputCounty,(ScenarioMelt[[i]])), row.names=FALSE)
-      Melt_region<-aggregate(valuekm~LABEL+TimeStep+Region,CombinedMelt[[i]], sum)
+      Melt_region<-aggregate(valuekm ~ LABEL+TimeStep+Region, CombinedMelt[[i]], FUN=sum)
       write.csv(Melt_region, paste0(Comb_outputRegion,(ScenarioRegion[[i]])), row.names=FALSE)
-      Full_sum<-aggregate(valuekm~LABEL + TimeStep, CombinedMelt[[i]], sum)
-      SA_Region<-subset(Melt_region, Melt_region$Region %in% c(1,2,3,4,5))
+      Full_sum<-aggregate(valuekm~LABEL+TimeStep, CombinedMelt[[i]], FUN=sum)
       SA_County<-subset(CombinedMelt[[i]], CombinedMelt[[i]]$SA==1)
-      SA_Sum<-aggregate(valuekm~LABEL + TimeStep, SA_Region, sum)
+      SA_Region<-aggregate(valuekm~LABEL+TimeStep+Region, SA_County, FUN=sum)
+      SA_Sum<-aggregate(valuekm ~LABEL+TimeStep,SA_County, FUN=sum)
       write.csv(SA_Region,paste0(Comb_outputRegion,(ScenarioSA_Region[[i]])), row.names=FALSE )
       write.csv(SA_Sum,paste0(Comb_outputSA,(ScenarioSA_sum[[i]])), row.names=FALSE )
       write.csv(Full_sum,paste0(Comb_outputBuffer,(ScenarioSum[[i]])), row.names=FALSE )

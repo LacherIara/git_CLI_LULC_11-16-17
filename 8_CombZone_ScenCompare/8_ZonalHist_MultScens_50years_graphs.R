@@ -24,7 +24,7 @@ library(ggrepel) #changes to graphs
 # READ INPUT FILES:
 #Set file locations
 version<-"/StudyArea_V201/SA_V2016"
-version_table<-paste0("U:/CLI/Dinamica_Runs",version, "/BasicDataAnalyses/Zonal_Histogram/PL_Gap/")
+version_table<-paste0("U:/CLI/Dinamica_Runs",version, "/BasicDataAnalyses/Zonal_Histogram/")
 tables<-"Tables/v2016_"
 
 # ----------------------------------------------
@@ -149,6 +149,7 @@ CSV_Sum_SA<-lapply(FolderS_SA,function(i){
 })
 
 
+
 CSV_Sum_SA[[1]]$Scenario<-"Q1"
 CSV_Sum_SA[[2]]$Scenario<-"Q2"
 CSV_Sum_SA[[3]]$Scenario<-"Q3"
@@ -169,6 +170,14 @@ write.csv(CombinedSumLC_SA, paste0(Comb_outputSA,"v2016_ZonalHistogram_AllScenar
 # COUNTY
 # ----------------------------------------------
 # ----------------------------------------------
+
+# ----------------------------------------------
+#IF TABLES ALREADY GENERATED
+CombinedMeltPC<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/Tables/v2016_County/v2016_ZonalHistogram_AllScenarios_ctny_SA.csv")
+
+
+
+
 #PERCENT CHANGE INDIVIDUAL COUNTIES
 CombinedMeltLC<-CombinedSumLC_SA #set combinedmeltlc_sa to combinedmeltlc if want just study area 
 #CombinedMeltLC<-CombinedSumLC 
@@ -199,6 +208,7 @@ DevelopmentM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "3")
 ForestM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "5")
 GrassM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "6")
 CropM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "7")
+
 
 # ----------------------------------------------
 # SUBSET BY COUNTY EXAMPLE
@@ -262,6 +272,7 @@ CombinedRegionPC<-merge(CombinedRegionLC,PercentChangeRegion, by=c("Scenario","T
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #PERCENT CHANGE of SUM 
 #CombinedSumLC<-CombinedSumLC_SA #set equal to study area if desired 
+CombinedSumLC<-CombinedSumLC_SA
 
 CombinedSumLCT2<-subset(CombinedSumLC, CombinedSumLC$TimeStep ==2)
 CombinedSumLCT7<-subset(CombinedSumLC, CombinedSumLC$TimeStep ==7)
@@ -275,6 +286,12 @@ CombinedSumLC27$TimeStep<-7
 PercentChange<-CombinedSumLC27[,c(1,2,4,7)]
 
 CombinedSumPC<-merge(CombinedSumLC,PercentChange, by=c("Scenario","TimeStep","LABEL"), all.x=TRUE)
+
+
+#AREADY COMBINED CAN JUST BRING IN TABLE 
+CombinedSumPC<-read.csv(paste0(Comb_outputSA,"v2016_ZonalHistogram_AllScenarios_SA.csv"))
+
+
 
 # ----------------------------------------------
 #SUBSET BY LANDCOVER 
@@ -311,19 +328,38 @@ CropPC<-subset(CropPC, CropPC$TimeStep>1)
 library(ggplot2)
 
 windows()
-ggplot(GrassM, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
+Grass<-ggplot(GrassPC, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
   geom_line(size=2)+
   scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c( "2011", "2021", "2031", "2041", "2051", "2061"))+
   scale_colour_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
-  scale_y_continuous(name =expression('Total Area km'^2))+
+  #scale_y_continuous(name =expression('Total Area km'^2))+
+  #Forest#scale_y_continuous(name =expression('Total Area km'^2), limits = c(9550,9950), breaks=c(9600,9700,9800,9900))+
+  #grass# 
+  scale_y_continuous(name =expression('Total Area km'^2), limits=c(5250,5350), breaks=c(5275,5300,5325,5350))+
+  #development#scale_y_continuous(name =expression('Total Area km'^2),  limits=c(575,1100), breaks=c(600,700,800,900,1000))+
+  #crop# scale_y_continuous(name =expression('Total Area km'^2), limits=c(550,640), breaks=c(550,575,600,625))+
   theme_bw()+
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
-  theme(axis.title.x = element_text(margin = margin(t = 20, r = 0, b = 0, l = 0)))+
-  theme(axis.text=element_text(size=40),
-        axis.title.x=element_text(size=40,face="bold"), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
+  theme(axis.title.x = element_text(margin=margin(t=20, r=0, b=0, l =0)))+
+  theme(axis.text=element_text(size=40, colour="black"),
+        axis.title.x=element_text(size=40), axis.title.y =element_text(size=40, face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
   theme(plot.margin=unit(c(1,1,1,1), "in"))+
-  geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), size=10, show.legend=FALSE)
+  #geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), size=20, show.legend=FALSE)+
+  theme(axis.line = element_line(size=1.5, colour="grey69"), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+
+setwd("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/OutputVisuals/ZonalHistogram_ggplots/v2016_StudyArea/")
+png("v2016_SA_Grass.png", width=480, height=480, units="px", res=300) #can't put units and resolution
+Grass
+dev.off()
+
+
+ggsave(file="v2016_SA_Grass.png", dpi=300,width=15, height=15)
+
+
 
 # ----------------------------------------------
 # iNDIVIDUAL COUNTIES
@@ -331,43 +367,69 @@ ggplot(GrassM, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
 windows()
 
 #FAUQUIER
-v2015_Fauq_development<-ggplot(FauquierD, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
-  geom_line(size=2)+
+FauqC<-ggplot(FauquierD, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
+  geom_line(size=3)+
   scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c("2011", "2021", "2031", "2041", "2051", "2061"))+
   scale_colour_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
-  #Forest#scale_y_continuous(name =expression('Total Area km'^2), limits = c(650,800), breaks=c(650,675,700,725,750,775,800))+
-  #grass# scale_y_continuous(name =expression('Total Area km'^2), limits=c(550,650), breaks=c(550,575,600,625))+
+  #Forest#scale_y_continuous(name =expression('Total Area km'^2), limits = c(675,775), breaks=c(675,700,725,750,775))+
+  #grass# scale_y_continuous(name =expression('Total Area km'^2), limits=c(550,615), breaks=c(550,565,580,595,610))+
   #development#
-  scale_y_continuous(name =expression('Total Area km'^2),  limits=c(0,200), breaks=c(50,100,150,200))+
-  #crop#scale_y_continuous(name =expression('Total Area km'^2), limits=c(100,175), breaks=c(100,125,150,175))+
+  scale_y_continuous(name =expression('Total Area km'^2),  limits=c(0,125), breaks=c(25,50,75,100,125))+
+  #crop# scale_y_continuous(name =expression('Total Area km'^2), limits=c(115,151), breaks=c(115,125,135,145))+
   theme_bw()+
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
-  theme(axis.text=element_text(size=20, colour="black"),
-        axis.title.x=element_text(size=20), axis.title.y =element_text(size=20, face="bold"), legend.text=element_text(size=20), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
-  theme(plot.margin=unit(c(1,1,1,1), "in"))+
-  geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), size=20, show.legend=FALSE)+
-  theme(panel.border=element_blank())+
-  theme(axis.line = element_line(size=1.5, colour="black")) 
+  theme(axis.title.x = element_text(margin=margin(t=20, r=0, b=0, l =0)))+
+  theme(axis.text=element_text(size=40, colour="black"),
+        axis.title.x=element_text(size=40), axis.title.y =element_text(size=40, face="bold"), legend.text=element_text(size=20), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
+  theme(plot.margin=unit(c(1,1,1,1), "in"))+#+
+  #geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), size=20, show.legend=FALSE)+
+  theme(axis.line = element_line(size=1.5, colour="grey69"), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+
+setwd("U:/CLI/Presentations/ESA-08-XX-2018")
+png("v2016_Fauq_Crop.png", width=480, height=480, units="px", res=300) #can't put units and resolution
+FauqC
+dev.off()
+
+
+ggsave(file="v2016_Fauq_Crop.png", dpi=300,width=15, height=15)
+
+
 
 #FREDERICK
-v2015_Fred_forest<-ggplot(FauquierF, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
-  geom_line(size=2)+
+FredF<-ggplot(FrederickF, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
+  geom_line(size=3)+
   scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c("2011", "2021", "2031", "2041", "2051", "2061"))+
   scale_colour_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
-  #Forest# scale_y_continuous(name =expression('Total Area km'^2), limits=c(525,625), breaks=c(525,550,575,600,625))+
-  #grass#scale_y_continuous(name =expression('Total Area km'^2), limits=c(250,350), breaks=c(250,275,300,325,350))+
-  #development#scale_y_continuous(name =expression('Total Area km'^2), limits=c(50,200), breaks=c(50,100,150,200))+
-  #crop#scale_y_continuous(name =expression('Total Area km'^2), limits=c(5,20), breaks=c(5,10,15,20))+
+  #Forest#
+  scale_y_continuous(name =expression('Total Area km'^2), limits=c(525,625), breaks=c(525,550,575,600,625))+
+  #grass#scale_y_continuous(name =expression('Total Area km'^2), limits=c(300,330), breaks=c(305,310,315,320,325))+
+  #development#scale_y_continuous(name =expression('Total Area km'^2), limits=c(50,150), breaks=c(50,75,100,125,150))+
+  #crop#scale_y_continuous(name =expression('Total Area km'^2), limits=c(10,16), breaks=c(10,11,12,13,14,15))+
   theme_bw()+
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
-  theme(axis.text=element_text(size=20, colour="black"),
-        axis.title.x=element_text(size=20), axis.title.y =element_text(size=20, face="bold"), legend.text=element_text(size=20), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
-  theme(plot.margin=unit(c(1,1,1,1), "in"))+
-  geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), size=10, show.legend=FALSE)+
-  theme(panel.border=element_blank())+
-  theme(axis.line = element_line(size=1.5, colour="black")) 
+  theme(axis.title.x = element_text(margin=margin(t=20, r=0, b=0, l =0)))+
+  theme(axis.text=element_text(size=40, colour="black"),
+        axis.title.x=element_text(size=40), axis.title.y =element_text(size=40, face="bold"), legend.text=element_text(size=20), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
+  theme(plot.margin=unit(c(1,1,1,1), "in"))+#+
+  #geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), size=20, show.legend=FALSE)+
+  theme(axis.line = element_line(size=1.5, colour="grey69"), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+
+setwd("U:/CLI/Presentations/ESA-08-XX-2018")
+png("v2016_Fred_Development.png", width=480, height=480, units="px", res=300) #can't put units and resolution
+FredD
+dev.off()
+
+
+ggsave(file="v2016_Fred_Development.png", dpi=300,width=15, height=15)
+
 
 
 #-----------------------------------------------------------#
