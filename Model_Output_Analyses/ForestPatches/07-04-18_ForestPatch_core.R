@@ -24,7 +24,7 @@ Q1file<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_S
 Q2file<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/Forest_FullArea/Polygon/Q205_ForestPoly.shp"
 Q3file<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/Forest_FullArea/Polygon/Q305_ForestPoly.shp"
 Q4file<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/Forest_FullArea/Polygon/Q405_ForestPoly.shp"
-RTfile<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/Forest_FullArea/Polygon/RT05_ForestPoly.shp"
+RTfile<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/Forest_FullArea/Polygon/RT05_ForestPoly3.shp"
 
 #NL01
 NL01<-raster::shapefile(NL01file) #read in shapefile
@@ -67,4 +67,4 @@ writeOGR(obj=Q4Core2, ".", layer="Q4Core2", driver="ESRI Shapefile" )
 RT<-raster::shapefile(RTfile)
 RTCore<-gBuffer(RT, width=-60)
 RTCore2<-as(RTCore,"SpatialPolygonsDataFrame")
-writeOGR(obj=RTCore2, ".", layer="RTCore2", driver="ESRI Shapefile" )
+writeOGR(obj=RTCore2, ".", layer="RTCore5", driver="ESRI Shapefile" )

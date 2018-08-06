@@ -3,25 +3,14 @@
 #INPUT: Land cover rasters
 #OUTPUT: 
 #DEVELOPED: 7-18-17
-#CONTACT: LacherI@si.edu
-#NOTES:
-
-#IMPORTANT: 
-##### NEXT STEPS #####
-
-# # What else to know?
-# - Fragmentation?
-# - Forest expansion, new patches?( need 2 time frames). This is also captured in a different way already by patchstats/ classstats
-# - Distance to Development?
-# - What county is it in? - do majority?
-# - class stats? - will need to be done by county.
+#CONTACT: LacherI@si.edu, Halperin@si.edu
+#NOTES: This has been updated by Halperin@si.edu to run across each individual county. See past versions if want to see the original code. Also includes code at bottom to make graphs 
 
 #---------------------------------#
 #UPDATED 4/3/2018
 
 #Updated by Sarah Halperin to allow inputs for each scenario (RT, Q1, Q2, Q3, Q4). 
 #CONTACT: halperinS@si.edu
-
 
 ############################
 
@@ -37,9 +26,6 @@ library(Hmisc)  # useful functions for data analysis
 library(rgdal)  # Add this package to read .tif files
 library(igraph) # Run function clump().
 library(dplyr) # !! Remove dplyr in order to run clump detach(name="package:dplyr", unload=TRUE)
-
-# SET TEMP DIRECTORY 
-
 
 # ----------------------------------------------
 # FILE PATHS:
@@ -67,45 +53,25 @@ RasterLoc <- version_input
 # ----------------------------------------------
 
 # ----------------------------------------------
-# NLCD 2001 & 2011:
-#NL<-"NL/nlcd_nlcd/"
-#nl01 <- raster(paste0(version_input,NL, "nlcd01_anC.img"))
-#nl11 <- raster(paste0(version_input,NL, "nlcd11_anC.img"))
-
-# ----------------------------------------------
 # COUNTY RASTERS:
 counties<- raster(paste(cntyRasterLoc, "cnty_an", ".img", sep="")) # this is for the raster. 
 
-# Study Area only:
-#* ('1' for in, 'NoData' for out) *had to reclassify in Rbc Arc gave a value of -128 for No Data. fml. Saved as .tif just because.
-# cnty_saMASK <- raster("V:/IaraSpatialLayers/PreparedRasters/StudyAreaBndy/cnty_anMASK.img")
-# cnty_saMASK[cnty_saMASK == 128]<-NA
-# # WRITE TO FILE
-# writeRaster(cnty_saMASK, filename="V:/IaraSpatialLayers/PreparedRasters/StudyAreaBndy/cnty_saMASK.tif", format="GTiff", overwrite=TRUE)
-
 # STUDY AREA MASK
-cnty_saMASK<-raster("U:/CLI/PreparedRasters/StudyAreaBndy/cnty_saMASK.tif") 
+cnty_saMASK<-raster("U:/CLI/PreparedRasters/StudyAreaBndy/cnty_saMASK.tif")  
 
-#COUNTY AREA MAKS 
+#COUNTY AREA MASK 
 county_trans<-"U:/CLI/SpatialData/VAClipRaw/VA_NRCS/CountiesEd/Indv/TIF_SA/"
-county_saMaskList <-  list('Augusta' = c(paste0(county_trans,"aug_stau_wayn.img")),'Rockingham' = c(paste0(county_trans, "rock_harr.img")),'Albemarle' = c(paste0(county_trans,"albe_charl.img")),'Frederick' = c(paste0(county_trans,"fred_win.img")),'Clarke' = c(paste0(county_trans,"clarke.img")),'Fauquier' = c(paste0(county_trans,"fauquier.img")),'Page' = c(paste0(county_trans,"page.img")),'Culpeper' = c(paste0(county_trans,"culpeper.img")),'greene' = c(paste0(county_trans,"greene.img")),'loudon' = c(paste0(county_trans,"loudon.img")),'madison' = c(paste0(county_trans,"madison.img")),'orange' = c(paste0(county_trans,"orange.img")),'rappahannock' = c(paste0(county_trans,"raphanock.img")),'shenandoah' = c(paste0(county_trans,"shenandoah.img")),'warren' = c(paste0(county_trans,"warren.img")))
+county_saMaskList <-  list('Augusta' = c(paste0(county_trans,"aug_stau_wayn.img")),'Rockingham' = c(paste0(county_trans, "rock_harr.img")),'Albemarle' = c(paste0(county_trans,"albe_charl.img")),'Frederick' = c(paste0(county_trans,"fred_win.img")),'Clarke' = c(paste0(county_trans,"clarke.img")),'Fauquier' = c(paste0(county_trans,"fauquier.img")),'Page' = c(paste0(county_trans,"page.img")),'Culpeper' = c(paste0(county_trans,"culpeper.img")),'greene' = c(paste0(county_trans,"greene.img")),'loudon' = c(paste0(county_trans,"loudon.img")),'madison' = c(paste0(county_trans,"madison.img")),'orange' = c(paste0(county_trans,"orange.img")),'rappahannock' = c(paste0(county_trans,"raphanock.img")),'shenandoah' = c(paste0(county_trans,"shenandoah.img")),'warren' = c(paste0(county_trans,"warren.img"))) #combined cities
 
-#TEST
-#county_saMaskList <-  list('Augusta' = c(paste0(county_trans,"aug_stau_wayn.img")),'Rockingham' = c(paste0(county_trans, "rock_harr.img")),'Albemarle' = c(paste0(county_trans,"albe_charl.img")))
+#REGION AREA MASK
+region_trans<-"U:/CLI/SpatialData/VAClipRaw/VA_NRCS/Regions/" 
+region_saMaskList<-list('1' = c(paste0(region_trans,"region_1.img")),'2' = c(paste0(region_trans, "region_2.img")),'3' = c(paste0(region_trans,"region_3.img")),'4' = c(paste0(region_trans,"region_4.img")),'5' = c(paste0(region_trans,"region_5.img")),'6' = c(paste0(region_trans,"region_6.img")),'7' = c(paste0(region_trans,"region_7.img")),'8' = c(paste0(region_trans,"region_8.img")))
 
-# # Mask county_analysis raster
-# regions_StudyArea <- raster::mask(regions, cnty_saMASK)
-# # WRITE TO FILE
-# writeRaster(regions_StudyArea, filename="V:/IaraSpatialLayers/PreparedRasters/StudyAreaBndy/regions_StudyArea.tif", format="GTiff", overwrite=TRUE)
 
 # READ FROM FILE
 regions_StudyArea<-raster("U:/CLI/PreparedRasters/StudyAreaBndy/ctny_StudyArea.tif")
-regions_vals <- getValues(regions_StudyArea) #renamed in ArcGIS but haven't renamed in Rscript. the file represents counties (3-56)
+studyarea_vals <- getValues(regions_StudyArea) #the file represents counties (3-56)
 
-
-# # Individual Counties
-# County_Folder <- "V:/IaraSpatialLayers/PreparedRasters/StudyAreaBndy/IndCntys/" 
-# counties <- list.files(County_Folder,pattern = ".img$")
 
 # County Tables:
 S20_GEOID<- read.table("U:/CLI/Dinamica_Runs/StudyArea_V201/SAcntyOnly.csv", header = T, sep=",")
@@ -136,12 +102,7 @@ LS_trans <-  list(
     'xxQ3'= c(paste0("Q3/", version_LS_trans, "_Q3", "_Landscape05.tif") ,paste0("Q3/", version_LS_trans, "_Q3", "_Landscape05.tif"))),
  'Q405'= list(
     'xxQ4'= c(paste0("Q4/", version_LS_trans, "_Q4", "_Landscape05.tif") ,paste0("Q4/", version_LS_trans, "_Q4", "_Landscape05.tif"))))
-#test
-LS_trans <-  list(
-  'NL01' = list(
-    'xx01' = c("NL/nlcd_nlcd/nlcd01_anC.img", "NL/nlcd_nlcd/nlcd01_anC.img")), #should it be using this file? 
-  'NL11' = list(
-    '0111' = c("NL/nlcd_nlcd/nlcd11_anC.img", "NL/nlcd_nlcd/nlcd11_anC.img")))
+
 
 # ----------------------------------------------
 # ----------------------------------------------
@@ -168,18 +129,29 @@ for(scenario in names(LS_trans)){ # Makes code flexible for use with more than 2
     LS_5[LS_5 <= 0]<-NA
     
 
-    
+ #------------------------------------------------------#   
+#OPTION
     # MASK TO STUDY AREA 
+    #use when you want forest stats for the entire county 
     LS_5_StudyArea <- raster::mask(LS_5, cnty_saMASK)
+#------------------------------------------------------#
+#OPTION
     #MASK TO COUNTIES 
     #for(county in 1:length(county_saMaskList)){
       #county_saMask<-raster(county_saMaskList[[county]][1])
      #LS_5_StudyArea<-raster::mask(LS_5,county_saMask)
+#---------------------------------------------------------------------#
+  #OPTION 
+    #MASK TO REGION 
+    #for(region in 1:length(region_saMaskList)){
+    #region_saMask<-raster(region_saMaskList[[region]][1])
+    #LS_5_StudyArea<-raster::mask(LS_5,region_saMask)
+    
     
      # WRITE TO FILE
-    #writeRaster(LS_5_StudyArea, filename=paste0(Output_Folder,names(county_saMaskList[county]), scenario,in_to_fin, "_Forest_StudyArea.tif"), format="GTiff", overwrite=TRUE)
-    writeRaster(LS_5, filename=paste0(Output_Folder, scenario,in_to_fin, "_Forest_FullArea.tif"), format="GTiff", overwrite=TRUE)
-     
+    #writeRaster(LS_5_StudyArea, filename=paste0(Output_Folder,names(county_saMaskList[county]), scenario,in_to_fin, "_Forest_StudyArea.tif"), format="GTiff", overwrite=TRUE) #use for county 
+    writeRaster(LS_5, filename=paste0(Output_Folder, scenario,in_to_fin, "_Forest_FullArea.tif"), format="GTiff", overwrite=TRUE) #use for study area
+#--------------------------------------------------------------------#     
 
     # Note: For future runs, can start here by reading the above to file
     
@@ -192,86 +164,75 @@ for(scenario in names(LS_trans)){ # Makes code flexible for use with more than 2
     LS_5_pstat <- PatchStat(LS_5_clump, cellsize = 30) # calculate patch statistics. Statistics based on each patch. 
     
     # ----------------------------------------------
-    # CREATE MAJORITY REGION TABLE
+    # CREATE TABLE
     # ----------------------------------------------
-    #Creates a table that assigns patches to either a region or county (dependent on what is set as regions_StudyArea). Each individual patch is assigned an ID that ID is associated with 
-    #multiple regions or counties if the patch lies across region or county lines. If so, the patch is then assigned to the region or county that has the majority. 
-    
-    
     u_patch <- unique(LS_5_clump) #turns patchIDs into numeric 
+
+#---------------------------------------------------------------#
+  #OPTION -Probably won't use and will have to adjust the script if needed. Or look at older versions. 
     
-    #USE FOR ALL COUNTIES 
-    #regions_vals <- getValues(regions_StudyArea) 
-    #u_vals <- sort(unique(regions_vals)[-1]) # Value for each county
-    
+    #USE FOR STUDY AREA
+    #studyarea_vals <- getValues(regions_StudyArea) 
+    #u_vals <- sort(unique(studyarea_vals)[-1]) # Value for each county
+ #------------------------------------------------------------------#
+  #OPTION
     #USE FOR INDIVIDUAL COUNTIES 
     county_vals<-getValues(county_saMask)
    u_vals<-sort(unique(county_vals)[-1])
-    
-    
+  #---------------------------------------------------------------#  
+   #OPTION 
+      #USE FOR REGIONS 
+      #region_vals<-getValues(region_saMask)
+      #u_vals<-sort(unique(region_vals)[-1])
+   
+   
     ### Load dplyr each time bc remove it below. #THIS MAy NEED TO BE CHANGED to COUNTY MASK 
     library(dplyr)
-    
-
-    
+  
+#-------------------------------------------------------------------#
+#OPTION 
    
+  #Region
    ras_patch <- list()
    n_p <- 1
    for(region in 1:length(u_vals)){
-     print(paste0(names(county_saMask),":",u_vals[region]))
-       categ_val <- ifelse(county_vals== u_vals[region]|is.na(county_vals),county_vals,NA) 
+     print(paste0(names(region_saMask),":",u_vals[region]))
+       categ_val <- ifelse(region_vals== u_vals[region]|is.na(region_vals),region_vals,NA) 
+     categ_p <- setValues(region_saMask, categ_val)
+     ras_patch[[n_p]] <- as.data.frame(zonal(categ_p, LS_5_clump, fun='count', na.rm=TRUE))
+     ras_patch[[n_p]]$area.ha<-ras_patch[[n_p]]$count*900/10000#Makes sure resolution is right here. 30*30=900, 360*360=129600
+     ras_patch[[n_p]]$Raster <- paste0(names(region_saMask))
+     ras_patch[[n_p]]$Region <- paste0(u_vals[region])
+     n_p <- n_p +1
+   
+   
+   ras_patches<- bind_rows(ras_patch)
+   #---------------------------------------------------------------------#
+   #OPTION 
+   
+   #County
+   ras_patch <- list()
+   n_p <- 1
+   for(county in 1:length(u_vals)){
+     print(paste0(names(county_saMask),":",u_vals[county]))
+     categ_val <- ifelse(county_vals== u_vals[county]|is.na(county_vals),county_vals,NA) 
      categ_p <- setValues(county_saMask, categ_val)
      ras_patch[[n_p]] <- as.data.frame(zonal(categ_p, LS_5_clump, fun='count', na.rm=TRUE))
      ras_patch[[n_p]]$area.ha<-ras_patch[[n_p]]$count*900/10000#Makes sure resolution is right here. 30*30=900, 360*360=129600
      ras_patch[[n_p]]$Raster <- paste0(names(county_saMask))
-     ras_patch[[n_p]]$Region <- paste0(u_vals[region])
+     ras_patch[[n_p]]$county <- paste0(u_vals[county])
      n_p <- n_p +1
-   }
+     
+     
+     ras_patches<- bind_rows(ras_patch)
    
-   ras_patches<- bind_rows(ras_patch)
+#----------------------------------------------------------------------#
    
    
-    #ras_patch <- list()
-    #n_p <- 1
-    #for(region in 1:length(u_vals)){
-    # print(paste0(names(regions_StudyArea),":",u_vals[region]))
-      
-      #categ_val <- ifelse(regions_vals == u_vals[region]|is.na(regions_vals),regions_vals,NA) 
-     #categ_p <- setValues(regions_StudyArea, categ_val)
-     #ras_patch[[n_p]] <- as.data.frame(zonal(categ_p, LS_5_clump, fun='count', na.rm=TRUE))
-     #ras_patch[[n_p]]$area.ha<-ras_patch[[n_p]]$count*900/10000#Makes sure resolution is right here. 30*30=900, 360*360=129600
-     #ras_patch[[n_p]]$Raster <- paste0(names(regions_StudyArea))
-     # ras_patch[[n_p]]$Region <- paste0(u_vals[region])
-    # n_p <- n_p +1
-   # }
-    
-   #ras_patches<- bind_rows(ras_patch) #ras_patch (for counties) is a set of 20 tables one for each county that each have 23979 different patches. For each patch there is an associated count (# of pixels within that patch). If a patch is in two counties, the count is just split and the patch ID is repeated. 
-    
-    
-    #Create matrices to fill in.
-  #  region_maj<- as.data.frame(matrix(nrow = length(u_patch), ncol = 4))
-    
-   # for(p in 1:length(u_patch)){
-    #  patchID <- u_patch[p]
-    #  try(temp<-filter(ras_patches,ras_patches$'zone' == u_patch[p]))
-    #  try(area<-(temp["area.ha"]))
-     # try(maj<-ifelse(area>0.09,area,0))#Make sure resolution is right here. #exclude area <0.09 (1 pixel)ne' == u_patch[p]))
-     # try(prop<-ifelse(area>0.09,100*((temp$area.ha)/sum(temp$area.ha)),0))#Make sure resolution is right here.
-     # region_maj[p,1] <- patchID
-     # region_maj[p,2] <- maj
-     # region_maj[p,3] <- area
-     # region_maj[p,4] <- prop
-   # }
-    
-    #colnames(region_maj) <-  c("patchID", "region_maj", "region_ha", "region_prop") #region_maj takes ras_patches (combined of the 20 tables) and determines which county has the majority of the patch and then assigns the whole patch to that county. 
-    
-  
-    # ----------------------------------------------
+       # ----------------------------------------------
     # JOIN TO PATCH STATS TABLE
     
-  
-    #iStats_majJoin <- full_join(LS_5_pstat, region_maj, by="patchID") 
-    
+
     # WRITE TO FILE 
     write.table(LS_5_pstat, file = paste0(Output_Folder, names(county_saMaskList[county]), scenario, in_to_fin, "_Forest_Pstats.txt"), row.names=FALSE, sep=",")
     
@@ -280,7 +241,7 @@ for(scenario in names(LS_trans)){ # Makes code flexible for use with more than 2
     
     
     # ----------------------------------------------
-    # RECLASSIFY TO region MAJ VALUES. * Then we can run ClassStats on this.
+    # RECLASSIFY 
     # ----------------------------------------------
    recl <- ras_patches[,c(1,5)]
     
@@ -300,8 +261,119 @@ for(scenario in names(LS_trans)){ # Makes code flexible for use with more than 2
 
 new<-Sys.time()-old
 print(new)
-    
-    
+###########################################
+# ~~~ MERGE REGION CSTAT TABLES ~~~ #
+###########################################  
+version_table<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/Region/"
+
+Folder<-list.files(paste0(version_table, "NL11"), pattern="110111_Forest_Cstats.txt", full.names = TRUE) #Read in NCLD files 
+NL<-lapply(Folder,function(i){
+  read.csv(i)
+})
+
+NL[[1]]$Region<-"1"
+NL[[2]]$Region<-"2"
+NL[[3]]$Region<-"3"
+NL[[4]]$Region<-"4"
+NL[[5]]$Region<-"5"
+NL[[6]]$Region<-"6"
+NL[[7]]$Region<-"7"
+NL[[8]]$Region<-"8"
+
+CombinedNL<-do.call(rbind.data.frame,NL)
+CombinedNL$Scenario<-"NL11"
+
+Folder<-list.files(paste0(version_table, "Q1"), pattern="Cstats.txt", full.names = TRUE) 
+Q1<-lapply(Folder,function(i){
+  read.csv(i)
+})
+
+Q1[[1]]$Region<-"1"
+Q1[[2]]$Region<-"2"
+Q1[[3]]$Region<-"3"
+Q1[[4]]$Region<-"4"
+Q1[[5]]$Region<-"5"
+Q1[[6]]$Region<-"6"
+Q1[[7]]$Region<-"7"
+Q1[[8]]$Region<-"8"
+
+CombinedQ1<-do.call(rbind.data.frame,Q1)
+CombinedQ1$Scenario<-"Q1"
+
+Folder<-list.files(paste0(version_table, "Q2"), pattern="Cstats.txt", full.names = TRUE) #Read in NCLD files 
+Q2<-lapply(Folder,function(i){
+  read.csv(i)
+})
+
+Q2[[1]]$Region<-"1"
+Q2[[2]]$Region<-"2"
+Q2[[3]]$Region<-"3"
+Q2[[4]]$Region<-"4"
+Q2[[5]]$Region<-"5"
+Q2[[6]]$Region<-"6"
+Q2[[7]]$Region<-"7"
+Q2[[8]]$Region<-"8"
+
+CombinedQ2<-do.call(rbind.data.frame,Q2)
+CombinedQ2$Scenario<-"Q2"
+
+Folder<-list.files(paste0(version_table, "Q3"), pattern="Cstats.txt", full.names = TRUE) #Read in NCLD files 
+Q3<-lapply(Folder,function(i){
+  read.csv(i)
+})   
+
+Q3[[1]]$Region<-"1"
+Q3[[2]]$Region<-"2"
+Q3[[3]]$Region<-"3"
+Q3[[4]]$Region<-"4"
+Q3[[5]]$Region<-"5"
+Q3[[6]]$Region<-"6"
+Q3[[7]]$Region<-"7"
+Q3[[8]]$Region<-"8"
+
+CombinedQ3<-do.call(rbind.data.frame,Q3)
+CombinedQ3$Scenario<-"Q3"
+
+Folder<-list.files(paste0(version_table, "Q4"), pattern="Cstats.txt", full.names = TRUE) #Read in NCLD files 
+Q4<-lapply(Folder,function(i){
+  read.csv(i)
+})
+
+Q4[[1]]$Region<-"1"
+Q4[[2]]$Region<-"2"
+Q4[[3]]$Region<-"3"
+Q4[[4]]$Region<-"4"
+Q4[[5]]$Region<-"5"
+Q4[[6]]$Region<-"6"
+Q4[[7]]$Region<-"7"
+Q4[[8]]$Region<-"8"
+
+
+CombinedQ4<-do.call(rbind.data.frame,Q4)
+CombinedQ4$Scenario<-"Q4"
+
+Folder<-list.files(paste0(version_table, "RT"), pattern="RT05xxRT_Forest_Cstats.txt", full.names = TRUE) #Read in NCLD files 
+RT<-lapply(Folder,function(i){
+  read.csv(i)
+})
+
+RT[[1]]$Region<-"1"
+RT[[2]]$Region<-"2"
+RT[[3]]$Region<-"3"
+RT[[4]]$Region<-"4"
+RT[[5]]$Region<-"5"
+RT[[6]]$Region<-"6"
+RT[[7]]$Region<-"7"
+RT[[8]]$Region<-"8"
+
+
+CombinedRT<-do.call(rbind.data.frame,RT)
+CombinedRT$Scenario<-"RT"
+
+
+Allscenarios<-rbind(CombinedNL, CombinedRT, CombinedQ1, CombinedQ2, CombinedQ3, CombinedQ4)
+
+write.csv(Allscenarios,"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/Region/v2016_Fragstats_region.csv")
 ###########################################
 # ~~~ MERGE COUNTY CSTAT TABLES ~~~ #
 ###########################################  
@@ -340,7 +412,7 @@ CombinedNL<-do.call(rbind.data.frame,NL)
 CombinedNL$Scenario<-"NL11"
 
 
-Folder<-list.files(paste0(version_table, "Q1"), pattern="Cstats.txt", full.names = TRUE) #Read in NCLD files 
+Folder<-list.files(paste0(version_table, "Q1"), pattern="Cstats.txt", full.names = TRUE) 
 Q1<-lapply(Folder,function(i){
   read.csv(i)
 })
@@ -474,308 +546,14 @@ CombinedRT$Scenario<-"RT"
 Allscenarios<-rbind(CombinedNL, CombinedRT, CombinedQ1, CombinedQ2, CombinedQ3, CombinedQ4)
 
 write.csv(Allscenarios, "U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/County/V2016_Fragstats_Ctny.csv", row.names = FALSE)
-
-###########################################
-    # ~~~ Majority ~~~ #
-    ###########################################   
-    
-    
-       
-    # Create matrices to fill in.
-    region_maj<- as.data.frame(matrix(nrow = length(u_patch), ncol = 4))
-
-for(p in 1:length(u_patch)){
-  patchID <- u_patch[p]
-  try(temp<-filter(ras_patches,ras_patches$'zone' == u_patch[p]))
-  try(area<-max(temp$area.ha))
-  try(maj<-ifelse(area>0.09,filter(temp, area.ha == max(temp$area.ha))$Region,0))#Make sure resolution is right here. #exclude area <0.09 (1 pixel)ne' == u_patch[p]))
-  try(prop<-ifelse(area>0.09,100*(max(temp$area.ha)/sum(temp$area.ha)),0))#Make sure resolution is right here.
-  region_maj[p,1] <- patchID
-  region_maj[p,2] <- maj
-  region_maj[p,3] <- area
-  region_maj[p,4] <- prop
-}
-
-colnames(region_maj) <-  c("patchID", "region_maj", "region_ha", "region_prop") #region_maj takes ras_patches (combined of the 20 tables) and determines which county has the majority of the patch and then assigns the whole patch to that county. 
-     
-    
-    # ----------------------------------------------
-    # JOIN TO PATCH STATS TABLE
-    
-    iStats_majJoin <- full_join(LS_5_pstat, region_maj, by="patchID") 
-    
-    # WRITE TO FILE 
-    write.table(iStats_majJoin, file = paste0(Output_Folder, scenario, in_to_fin, "_Forest_Pstats.txt"), row.names=FALSE, sep=",")
-    
-    ### !! Remove dplyr in order to run clump in next round
-    detach(name="package:dplyr", unload=TRUE)
-    
-    
-    # ----------------------------------------------
-    # RECLASSIFY TO region MAJ VALUES. * Then we can run ClassStats on this.
-    # ----------------------------------------------
-    recl <- region_maj[,1:2]
-    
-    LS_5_maj_region <- reclassify(LS_5_clump, recl)		#using the patchID and associated counties from region_maj, it assigns those IDs to the original clump (patches) raster. This is then used to run classstats  
-    
-    # WRITE TO FILE
-    writeRaster(LS_5_maj_region, filename=paste0(Output_Folder, scenario, in_to_fin, "_Forest_majregion.tif"), format='GTiff', overwrite=TRUE)
-    
-    LS_5_cstat <- ClassStat(LS_5_maj_region)
-    
-    # WRITE TO FILE **!! CHANGE FILE NAME EACH TIME !!**
-    write.table(LS_5_cstat, file = paste0(Output_Folder, scenario, in_to_fin, "_Forest_Cstats.txt"), row.names=FALSE, sep=",")
-    
-  }
-  }
-}
-
-new<-Sys.time()-old
-print(new) # Time difference of 34.11309 mins (for one raster)
-
-
-
 # ----------------------------------------------
+# ---- Graphs -----
 # ----------------------------------------------
-# READ AND FORMAT TABLES
-# ----------------------------------------------
-# ----------------------------------------------
-
-# ----------------------------------------------
-# Class Stats
-# ---------------------------------------------- 
-LS_Cstat_files <- list.files(Output_Folder, pattern = "Cstats.txt$")
-# > LS_Cstat_files
-# [1] "Q1_Forest_Cstats.txt"
-# [2] "Q2_Forest_Cstats.txt"
-# [3] "Q3_Forest_Cstats.txt"
-# [4] "Q4_Forest_Cstats.txt"
-# [5] "RT_Forest_Cstats.txt"
-
-#### *** !!! # Select out the nlcd ones:
-
-library(stringr)
-
-CStat_table <- list()
-f_h <- 1
-for(scenario in 1:length(LS_Cstat_files)){ # Makes code flexible for use with more than 2 landscapes. 
-  print(LS_Cstat_files[scenario])
-  
-  CStat_table[[f_h]] <- read.table(paste0(Output_Folder, LS_Cstat_files[scenario]), header=TRUE, sep=",")
-  names(CStat_table[[f_h]])[1]<-"VALUE"
-  # Join with county names table
-  CStat_table[[f_h]] <- merge(S20_GEOID, CStat_table[[f_h]], by="VALUE")
-  
-  
-  # Add a prefix to the values in the VALUE column.
-  CStat_table[[f_h]]$VALUE <- as.character(paste0(str_sub(LS_Cstat_files[scenario],start=1,end=3),CStat_table[[f_h]]$VALUE)) 
-  CStat_table[[f_h]] <- t(CStat_table[[f_h]])
-  colnames(CStat_table[[f_h]] ) <- CStat_table[[f_h]][1,]
-  CStat_table[[f_h]] <- as.data.frame(CStat_table[[f_h]][-1,])
-  
-  f_h <- f_h+1
-  
-}
-
-CStat_table<-as.data.frame(CStat_table)
-
-
-# ----------------------------------------------
-# MORE FINAGLING - JOIN TABLES AND sort
-# ----------------------------------------------
-
-# Sort by order of land use 
-CStat_table<-CStat_table[ , order(str_sub(colnames(CStat_table), -2, -1))]
-# Remove class='0' (had no core cells)
-# CStat_table<-CStat_table[ ,-c(1:5)]
-
-# WRITE TO FILE #
-write.csv(CStat_table, file=paste0(Output_Folder, "AllScens_Forest_CStat.csv"),row.names=TRUE, quote=FALSE)
-
-# READ FROM FILE #
-CStat_table <- read.csv(paste0(Output_Folder, "AllScens_Forest_CStat.csv"))
-
-#-------------------------------------------#
-#Exploratory Graphs 
-
-Input_Folder<-list.files(Output_Folder, pattern="_Forest_Cstats.txt", full.names=TRUE) 
-C_stats<-lapply(Input_Folder,function(i){
-  read.csv(i)
-})
-
-#ADD TIME STEP 
-NL01<-C_stats[[1]]
-NL11<-C_stats[[2]]
-Q1<-C_stats[[3]]
-Q2<-C_stats[[4]]
-Q3<-C_stats[[5]]
-Q4<-C_stats[[6]]
-RT<-C_stats[[7]]
-
-
-#SELECT DESIRED VARIABLES 
-NL01<-NL01[,c(1,2,3,4,10,27,28,29,34,38)]
-NL11<-NL11[,c(1,2,3,4,10,27,28,29,34,38)]
-Q1<-Q1[,c(1,2,3,4,10,27,28,29,34,38)]
-Q2<-Q2[,c(1,2,3,4,10,27,28,29,34,38)]
-Q3<-Q3[,c(1,2,3,4,10,27,28,29,34,38)]
-Q4<-Q4[,c(1,2,3,4,10,27,28,29,34,38)]
-RT<-RT[,c(1,2,3,4,10,27,28,29,34,38)]
-
-
-write.csv(NL01, file=paste0(Output_Folder, "NL01xx01_Forest_Cstats_thin.csv"))
-write.csv(NL11, file=paste0(Output_Folder, "NL110111_Forest_Cstats_thin.csv"))
-write.csv(Q3, file=paste0(Output_Folder, "Q305xxQ3_Forest_Cstats_thin.csv"))
-write.csv(RT, file=paste0(Output_Folder, "RT05xxRT_Forest_Cstats_thin.csv"))
-write.csv(Q1, file=paste0(Output_Folder, "Q105xxRT_Forest_Cstats_thin.csv"))
-write.csv(Q2, file=paste0(Output_Folder, "Q205xxRT_Forest_Cstats_thin.csv"))
-write.csv(Q3, file=paste0(Output_Folder, "Q305xxRT_Forest_Cstats_thin.csv"))
-write.csv(Q4, file=paste0(Output_Folder, "Q405xxRT_Forest_Cstats_thin.csv"))
-
-
-
-#--------------------------------------------------------------------------------------------------------------------------------------------------------#
-#ALSO EASILY MADE IN EXCEL. Grab excel sheet from here: file:///V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2015/BasicDataAnalyses/Forest_Stats/Forest_Cstats_graphs.xlsx and copy graphs to new spreadsheets 
-
-
-#number of patches 
-ggplot(NL01Cstats, aes(x=NL01Cstats$class, y=NL01Cstats$n.patches))+
-         geom_bar(stat="identity", width=0.5)
-ggplot(NL11Cstats, aes(x=NL11Cstats$class, y=NL11Cstats$n.patches))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(Q305Cstats, aes(x=Q305Cstats$class, y=Q305Cstats$n.patches))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$n.patches))+
-  geom_bar(stat="identity", width=0.5)
-
-#Total Area
-ggplot(NL01Cstats, aes(x=NL01Cstats$class, y=NL01Cstats$total.area))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(NL11Cstats, aes(x=NL11Cstats$class, y=NL11Cstats$total.area))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(Q305Cstats, aes(x=Q305Cstats$class, y=Q305Cstats$total.area))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$total.area))+
-  geom_bar(stat="identity", width=0.5)
-
-#proportion of landscape
-ggplot(NL01Cstats, aes(x=NL01Cstats$class, y=NL01Cstats$prop.landscape))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(NL11Cstats, aes(x=NL11Cstats$class, y=NL11Cstats$prop.landscape))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(Q305Cstats, aes(x=Q305Cstats$class, y=Q305Cstats$prop.landscape))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$prop.landscape))+
-  geom_bar(stat="identity", width=0.5)
-
-#total core area
-ggplot(NL01Cstats, aes(x=NL01Cstats$class, y=NL01Cstats$total.core.area))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(NL11Cstats, aes(x=NL11Cstats$class, y=NL11Cstats$total.core.area))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(Q305Cstats, aes(x=Q305Cstats$class, y=Q305Cstats$total.core.area))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$total.core.area))+
-  geom_bar(stat="identity", width=0.5)
-
-#proprotion landscape core
-ggplot(NL01Cstats, aes(x=NL01Cstats$class, y=NL01Cstats$prop.landscape.core))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(NL11Cstats, aes(x=NL11Cstats$class, y=NL11Cstats$prop.landscape))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(Q305Cstats, aes(x=Q305Cstats$class, y=Q305Cstats$prop.landscape.core))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$prop.landscape.core))+
-  geom_bar(stat="identity", width=0.5)
-
-
-#mean patch core area
-ggplot(NL01Cstats, aes(x=NL01Cstats$class, y=NL01Cstats$mean.patch.core.area))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(NL11Cstats, aes(x=NL11Cstats$class, y=NL11Cstats$mean.patch.core.area))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(Q305Cstats, aes(x=Q305Cstats$class, y=Q305Cstats$mean.patch.core.area))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$mean.patch.core.area))+
-  geom_bar(stat="identity", width=0.5)
-
-#mean patch area
-ggplot(NL01Cstats, aes(x=NL01Cstats$class, y=NL01Cstats$mean.patch.area))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(NL11Cstats, aes(x=NL11Cstats$class, y=NL11Cstats$mean.patch.area))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(Q305Cstats, aes(x=Q305Cstats$class, y=Q305Cstats$mean.patch.area))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$mean.patch.area))+
-  geom_bar(stat="identity", width=0.5)
-
-#aggregation index
-ggplot(NL01Cstats, aes(x=NL01Cstats$class, y=NL01Cstats$aggregation.index))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(NL11Cstats, aes(x=NL11Cstats$class, y=NL11Cstats$aggregation.index))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(Q305Cstats, aes(x=Q305Cstats$class, y=Q305Cstats$aggregation.index))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$aggregation.index))+
-  geom_bar(stat="identity", width=0.5)
-
-#patch.cohesion 
-ggplot(NL01Cstats, aes(x=NL01Cstats$class, y=NL01Cstats$patch.cohesion.index))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(NL11Cstats, aes(x=NL11Cstats$class, y=NL11Cstats$patch.cohesion.index))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(Q305Cstats, aes(x=Q305Cstats$class, y=Q305Cstats$patch.cohesion.index))+
-  geom_bar(stat="identity", width=0.5)
-ggplot(RT05Cstats, aes(x=RT05Cstats$class, y=RT05Cstats$patch.cohesion.index))+
-  geom_bar(stat="identity", width=0.5)
-#------------------------------------------------------------------------------------------------------------#
-#Cstats graphs 
-#NOTE MAY HAVE TO CHANGE "CLASS" TO FACTOR 
-
-#Calculate Area of SA and individual counties to add an additional column 
-
-
-
-#Folder<-list.files(Output_Folder, pattern="Cstats_thin.csv", full.names = TRUE) #Read in NCLD files 
-#C_stats<-lapply(Folder,function(i){
-  read.csv(i)
-#})
-
-#C_statsQ1<-C_stats[[3]]
-#C_statsQ2<-C_stats[[4]]
-#C_statsQ3<-C_stats[[5]]
-#C_statsQ4<-C_stats[[6]]
-#C_statsRT<-C_stats[[7]]
-
-#C_statsQ1$Scenario<-"Q1"
-#C_statsQ2$Scenario<-"Q2"
-#C_statsQ3$Scenario<-"Q3"
-#C_statsQ4$Scenario<-"Q4"
-#C_statsRT$Scenario<-"RT"
-
-#C_statsCombined<-rbind(C_statsQ1, C_statsQ2, C_statsQ3, C_statsQ4, C_statsRT)
-
-#C_statsCombined$X<-NULL
-#C_statsCombined<-C_statsCombined[-1,]
-
-
-#Subet desired county
-#C_statsCombinedF3<-subset(C_statsCombined, C_statsCombined$class == 3)
-#C_statsCombinedF10<-subset(C_statsCombined, C_statsCombined$class == 10)
-#C_statsCombinedFF<-rbind(C_statsCombinedF3, C_statsCombinedF10)
-
-#convert to km2 from hectares
-#MAY HAVE TO DO FOR OTHER VARIABLES TO 
-#C_statsCombinedFF$mean.patch.areakm<-C_statsCombinedFF$mean.patch.area*(1/100)
-#C_statsCombinedFF$class<-as.factor(C_statsCombinedFF$class)
-
-
-
 #Fragstats by county 
 
-  #V2016 Updated for cstats created by county 
+#V2016 Updated for cstats created by county 
 Cstats<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Forest_Stats/County/V2016_Fragstats_Ctny.csv")
-Cstats$mean.patch.areakm<-Cstats$mean.patch.area*(900/1000000)
+Cstats$mean.patch.areakm<-Cstats$mean.patch.area*(900/1000000) #convert from pixels 
 
 CstatsFauq<-subset(Cstats, Cstats$county == "Fauquier")
 CstatsFred<-subset(Cstats, Cstats$county == "Frederick")
@@ -792,7 +570,7 @@ FFMP<-ggplot(CstatsFF, aes(x=county, y=mean.patch.areakm, fill=Scenario))+
   geom_bar(stat="identity", position="dodge")+
   scale_x_discrete(breaks= c("Frederick", "Fauquier"), labels=c("Frederick", "Fauquier"))+
   scale_fill_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
-    xlab("County")+
+  xlab("County")+
   scale_y_continuous(name =expression('Mean Patch Area km'^2))+
   theme_bw()+
   theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
@@ -819,33 +597,33 @@ ggsave(file="v2016_FredFauq_Forestmeanpatch.png", dpi=300,width=15, height=15)
 #number of patches 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#  
 v2016_FredFauq_n_patches<-ggplot(CstatsFF, aes(x=county, y=n.patches, fill=Scenario))+
-    geom_bar(stat="identity", position="dodge")+
-      scale_x_discrete(breaks= c("Frederick", "Fauquier"), labels=c("Frederick", "Fauquier"))+
-    scale_fill_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
-    xlab("County")+
-    scale_y_continuous(name = "Number of Patches")+
-    theme_bw()+
-    theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
-    theme(axis.text=element_text(size=40, colour="black"),
-          axis.title.x=element_text(size=40), axis.title.y =element_text(size=40, face="bold"), legend.text=element_text(size=20), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
-    theme(plot.margin=unit(c(1,1,1,1), "in"))+
-    theme(axis.line = element_line(size=1.5, colour="grey69"), 
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          panel.border = element_blank(),
-          panel.background = element_blank())
- 
- setwd("U:/CLI/Presentations/ESA-08-XX-2018")
- png("v2016_FredFauq_n_patches.png", width=480, height=480, units="px", res=300) #can't put units and resolution
- v2016_FredFauq_n_patches
- dev.off()
- 
- 
- ggsave(file="v2016_FredFauq_n_patches.png", dpi=300,width=15, height=15)
+  geom_bar(stat="identity", position="dodge")+
+  scale_x_discrete(breaks= c("Frederick", "Fauquier"), labels=c("Frederick", "Fauquier"))+
+  scale_fill_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
+  xlab("County")+
+  scale_y_continuous(name = "Number of Patches")+
+  theme_bw()+
+  theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
+  theme(axis.text=element_text(size=40, colour="black"),
+        axis.title.x=element_text(size=40), axis.title.y =element_text(size=40, face="bold"), legend.text=element_text(size=20), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
+  theme(plot.margin=unit(c(1,1,1,1), "in"))+
+  theme(axis.line = element_line(size=1.5, colour="grey69"), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
 
- #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~# 
+setwd("U:/CLI/Presentations/ESA-08-XX-2018")
+png("v2016_FredFauq_n_patches.png", width=480, height=480, units="px", res=300) #can't put units and resolution
+v2016_FredFauq_n_patches
+dev.off()
+
+
+ggsave(file="v2016_FredFauq_n_patches.png", dpi=300,width=15, height=15)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~# 
 #Proportion of landscape 
- #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~# 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~# 
 Raster_SA<-raster("V:/IaraSpatialLayers/PreparedRasters/StudyAreaBndy/regions_StudyArea.tif")  
 
 sa_ctyGEOID<-read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SAcntyOnly.csv")#SCBI V: #Geological ID for the county. 
@@ -887,34 +665,34 @@ C_statsFFpropcombined$prop.landscapePC<-C_statsFFpropcombined$prop.landscape*100
 
 C_statsFFpropcombined$county<-factor(C_statsFFpropcombined$county, levels=c("Frederick", "Fauquier"))
 
- FFprop<-ggplot(C_statsFFpropcombined, aes(x=county, y=prop.landscapePC, fill=Scenario))+
-    geom_bar(stat="identity", position="dodge")+
-    scale_x_discrete(name="County", breaks= c("Frederick", "Fauquier"))+
-    scale_fill_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
-    scale_y_continuous(name = "Proportion of the Landscape %", limits =c(0,60), breaks = c(10,20,30,40,50))+
-   theme_bw()+
-   theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
-   theme(axis.text=element_text(size=40, colour="black"),
-         axis.title.x=element_text(size=40), axis.title.y =element_text(size=40, face="bold"), legend.text=element_text(size=20), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
-   theme(plot.margin=unit(c(1,1,1,1), "in"))+
-   theme(axis.line = element_line(size=1.5, colour="grey69"), 
-         panel.grid.major = element_blank(),
-         panel.grid.minor = element_blank(),
-         panel.border = element_blank(),
-         panel.background = element_blank())
- 
- setwd("U:/CLI/Presentations/ESA-08-XX-2018")
- png("v2016_FredFauq_proplandscape.png", width=480, height=480, units="px", res=300) #can't put units and resolution
+FFprop<-ggplot(C_statsFFpropcombined, aes(x=county, y=prop.landscapePC, fill=Scenario))+
+  geom_bar(stat="identity", position="dodge")+
+  scale_x_discrete(name="County", breaks= c("Frederick", "Fauquier"))+
+  scale_fill_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
+  scale_y_continuous(name = "Proportion of the Landscape %", limits =c(0,60), breaks = c(10,20,30,40,50))+
+  theme_bw()+
+  theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
+  theme(axis.text=element_text(size=40, colour="black"),
+        axis.title.x=element_text(size=40), axis.title.y =element_text(size=40, face="bold"), legend.text=element_text(size=20), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
+  theme(plot.margin=unit(c(1,1,1,1), "in"))+
+  theme(axis.line = element_line(size=1.5, colour="grey69"), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+
+setwd("U:/CLI/Presentations/ESA-08-XX-2018")
+png("v2016_FredFauq_proplandscape.png", width=480, height=480, units="px", res=300) #can't put units and resolution
 FFprop
- dev.off()
- 
- 
- ggsave(file="v2016_FredFauq_proplandscape.png", dpi=300,width=15, height=15)
-  
- 
- #---------------------------------------------------------#
- #Compare total and core area 
- #--------------------------------------------------------#
+dev.off()
+
+
+ggsave(file="v2016_FredFauq_proplandscape.png", dpi=300,width=15, height=15)
+
+
+#---------------------------------------------------------#
+#Compare total and core area 
+#--------------------------------------------------------#
 
 Area<-read.csv("U:/CLI/Presentations/ESA-08-XX-2018/v2016_5_CoreAreaTotalArea.csv")
 
@@ -978,6 +756,64 @@ FFCoreArea
 dev.off()
 
 ggsave(file="v2016_5_FredFauq_CoreArea.png", dpi=300, width=15, height=15)
+
+#----------------------------------------------------------------------------------#
+#OLD MAJORITY CODE ALSO IN OLDER VERSION
+###########################################
+    # ~~~ Majority ~~~ #
+    ###########################################   
+    
+    # Create matrices to fill in.
+    region_maj<- as.data.frame(matrix(nrow = length(u_patch), ncol = 4))
+
+for(p in 1:length(u_patch)){
+  patchID <- u_patch[p]
+  try(temp<-filter(ras_patches,ras_patches$'zone' == u_patch[p]))
+  try(area<-max(temp$area.ha))
+  try(maj<-ifelse(area>0.09,filter(temp, area.ha == max(temp$area.ha))$Region,0))#Make sure resolution is right here. #exclude area <0.09 (1 pixel)ne' == u_patch[p]))
+  try(prop<-ifelse(area>0.09,100*(max(temp$area.ha)/sum(temp$area.ha)),0))#Make sure resolution is right here.
+  region_maj[p,1] <- patchID
+  region_maj[p,2] <- maj
+  region_maj[p,3] <- area
+  region_maj[p,4] <- prop
+}
+
+colnames(region_maj) <-  c("patchID", "region_maj", "region_ha", "region_prop") #region_maj takes ras_patches (combined of the 20 tables) and determines which county has the majority of the patch and then assigns the whole patch to that county. 
+     
+    
+    # ----------------------------------------------
+    # JOIN TO PATCH STATS TABLE
+    
+    iStats_majJoin <- full_join(LS_5_pstat, region_maj, by="patchID") 
+    
+    # WRITE TO FILE 
+    write.table(iStats_majJoin, file = paste0(Output_Folder, scenario, in_to_fin, "_Forest_Pstats.txt"), row.names=FALSE, sep=",")
+    
+    ### !! Remove dplyr in order to run clump in next round
+    detach(name="package:dplyr", unload=TRUE)
+    
+    
+    # ----------------------------------------------
+    # RECLASSIFY TO region MAJ VALUES. * Then we can run ClassStats on this.
+    # ----------------------------------------------
+    recl <- region_maj[,1:2]
+    
+    LS_5_maj_region <- reclassify(LS_5_clump, recl)		#using the patchID and associated counties from region_maj, it assigns those IDs to the original clump (patches) raster. This is then used to run classstats  
+    
+    # WRITE TO FILE
+    writeRaster(LS_5_maj_region, filename=paste0(Output_Folder, scenario, in_to_fin, "_Forest_majregion.tif"), format='GTiff', overwrite=TRUE)
+    
+    LS_5_cstat <- ClassStat(LS_5_maj_region)
+    
+    # WRITE TO FILE **!! CHANGE FILE NAME EACH TIME !!**
+    write.table(LS_5_cstat, file = paste0(Output_Folder, scenario, in_to_fin, "_Forest_Cstats.txt"), row.names=FALSE, sep=",")
+    
+  }
+  }
+}
+
+new<-Sys.time()-old
+print(new) # Time difference of 34.11309 mins (for one raster)
 
 
 
