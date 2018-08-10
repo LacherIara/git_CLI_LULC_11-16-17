@@ -40,7 +40,7 @@ Comb_outputReshape<-paste0(version_table, tables, "County/v2016_Reshape/")
 ###########################################
 # ~~~ CODE BEGINS ~~~ #
 ###########################################
-
+#CODE IS REPEATED FROM 8_ZonalHist_MultScens_50Years_MergeTables incase haven't before want to make graphs. 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #BRING IN TABLES
 
@@ -324,6 +324,7 @@ CropPC<-subset(CropPC, CropPC$TimeStep>1)
 
 # ----------------------------------------------
 # LANDCOVER TYPE: COMPARE SCENARIOS
+
 
 library(ggplot2)
 

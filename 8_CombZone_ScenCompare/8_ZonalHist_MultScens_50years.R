@@ -91,12 +91,9 @@ inRasterLoc <-paste0(inRasterLoc, Folders)
 #TURN ON FOR PL_GAP 
 inRasterLoc <- paste0(version_input, Scenario)
 
-
-
-
 # ----------------------------------------------
 # COUNTY RASTERS 
-#currently set to regions 
+#currently set to county
 regions <- raster(paste(cntyRasterLoc, "cnty_an", ".img", sep="")) # this is for the raster.
 counties_vals <- getValues(regions) #defining the region 
 #NOTE: Craig said the only correct region raster was region_an2. I updated to region_an2 was region_an. I changed it to counties (regions_StudyArea.tif), which has now been renamed to ctny_StudyArea
@@ -140,7 +137,7 @@ Comb_output<-paste0(Comb_output, Scenario)
 # TRANSITIONS
 # ---------------------------------------------- 
 #Version_LS_trans Must match above 
-version_LS_trans<-"v2016"
+version_LS_trans<-"v2016" #must match above 
 
 #TURN on FOR NL
 LS_trans <-  list('LS01' = c("nlcd01_anC.img"),'LS02' = c("nlcd11_anC.img"))
@@ -211,7 +208,7 @@ old <- Sys.time() # TIMING SCRIPT
 # ----------------------------------------------
 # ZONAL HISTOGRAM ON FINAL LANDSCAPE 
 # ----------------------------------------------
-#USE FOR NCLD AND INDIVIDUAL SCENARIOS
+#USE FOR NLCD AND NDIVIDUAL SCENARIOS
 for(in_to_fin in names(LS_trans)){ # Makes code flexible for use with more than 2 landscapes. ##CF- so not actual loop here?
 
 Final_Landscape <-paste0(inRasterLoc, LS_trans[[in_to_fin]][1]) #full file path using inRasterLoc as the base

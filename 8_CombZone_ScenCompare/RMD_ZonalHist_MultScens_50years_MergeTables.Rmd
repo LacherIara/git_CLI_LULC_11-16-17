@@ -1,12 +1,23 @@
+---
+title: "8_ZonalHist_MultScens_50years_MergeTables"
+author: "Sarah Halperin"
+date: "August 10, 2018"
+output:
+  html_document: 
+    toc: yes
+editor_options: 
+  chunk_output_type: console
+---
 
-############################ 
-#PURPOSE: Once tables are produced for timestpes 1-5 increase efficiency of melted tables for use in ggplot and combining all scenarios. 
-#CREATOR: Sarah Halperin 
-#CONTACT: halperins@si.edu
-#------------------------------------------------#
-###########################################
+##INTRODUCTION 
 
-# PACKAGES NEEDED
+Purpose: Once tables are produced for timestpes 1-5 increase efficiency of melted tables for use in ggplot and combining all scenarios. 
+
+Contact: halperins@si.edu 
+
+###PACKAGES NEEDED 
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE, eval=FALSE}
 library(plyr) # General data manipulation
 library(dplyr) # General data manipulation
 library(raster) # read and edit rasters
@@ -14,25 +25,27 @@ library(rgdal)
 library(reshape) #manipulation of output tables 
 library(ggplot2) #graphs 
 library(ggpubr)
+```
 
+###FILE LOCATION
 
-# ----------------------------------------------
-# FILE LOCATIONS: 
+```{r, eval=FALSE}
 #INPUT FILE LOCATION: 
 version<-"/StudyArea_V201/SA_V2015"
 version_table<-paste0("U:/CLI/Dinamica_Runs",version, "/BasicDataAnalyses/Zonal_Histogram/")
 tables<-paste0("Tables/", "v2015_")#make sure change version
-#--------------------------------------------------------------------#
+
 #OUTPUT FILES LOCATION: 
 Comb_outputCounty<-paste0(version_table, tables, "County/")
 Comb_outputSA<-paste0(version_table, tables,"StudyArea/")
 Comb_outputBuffer<-paste0(version_table,tables, "Buffer/")
 Comb_outputRegion<-paste0(version_table, tables, "Region/")
-Comb_outputReshape<-paste0(version_table, tables, "County/v2016_Reshape/") #manually change for this one
+Comb_outputReshape<-paste0(version_table, tables, "County/v2016_Reshape/") #manually change 
 
-# ----------------------------------------------
-# READ INPUT FILES:
+```
+##CODE BEGINS 
 
+```{r, eval=FALSE}
 #Region Names 
 Region_SA<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/CountyNmsGEOIDRegion_cnty.csv")
 Region_SA$variable<-paste0(Region_SA$GEOID_, Region_SA$GEOID)
@@ -115,13 +128,6 @@ TablesQ4[[3]]$TimeStep<-5
 TablesQ4[[4]]$TimeStep<-6
 TablesQ4[[5]]$TimeStep<-7
 
-
-#------------------------------------------------------------------------
-###########################################
-# ~~~ CODE BEGINS ~~~ #
-###########################################
-
-#Combined timesteps 
 CombinedRT<-do.call(rbind.data.frame,TablesRT)
 CombinedQ1<-do.call(rbind.data.frame,TablesQ1)
 CombinedQ2<-do.call(rbind.data.frame,TablesQ2)
@@ -135,17 +141,13 @@ CombinedQ2<-rbind(NLCD,CombinedQ2)
 CombinedQ3<-rbind(NLCD,CombinedQ3)
 CombinedQ4<-rbind(NLCD,CombinedQ4)
 
-CombinedList<-list(CombinedRT, CombinedQ1, CombinedQ2, CombinedQ3, CombinedQ4) #combine scenarios
+CombinedList<-list(CombinedRT, CombinedQ1, CombinedQ2, CombinedQ3, CombinedQ4)
+```
 
+###MELTED TABLES 
+```{r, eval=FALSE}
 
-# ----------------------------------------------
-# ----------------------------------------------
-# MELTED TABLES 
-# ----------------------------------------------
-# ----------------------------------------------
-
-# ----------------------------------------------
-# CREATE LIST TO RUN LOOP THROUGH 
+#List names 
 Version_Name<-"v2016_"
 
 ScenarioMelt<-list(paste0(Version_Name, "ZonalHistogram_RT_ctny.csv"), paste0(Version_Name,"ZonalHistogram_Q1_ctny.csv"), paste0(Version_Name, "ZonalHistogram_Q2_ctny.csv"), paste0(Version_Name, "ZonalHistogram_Q3_ctny.csv"), paste0(Version_Name, "ZonalHistogram_Q4_ctny.csv"))
@@ -156,17 +158,14 @@ ScenarioSA_Region<-list(paste0(Version_Name, "ZonalHistogram_RT_rgn_SA.csv"), pa
                                                                  
 ScenarioSA_County<-list(paste0(Version_Name, "ZonalHistogram_RT_ctny_SA.csv"), paste0(Version_Name, "ZonalHistogram_Q1_ctny_SA.csv"), paste0(Version_Name, "ZonalHistogram_Q2_ctny_SA.csv"),paste0(Version_Name,  "ZonalHistogram_Q3_ctny_SA.csv"),paste0(Version_Name,"ZonalHistogram_Q4_ctny_SA.csv"))
 
-
-# ----------------------------------------------
-# MELT ALL FILES
+#MELT ALL FILES 
 CombinedMelt<-lapply(CombinedList, function(x){
   melt(x,id=c("Rowid_", "LABEL", "TimeStep"))
 })
+```
 
-
-
-# ----------------------------------------------
-# GENERATE TABLES 
+```{r, eval=FALSE}
+#GENERATE TABLES 
 for(i in 1:length(CombinedMelt)){
       CombinedMelt[[i]]$valuekm<-CombinedMelt[[i]]$value*(900/1000000)
       CombinedMelt[[i]]<-merge(CombinedMelt[[i]], Region_SA, by="variable")
@@ -183,15 +182,10 @@ for(i in 1:length(CombinedMelt)){
       write.csv(SA_Region, paste0(Comb_outputRegion,(ScenarioSA_Region[[i]])), row.names=FALSE)
       write.csv(SA_County, paste0(Comb_outputCounty,(ScenarioSA_County[[i]])), row.names=FALSE)
 }
+```
 
-
-
-# ----------------------------------------------
-# RESHAPE TABLES
-# ----------------------------------------------
-
-# ----------------------------------------------
-# GENERATE NAMES
+###RESHAPE TABLES 
+```{r, eval=FALSE}
 ScenarioReshape<-list(paste0(Version_Name, "ZonalHistogram_RT_Reshape.csv"), paste0(Version_Name, "ZonalHistogram_Q1_Reshape.csv"), paste0(Version_Name, "ZonalHistogram_Q2_Reshape.csv"),paste0(Version_Name,  "ZonalHistogram_Q3_Reshape.csv"),paste0(Version_Name,"ZonalHistogram_Q4_Reshape.csv"))
 
 # ----------------------------------------------
@@ -238,14 +232,10 @@ CombinedReshape<-cbind(LABEL3, LABEL5,LABEL6,LABEL7)
 write.csv(CombinedReshape, paste0(Comb_outputReshape,(ScenarioReshape[[i]]),".csv")) 
 
 }
+```
 
-#BRING IN TABLES
-
-#----------------------------------------------#
-#ALL SCENARIO TABLES 
-# ---------------------------------------------#
-#County Tables
-
+###COMBINE ALL SCENARIOS 
+```{r, eval=FALSE}
 FolderM<-list.files(Comb_outputCounty, pattern="ctny.csv", full.names = TRUE) 
 CSV_Melt<-lapply(FolderM,function(i){
   read.csv(i)
@@ -356,4 +346,4 @@ CSV_Sum_SA[[5]]$Scenario<-"RT"
 
 CombinedSumLC_SA<-do.call(rbind.data.frame,CSV_Sum_SA)
 write.csv(CombinedSumLC_SA, paste0(Comb_outputSA,"v2016_ZonalHistogram_AllScenarios_SA.csv"), row.names=FALSE)
-
+```
