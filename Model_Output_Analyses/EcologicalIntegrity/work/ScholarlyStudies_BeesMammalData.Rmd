@@ -1,0 +1,1255 @@
+---
+title: "Scholarly Studies Bee and Mammal Data"
+output:
+  html_document: 
+    toc: yes
+  pdf_document: default
+editor_options:
+  chunk_output_type: console
+---
+
+This RMarkdown document is the data exploration for apidae bee data (subset by VWL) and emammal raw data (Mike Cove). Explored are the relationship between species abundance and species richness with land use change metrics. The land use change metrics are at four scales (250 m, 500m, 1000m, 5000m). The goal is to see if there is a relationship between these biodiversity surrogates and land use change metrics to include in the proposal for scholarly studies. Ultimately, we are looking to create an SEM that determines the naturalness of the area. 
+
+#Packages 
+```{r message=FALSE, warning=FALSE}
+setwd("U:/CLI/Field Surveys/")
+
+library(vegan) #diversity index
+library(picante)
+library(dplyr) #tibbles and data manipulation
+library(tidyr) #transpose data
+library(knitr) #print tables in R Markdown
+library(ggplot2)
+library(lubridate)#manipulate date-time data
+library(lattice)
+library(gridExtra)
+library(reshape2)
+library(sandwich)
+```
+
+#Bee
+```{r warning=FALSE}
+
+data<-read.csv("U:/CLI/Field Surveys/Bees/Data/apidae_subset_bluevane_bee_data_2014_2017_CF_OneYearsData.csv",header=TRUE)
+data$Date_collected<-as.POSIXct(data$Date_collected,format="%m/%d/%Y")
+
+SummaryData<-data%>%group_by(Year,Lat,Lon,SiteLocatC,Family_species)%>% #group by site and spp
+  summarize(Abundance=sum(Number_of_specimens))%>% #sum abundance of each spp by site
+  spread(Family_species, Abundance)%>% #transpose
+  replace(is.na(.), 0)
+
+SummaryData_Abund<-SummaryData[,-c(1:3)]
+SummaryData_Abund$SiteLocatC<-as.character(SummaryData_Abund$SiteLocatC)
+SummaryData_Abund<-mutate(SummaryData_Abund,SpRichness=specnumber(SummaryData_Abund))
+SummaryData_Abund$SpRichness<-SummaryData_Abund$SpRichness-1
+
+data<-left_join(SummaryData[,c(1:4)], SummaryData_Abund,by="SiteLocatC")
+
+
+#write.csv(data, "U:/CLI/Field Surveys/Bees/Data/CLI_bee_data_sprichness.csv", row.names = FALSE)
+```
+
+Bring in Data created in ArcMap. We needed to determine the percent of each land use at each point, which we did in ArcMap. This used exported Summary Data from above. 
+```{r}
+dataE<-read.csv("U:/CLI/Field Surveys/Bees/Data/CLI_bee_environmental.csv")
+
+data<-left_join(data, dataE[,c(5,18,20:35)], by="SiteLocatC")
+```
+
+
+##Histograms of Bees and Land Use Metrics
+
+```{r}
+#Abundance Histogram
+#over 0 because in first bin 0-20
+ggplot(gather(data[,18]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    xlab("Number of individuals per site")+
+    ylab("Number of Sites")+
+    ggtitle("Bee Abundance Histogram")
+#Species Richness Histogram
+ggplot(gather(data[,17]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    xlab("Number of species per site")+
+    ylab("Number of Sites")+
+    ggtitle("Bee Species Richness Histogram")
+
+
+#Land Use
+ggplot(gather(data[,19:34]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    ylab("Number of Sites")+
+    xlab("Percent of Land use")+
+    ggtitle("Land Use Metric Histograms")
+
+
+
+```
+
+##Bar Graphs
+Abundance
+```{r}
+data_Abund_subset<-data[,c(4,18:34)]
+data_Abund_subset<-as.data.frame(data_Abund_subset)
+data_melt<-melt(data_Abund_subset, id=c("SiteLocatC", "Abundance"))
+
+data_melt_250<-subset(data_melt, variable==c("dev_250", "for_250", "cro_250", "gra_250"))
+data_melt_500<-subset(data_melt, variable==c("dev_500", "for_500", "cro_500", "gra_500"))
+data_melt_1000<-subset(data_melt, variable==c("dev_1000", "for_1000", "cro_1000", "gra_1000"))
+data_melt_5000<-subset(data_melt, variable==c("dev_5000", "for_5000", "cro_5000", "gra_5000"))
+
+ggplot(data_melt_250, aes(y=Abundance, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Abundance (Number of Individuals)")+
+        ggtitle("Bee Abundance vs. Percent of Land Use (250m)")
+
+ggplot(data_melt_500, aes(y=Abundance, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Abundance (Number of Individuals)")+
+          ggtitle("Bee Abundance vs. Percent of Land Use (500m)")
+         
+ ggplot(data_melt_1000, aes(y=Abundance, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Abundance (Number of Individuals)")+
+        ggtitle("Bee Abundance vs. Percent of Land Use (1km)")
+         
+ggplot(data_melt_5000, aes(y=Abundance, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Abundance (Number of Individuals)")+
+        ggtitle("Bee Abundance vs. Percent of Land Use (5km)")
+         
+```
+
+Species Richness
+```{r}
+data_Richness_subset<-data[,c(4,17,19:34)]
+data_Richness_subset<-as.data.frame(data_Richness_subset)
+data_meltR<-melt(data_Richness_subset, id=c("SiteLocatC", "SpRichness"))
+
+data_meltR_250<-subset(data_meltR, variable==c("dev_250", "for_250", "cro_250", "gra_250"))
+data_meltR_500<-subset(data_meltR, variable==c("dev_500", "for_500", "cro_500", "gra_500"))
+data_meltR_1000<-subset(data_meltR, variable==c("dev_1000", "for_1000", "cro_1000", "gra_1000"))
+data_meltR_5000<-subset(data_meltR, variable==c("dev_5000", "for_5000", "cro_5000", "gra_5000"))
+
+ggplot(data_meltR_250, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+        ggtitle("Bee Species Richness vs. Percent of Land Use (250)")
+
+ggplot(data_meltR_500, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+        ggtitle("Bee Species Richness vs. Percent of Land Use (500)")
+         
+ ggplot(data_meltR_1000, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+        ggtitle("Bee Species Richness vs. Percent of Land Use (1km)")
+         
+ggplot(data_meltR_5000, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+        ggtitle("Bee Species Richness vs. Percent of Land Use (5km)")
+         
+```
+
+
+##Correlation
+Bee Correlatipon Plots 
+```{r}
+#250 meters
+pairs(data[c(17:22)])
+
+#500 meters
+pairs(data[c(17,18,23,24,25,26)])
+
+#1000 meters (1km)
+pairs(data[c(17,18,27,28,29,30)])
+
+#5000 meters (5km)
+pairs(data[c(17,18,31,32,33,34)])
+```
+
+
+## General Linear Models -Species Richness
+```{r}
+ggplotRegression<- function(fit){
+  ggplot(fit$model,aes_string(x=names(fit$model)[2],y=names(fit$model)[1]))+
+   geom_point()+
+    stat_smooth(method="glm", col="red")+
+    labs(title=paste(#"Adj R2 = ", signif(summary(fit)$adj.r.squared,5),
+                     "Intercept = ", signif(fit$coef[[1]],5),
+                    "Slope = ", signif(fit$coef[[2]],5),
+                     "P-value = ",signif(summary(fit)$coef[2,4],5)))
+}
+```
+
+Bee & Development 250m 
+```{r}
+#250 meters
+#Development
+par(mfrow=c(2,2))
+plot(glm(data$SpRichness ~ data$dev_250, family="poisson" ))
+ggplotRegression(glm(data$SpRichness ~ data$dev_250, family="poisson" ))
+summary(glm(data$SpRichness ~ data$dev_250, family="poisson"))
+
+b_dev250<-glm(data$SpRichness ~ data$dev_250, family="poisson" )
+cov.b_dev250<-vcovHC(b_dev250, type="HC0")
+std.err <- sqrt(diag(cov.b_dev250))
+r.est <- cbind(Estimate= coef(b_dev250), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(b_dev250)/std.err), lower.tail=FALSE),
+LL = coef(b_dev250) - 1.96 * std.err,
+UL = coef(b_dev250) + 1.96 * std.err)
+
+r.est
+
+with(b_dev250, cbind(res.deviance =deviance, df=df.residual, p=pchisq(deviance, df.residual, lower.tail=FALSE)))
+```
+Bee & Forest 250m 
+```{r}
+#Forest
+par(mfrow=c(2,2))
+plot(glm(data$SpRichness ~ data$for_250, family="poisson"))
+ggplotRegression(glm(data$SpRichness ~ data$for_250, family="poisson"))
+summary(glm(data$SpRichness ~ data$for_250, family="poisson"))
+
+b_for250<-glm(data$SpRichness ~ data$for_250, family="poisson" )
+cov.b_for250<-vcovHC(b_for250, type="HC0")
+std.err <- sqrt(diag(cov.b_for250))
+r.est <- cbind(Estimate= coef(b_for250), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(b_for250)/std.err), lower.tail=FALSE),
+LL = coef(b_for250) - 1.96 * std.err,
+UL = coef(b_for250) + 1.96 * std.err)
+
+r.est
+with(b_for250, cbind(res.deviance =deviance, df=df.residual, p=pchisq(deviance, df.residual, lower.tail=FALSE)))
+```
+Bee & Crop 250m 
+```{r}
+#Crop
+par(mfrow=c(2,2))
+plot(glm(data$SpRichness ~ data$cro_250, family="poisson"))
+ggplotRegression(glm(data$SpRichness ~ data$cro_250, family="poisson"))
+summary(glm(data$SpRichness ~ data$cro_250, family="poisson"))
+
+b_cro250<-glm(data$SpRichness ~ data$cro_250, family="poisson" )
+cov.b_cro250<-vcovHC(b_cro250, type="HC0")
+std.err <- sqrt(diag(cov.b_cro250))
+r.est <- cbind(Estimate= coef(b_cro250), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(b_cro250)/std.err), lower.tail=FALSE),
+LL = coef(b_cro250) - 1.96 * std.err,
+UL = coef(b_cro250) + 1.96 * std.err)
+
+r.est
+with(b_cro250, cbind(res.deviance =deviance, df=df.residual, p=pchisq(deviance, df.residual, lower.tail=FALSE)))
+```
+Bee & Grass 250m 
+```{r}
+#Grass
+par(mfrow=c(2,2))
+plot(glm(data$SpRichness ~ data$gra_250, family="poisson"))
+ggplotRegression(glm(data$SpRichness ~ data$gra_250, family="poisson"))
+summary(glm(data$SpRichness ~ data$gra_250, family="poisson"))
+
+b_gra250<-glm(data$SpRichness ~ data$gra_250, family="poisson" )
+cov.b_gra250<-vcovHC(b_gra250, type="HC0")
+std.err <- sqrt(diag(cov.b_gra250))
+r.est <- cbind(Estimate= coef(b_gra250), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(b_gra250)/std.err), lower.tail=FALSE),
+LL = coef(b_gra250) - 1.96 * std.err,
+UL = coef(b_gra250) + 1.96 * std.err)
+
+r.est
+with(b_gra250, cbind(res.deviance =deviance, df=df.residual, p=pchisq(deviance, df.residual, lower.tail=FALSE)))
+```
+
+
+Bee & Development 500m 
+```{r}
+#500 meters
+#Development
+par(mfrow=c(2,2))
+plot(glm(data$SpRichness ~ data$dev_500, family="poisson"))
+ggplotRegression(glm(data$SpRichness ~ data$dev_500, family="poisson"))
+summary(glm(data$SpRichness ~ data$dev_500, family="poisson"))
+
+b_dev500<-glm(data$SpRichness ~ data$dev_500, family="poisson" )
+cov.b_dev500<-vcovHC(b_dev500, type="HC0")
+std.err <- sqrt(diag(cov.b_dev500))
+r.est <- cbind(Estimate= coef(b_dev500), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(b_dev500)/std.err), lower.tail=FALSE),
+LL = coef(b_dev500) - 1.96 * std.err,
+UL = coef(b_dev500) + 1.96 * std.err)
+
+r.est
+with(b_dev500, cbind(res.deviance =deviance, df=df.residual, p=pchisq(deviance, df.residual, lower.tail=FALSE)))
+```
+Bee & Forest 500m 
+```{r}
+#Forest
+par(mfrow=c(2,2))
+plot(glm(data$SpRichness ~ data$for_500, family="poisson"))
+ggplotRegression(glm(data$SpRichness ~ data$for_500, family="poisson"))
+summary(glm(data$SpRichness ~ data$for_500, family="poisson"))
+
+b_for500<-glm(data$SpRichness ~ data$for_500, family="poisson" )
+cov.b_for500<-vcovHC(b_for500, type="HC0")
+std.err <- sqrt(diag(cov.b_for500))
+r.est <- cbind(Estimate= coef(b_for500), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(b_for500)/std.err), lower.tail=FALSE),
+LL = coef(b_for500) - 1.96 * std.err,
+UL = coef(b_for500) + 1.96 * std.err)
+
+r.est
+with(b_for500, cbind(res.deviance =deviance, df=df.residual, p=pchisq(deviance, df.residual, lower.tail=FALSE)))
+```
+Bee & Crop 500m 
+```{r}
+#Crop
+par(mfrow=c(2,2))
+plot(glm(data$SpRichness ~ data$cro_500, family="poisson"))
+ggplotRegression(glm(data$SpRichness ~ data$cro_500, family="poisson"))
+summary(glm(data$SpRichness ~ data$cro_500, family="poisson"))
+
+b_cro500<-glm(data$SpRichness ~ data$cro_500, family="poisson" )
+cov.b_cro500<-vcovHC(b_cro500, type="HC0")
+std.err <- sqrt(diag(cov.b_cro500))
+r.est <- cbind(Estimate= coef(b_cro500), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(b_cro500)/std.err), lower.tail=FALSE),
+LL = coef(b_cro500) - 1.96 * std.err,
+UL = coef(b_cro500) + 1.96 * std.err)
+
+r.est
+with(b_cro500, cbind(res.deviance =deviance, df=df.residual, p=pchisq(deviance, df.residual, lower.tail=FALSE)))
+```
+Bee & Grass 500m 
+```{r}
+#Grass
+par(mfrow=c(2,2))
+plot(glm(data$SpRichness ~ data$gra_500, family="poisson"))
+ggplotRegression(glm(data$SpRichness ~ data$gra_500, family="poisson"))
+summary(glm(data$SpRichness ~ data$gra_500, family="poisson"))
+
+b_gra500<-glm(data$SpRichness ~ data$gra_500, family="poisson" )
+cov.b_gra500<-vcovHC(b_gra500, type="HC0")
+std.err <- sqrt(diag(cov.b_gra500))
+r.est <- cbind(Estimate= coef(b_gra500), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(b_gra500)/std.err), lower.tail=FALSE),
+LL = coef(b_gra500) - 1.96 * std.err,
+UL = coef(b_gra500) + 1.96 * std.err)
+
+r.est
+with(b_gra500, cbind(res.deviance =deviance, df=df.residual, p=pchisq(deviance, df.residual, lower.tail=FALSE)))
+```
+
+Bee & Development 1km 
+```{r}
+#1000 meters (1km)
+#Development
+par(mfrow=c(2,2))
+plot(glm(data$SpRichness ~ data$dev_1000, family="poisson"))
+ggplotRegression(glm(data$SpRichness ~ data$dev_1000, family="poisson"))
+summary(glm(data$SpRichness ~ data$dev_1000, family="poisson"))
+
+b_dev1000<-glm(data$SpRichness ~ data$dev_1000, family="poisson" )
+cov.b_dev1000<-vcovHC(b_dev1000, type="HC0")
+std.err <- sqrt(diag(cov.b_dev1000))
+r.est <- cbind(Estimate= coef(b_dev1000), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(b_dev1000)/std.err), lower.tail=FALSE),
+LL = coef(b_dev1000) - 1.96 * std.err,
+UL = coef(b_dev1000) + 1.96 * std.err)
+
+r.est
+with(b_dev1000, cbind(res.deviance =deviance, df=df.residual, p=pchisq(deviance, df.residual, lower.tail=FALSE)))
+```
+Bee & Forest 1km 
+```{r}
+#Forest
+par(mfrow=c(2,2))
+plot(glm(data$SpRichness ~ data$for_1000, family="poisson"))
+ggplotRegression(glm(data$SpRichness ~ data$for_1000, family="poisson"))
+summary(glm(data$SpRichness ~ data$for_1000, family="poisson"))
+
+
+b_for1000<-glm(data$SpRichness ~ data$for_1000, family="poisson" )
+cov.b_for1000<-vcovHC(b_for1000, type="HC0")
+std.err <- sqrt(diag(cov.b_for1000))
+r.est <- cbind(Estimate= coef(b_for1000), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(b_for1000)/std.err), lower.tail=FALSE),
+LL = coef(b_for1000) - 1.96 * std.err,
+UL = coef(b_for1000) + 1.96 * std.err)
+
+r.est
+with(b_for1000, cbind(res.foriance =foriance, df=df.residual, p=pchisq(foriance, df.residual, lower.tail=FALSE)))
+```
+Bee & Crop 1km
+```{r}
+#Crop
+par(mfrow=c(2,2))
+plot(glm(data$SpRichness ~ data$cro_1000, family="poisson"))
+ggplotRegression(glm(data$SpRichness ~ data$cro_1000, family="poisson"))
+summary(glm(data$SpRichness ~ data$cro_1000, family="poisson"))
+
+b_cro1000<-glm(data$SpRichness ~ data$cro_1000, family="poisson" )
+cov.b_cro1000<-vcovHC(b_cro1000, type="HC0")
+std.err <- sqrt(diag(cov.b_cro1000))
+r.est <- cbind(Estimate= coef(b_cro1000), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(b_cro1000)/std.err), lower.tail=FALSE),
+LL = coef(b_cro1000) - 1.96 * std.err,
+UL = coef(b_cro1000) + 1.96 * std.err)
+
+r.est
+with(b_cro1000, cbind(res.croiance =croiance, df=df.residual, p=pchisq(croiance, df.residual, lower.tail=FALSE)))
+```
+Bee & Grass 1km 
+```{r}
+#Grass
+par(mfrow=c(2,2))
+plot(glm(data$SpRichness ~ data$gra_1000, family="poisson"))
+ggplotRegression(glm(data$SpRichness ~ data$gra_1000, family="poisson"))
+summary(glm(data$SpRichness ~ data$gra_1000, family="poisson"))
+
+b_gra1000<-glm(data$SpRichness ~ data$gra_1000, family="poisson" )
+cov.b_gra1000<-vcovHC(b_gra1000, type="HC0")
+std.err <- sqrt(diag(cov.b_gra1000))
+r.est <- cbind(Estimate= coef(b_gra1000), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(b_gra1000)/std.err), lower.tail=FALSE),
+LL = coef(b_gra1000) - 1.96 * std.err,
+UL = coef(b_gra1000) + 1.96 * std.err)
+
+r.est
+with(b_gra1000, cbind(res.graiance =graiance, df=df.residual, p=pchisq(graiance, df.residual, lower.tail=FALSE)))
+```
+
+Bee & Development 5km 
+```{r}
+#5000 (5km)
+#Development
+par(mfrow=c(2,2))
+plot(glm(data$SpRichness ~ data$dev_5000, family="poisson"))
+ggplotRegression(glm(data$SpRichness ~ data$dev_5000, family="poisson"))
+summary(glm(data$SpRichness ~ data$dev_5000, family="poisson"))
+
+b_dev5000<-glm(data$SpRichness ~ data$dev_5000, family="poisson" )
+cov.b_dev5000<-vcovHC(b_dev5000, type="HC0")
+std.err <- sqrt(diag(cov.b_dev5000))
+r.est <- cbind(Estimate= coef(b_dev5000), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(b_dev5000)/std.err), lower.tail=FALSE),
+LL = coef(b_dev5000) - 1.96 * std.err,
+UL = coef(b_dev5000) + 1.96 * std.err)
+
+r.est
+with(b_dev5000, cbind(res.deviance =deviance, df=df.residual, p=pchisq(deviance, df.residual, lower.tail=FALSE)))
+```
+
+Bee & Forest 5km 
+```{r}
+#Forest
+par(mfrow=c(2,2))
+plot(glm(data$SpRichness ~ data$for_5000, family="poisson"))
+ggplotRegression(glm(data$SpRichness ~ data$for_5000, family="poisson"))
+summary(glm(data$SpRichness ~ data$for_5000, family="poisson"))
+```
+
+Bee & Crop 5km 
+```{r}
+#Crop
+par(mfrow=c(2,2))
+plot(glm(data$SpRichness ~ data$cro_5000, family="poisson"))
+ggplotRegression(glm(data$SpRichness ~ data$cro_5000, family="poisson"))
+summary(glm(data$SpRichness ~ data$cro_5000, family="poisson"))
+```
+Bee & Grass 5km
+```{r}
+#Grass
+par(mfrow=c(2,2))
+plot(glm(data$SpRichness ~ data$gra_5000, family="poisson"))
+ggplotRegression(glm(data$SpRichness ~ data$gra_5000, family="poisson"))
+summary(glm(data$SpRichness ~ data$gra_5000, family="poisson"))
+```
+
+
+## General Linear Models-Abundance 
+```{r}
+ggplotRegression<- function(fit){
+  ggplot(fit$model,aes_string(x=names(fit$model)[2],y=names(fit$model)[1]))+
+   geom_point()+
+    stat_smooth(method="glm", col="red")+
+    labs(title=paste(#"Adj R2 = ", signif(summary(fit)$adj.r.squared,5),
+                     "Intercept = ", signif(fit$coef[[1]],5),
+                    "Slope = ", signif(fit$coef[[2]],5),
+                     "P-value = ",signif(summary(fit)$coef[2,4],5)))
+}
+```
+Bee & Development 250m 
+```{r}
+#250 meters
+#Development
+par(mfrow=c(2,2))
+plot(glm(data$Abundance ~ data$dev_250, family="poisson" ))
+ggplotRegression(glm(data$Abundance ~ data$dev_250, family="poisson" ))
+summary(glm(data$Abundance ~ data$dev_250, family="poisson"))
+```
+Bee & Forest 250m 
+```{r}
+#Forest
+par(mfrow=c(2,2))
+plot(glm(data$Abundance ~ data$for_250, family="poisson"))
+ggplotRegression(glm(data$Abundance ~ data$for_250, family="poisson"))
+summary(glm(data$Abundance ~ data$for_250, family="poisson"))
+```
+Bee & Crop 250m 
+```{r}
+#Crop
+par(mfrow=c(2,2))
+plot(glm(data$Abundance ~ data$cro_250, family="poisson"))
+ggplotRegression(glm(data$Abundance ~ data$cro_250, family="poisson"))
+summary(glm(data$Abundance ~ data$cro_250, family="poisson"))
+```
+Bee & Grass 250m
+```{r}
+#Grass
+par(mfrow=c(2,2))
+plot(glm(data$Abundance ~ data$gra_250, family="poisson"))
+ggplotRegression(glm(data$Abundance ~ data$gra_250, family="poisson"))
+summary(glm(data$Abundance ~ data$gra_250, family="poisson"))
+```
+
+Bee & Development 500m
+```{r}
+#500 meters
+#Development
+par(mfrow=c(2,2))
+plot(glm(data$Abundance ~ data$dev_500, family="poisson"))
+ggplotRegression(glm(data$Abundance ~ data$dev_500, family="poisson"))
+summary(glm(data$Abundance ~ data$dev_500, family="poisson"))
+```
+Bee & Forest 500m
+```{r}
+#Forest
+par(mfrow=c(2,2))
+plot(glm(data$Abundance ~ data$for_500, family="poisson"))
+ggplotRegression(glm(data$Abundance ~ data$for_500, family="poisson"))
+summary(glm(data$Abundance ~ data$for_500, family="poisson"))
+```
+Bee & Crop 500m 
+```{r}
+#Crop
+par(mfrow=c(2,2))
+plot(glm(data$Abundance ~ data$cro_500, family="poisson"))
+ggplotRegression(glm(data$Abundance ~ data$cro_500, family="poisson"))
+summary(glm(data$Abundance ~ data$cro_500, family="poisson"))
+```
+Bee & Grass 500m
+```{r}
+#Grass
+par(mfrow=c(2,2))
+plot(glm(data$Abundance ~ data$gra_500, family="poisson"))
+ggplotRegression(glm(data$Abundance ~ data$gra_500, family="poisson"))
+summary(glm(data$Abundance ~ data$gra_500, family="poisson"))
+```
+
+Bee & Development 1km 
+```{r}
+#1000 meters (1km)
+#Development
+par(mfrow=c(2,2))
+plot(glm(data$Abundance ~ data$dev_1000, family="poisson"))
+ggplotRegression(glm(data$Abundance ~ data$dev_1000, family="poisson"))
+summary(glm(data$Abundance ~ data$dev_1000, family="poisson"))
+```
+Bee & Forest 1km
+```{r}
+#Forest
+par(mfrow=c(2,2))
+plot(glm(data$Abundance ~ data$for_1000, family="poisson"))
+ggplotRegression(glm(data$Abundance ~ data$for_1000, family="poisson"))
+summary(glm(data$Abundance ~ data$for_1000, family="poisson"))
+```
+Bee & Crop 1km
+```{r}
+#Crop
+par(mfrow=c(2,2))
+plot(glm(data$Abundance ~ data$cro_1000, family="poisson"))
+ggplotRegression(glm(data$Abundance ~ data$cro_1000, family="poisson"))
+summary(glm(data$Abundance ~ data$cro_1000, family="poisson"))
+```
+Bee & Grass 1km
+```{r}
+#Grass
+par(mfrow=c(2,2))
+plot(glm(data$Abundance ~ data$gra_1000, family="poisson"))
+ggplotRegression(glm(data$Abundance ~ data$gra_1000, family="poisson"))
+summary(glm(data$Abundance ~ data$gra_1000, family="poisson"))
+
+```
+
+Bee & Development 5km 
+```{r}
+#5000 (5km)
+#Development
+par(mfrow=c(2,2))
+plot(glm(data$Abundance ~ data$dev_5000, family="poisson"))
+ggplotRegression(glm(data$Abundance ~ data$dev_5000, family="poisson"))
+summary(glm(data$Abundance ~ data$dev_5000, family="poisson"))
+```
+Bee & Forest 5km 
+```{r}
+#Forest
+par(mfrow=c(2,2))
+plot(glm(data$Abundance ~ data$for_5000, family="poisson"))
+ggplotRegression(glm(data$Abundance ~ data$for_5000, family="poisson"))
+summary(glm(data$Abundance ~ data$for_5000, family="poisson"))
+```
+Bee & Crop 5km
+```{r}
+#Crop
+par(mfrow=c(2,2))
+plot(glm(data$Abundance ~ data$cro_5000, family="poisson"))
+ggplotRegression(glm(data$Abundance ~ data$cro_5000, family="poisson"))
+summary(glm(data$Abundance ~ data$cro_5000, family="poisson"))
+```
+Bee & Grass 5km 
+```{r}
+#Grass
+par(mfrow=c(2,2))
+plot(glm(data$Abundance ~ data$gra_5000, family="poisson"))
+ggplotRegression(glm(data$Abundance ~ data$gra_5000, family="poisson"))
+summary(glm(data$Abundance ~ data$gra_5000, family="poisson"))
+```
+
+
+
+#Mammal 
+```{r}
+dataraw<-read.csv("U:/CLI/Field Surveys/eMammal/RAW_Urban_to_Wild_data.csv",header=TRUE)
+
+dataraw_Abund<-dataraw%>%group_by(Year,Deployment,Year,Species.Name, Lat, Long)%>% #group by site and spp
+  summarize(Abundance=sum(Count))%>% #sum abundance of each spp by site
+  spread(Species.Name, Abundance)%>% #transpose
+  replace(is.na(.), 0)
+
+#write.csv(dataraw_Abund, "U:/CLI/Field Surveys/eMammal/CLI_mammal_dat_habitat_SH.csv")
+```
+
+Bring in Tables made in ArcGIS adding land use variables 
+
+##Mammal Native
+```{r}
+
+data<-read.csv("U:/CLI/Field Surveys/eMammal/CLI_mammal_environmental_native2.csv",header=TRUE) #we removed values of -9999 in excel 
+data<-subset(data, Abundance > 0)
+Data_Abund<-data[,-c(1,2,4,5,19:35)] #only abundance 
+Data_Abund$Deployment<-as.character(Data_Abund$Deployment)
+Data_Abund<-Data_Abund%>%replace(is.na(.), 0)
+
+Data_Abund<-mutate(Data_Abund, SpRichness=specnumber(Data_Abund))
+Data_Abund$SpRichness<-Data_Abund$SpRichness-1
+
+dataM<-left_join(data[,c(1,2,3,4,5,19:35)],Data_Abund, by=c("Deployment"))#Combined back to data 
+```
+
+###Histograms of Native Mammals and Land use Metrics
+
+```{r}
+#Species Richness 
+ggplot(gather(dataM[36]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    xlab("Number of species per site")+
+    ylab("Number of Sites")+
+    ggtitle("Native Mammals Species Richness Histogram")
+#Land Use
+ggplot(gather(dataM[,7:22]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+   ylab("Number of Sites")+
+    xlab("Percent of land use")+
+    ggtitle("Land Use Metric Histograms")
+```
+
+###Bar Graphs 
+Species  Richness
+```{r}
+dataM_richness_subset<-dataM[,c(3,36,7:22)]
+dataM_richness_subset<-as.data.frame(dataM_richness_subset)
+dataM_meltR<-melt(dataM_richness_subset, id=c("Deployment", "SpRichness"))
+
+dataM_meltR_250<-subset(dataM_meltR, variable==c("dev_250", "for_250", "cro_250", "gra_250"))
+dataM_meltR_500<-subset(dataM_meltR, variable==c("dev_500", "for_500", "cro_500", "gra_500"))
+dataM_meltR_1000<-subset(dataM_meltR, variable==c("dev_1000", "for_1000", "cro_1000", "gra_1000"))
+dataM_meltR_5000<-subset(dataM_meltR, variable==c("dev_5000", "for_5000", "cro_5000", "gra_5000"))
+
+ggplot(dataM_meltR_250, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+        ggtitle("Native Mammals Species Richness vs. Percent of Land Use (250m)")
+
+ggplot(dataM_meltR_500, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+      ggtitle("Native Mammals Species Richness vs. Percent of Land Use (500m)")
+         
+ ggplot(dataM_meltR_1000, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+          ggtitle("Native Mammals Species Richness vs. Percent of Land Use (1km)")
+         
+ggplot(dataM_meltR_5000, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+        ggtitle("Native Mammals Species Richness vs. Percent of Land Use (5km)")
+```
+
+###Correlation
+Native Mammal Correlation Plots
+```{r}
+#250 meters
+pairs(dataM[c(7:10,36)])
+
+#500 meters
+pairs(dataM[c(36,11:14)])
+
+#1000 meters (1km)
+pairs(dataM[c(36,15:18)])
+
+#5000 meters (5km)
+pairs(dataM[c(36,19:22)])
+```
+
+
+### General Linear Models-Native Mammals Species Richness 
+
+```{r}
+ggplotRegression<- function(fit){
+  ggplot(fit$model,aes_string(x=names(fit$model)[2],y=names(fit$model)[1]))+
+   geom_point()+
+    stat_smooth(method="glm", col="red")+
+    labs(title=paste(#"Adj R2 = ", signif(summary(fit)$adj.r.squared,5),
+                     "Intercept = ", signif(fit$coef[[1]],5),
+                    "Slope = ", signif(fit$coef[[2]],5),
+                     "P-value = ",signif(summary(fit)$coef[2,4],5)))
+}
+```
+Native Mammal & Development 250m 
+
+```{r}
+#250 meters
+#Development
+par(mfrow=c(2,2))
+plot(glm(dataM$SpRichness ~ dataM$dev_250, family="poisson" ))
+ggplotRegression(glm(dataM$SpRichness ~ dataM$dev_250, family="poisson" ))
+summary(glm(dataM$SpRichness ~ dataM$dev_250, family="poisson"))
+```
+Native Mammal & Forest 250m
+```{r}
+#Forest
+par(mfrow=c(2,2))
+plot(glm(dataM$SpRichness ~ dataM$for_250, family="poisson"))
+ggplotRegression(glm(dataM$SpRichness ~ dataM$for_250, family="poisson"))
+summary(glm(dataM$SpRichness ~ dataM$for_250, family="poisson"))
+```
+Native Mammal & Crop 250m
+```{r}
+#Crop
+par(mfrow=c(2,2))
+plot(glm(dataM$SpRichness ~ dataM$cro_250, family="poisson"))
+ggplotRegression(glm(dataM$SpRichness ~ dataM$cro_250, family="poisson"))
+summary(glm(dataM$SpRichness ~ dataM$cro_250, family="poisson"))
+```
+Native Mammal & Grass 250m
+```{r}
+#Grass
+par(mfrow=c(2,2))
+plot(glm(dataM$SpRichness ~ dataM$gra_250, family="poisson"))
+ggplotRegression(glm(dataM$SpRichness ~ dataM$gra_250, family="poisson"))
+summary(glm(dataM$SpRichness ~ dataM$gra_250, family="poisson"))
+```
+
+Native Mammal & Development 500m
+```{r}
+#500 meters
+#Development
+par(mfrow=c(2,2))
+plot(glm(dataM$SpRichness ~ dataM$dev_500, family="poisson"))
+ggplotRegression(glm(dataM$SpRichness ~ dataM$dev_500, family="poisson"))
+summary(glm(dataM$SpRichness ~ dataM$dev_500, family="poisson"))
+```
+Native Mammal & Forest 500m
+```{r}
+#Forest
+par(mfrow=c(2,2))
+plot(glm(dataM$SpRichness ~ dataM$for_500, family="poisson"))
+ggplotRegression(glm(dataM$SpRichness ~ dataM$for_500, family="poisson"))
+summary(glm(dataM$SpRichness ~ dataM$for_500, family="poisson"))
+```
+Native Mammal & Crop 500m
+```{r}
+#Crop
+par(mfrow=c(2,2))
+plot(glm(dataM$SpRichness ~ dataM$cro_500, family="poisson"))
+ggplotRegression(glm(dataM$SpRichness ~ dataM$cro_500, family="poisson"))
+summary(glm(dataM$SpRichness ~ dataM$cro_500, family="poisson"))
+```
+Native Mammal & Grass 500m
+```{r}
+#Grass
+par(mfrow=c(2,2))
+plot(glm(dataM$SpRichness ~ dataM$gra_500, family="poisson"))
+ggplotRegression(glm(dataM$SpRichness ~ dataM$gra_500, family="poisson"))
+summary(glm(dataM$SpRichness ~ dataM$gra_500, family="poisson"))
+```
+
+Native Mammal & Development 1km
+```{r}
+#1000 meters (1km)
+#Development
+par(mfrow=c(2,2))
+plot(glm(dataM$SpRichness ~ dataM$dev_1000, family="poisson"))
+ggplotRegression(glm(dataM$SpRichness ~ dataM$dev_1000, family="poisson"))
+summary(glm(dataM$SpRichness ~ dataM$dev_1000, family="poisson"))
+```
+Native Mammal & Forest 1km 
+```{r}
+#Forest
+par(mfrow=c(2,2))
+plot(glm(dataM$SpRichness ~ dataM$for_1000, family="poisson"))
+ggplotRegression(glm(dataM$SpRichness ~ dataM$for_1000, family="poisson"))
+summary(glm(dataM$SpRichness ~ dataM$for_1000, family="poisson"))
+```
+Native Mammal & Crop 1km 
+```{r}
+#Crop
+par(mfrow=c(2,2))
+plot(glm(dataM$SpRichness ~ dataM$cro_1000, family="poisson"))
+ggplotRegression(glm(dataM$SpRichness ~ dataM$cro_1000, family="poisson"))
+summary(glm(dataM$SpRichness ~ dataM$cro_1000, family="poisson"))
+```
+Native Mammal & Grass 1km
+```{r}
+#Grass
+par(mfrow=c(2,2))
+plot(glm(dataM$SpRichness ~ dataM$gra_1000, family="poisson"))
+ggplotRegression(glm(dataM$SpRichness ~ dataM$gra_1000, family="poisson"))
+summary(glm(dataM$SpRichness ~ dataM$gra_1000, family="poisson"))
+```
+
+Native Mammal & Development 5km 
+```{r}
+#5000 (5km)
+#Development
+par(mfrow=c(2,2))
+plot(glm(dataM$SpRichness ~ dataM$dev_5000, family="poisson"))
+ggplotRegression(glm(dataM$SpRichness ~ dataM$dev_5000, family="poisson"))
+summary(glm(dataM$SpRichness ~ dataM$dev_5000, family="poisson"))
+```
+Native Mammal & Forest 5km 
+```{r}
+#Forest
+par(mfrow=c(2,2))
+plot(glm(dataM$SpRichness ~ dataM$for_5000, family="poisson"))
+ggplotRegression(glm(dataM$SpRichness ~ dataM$for_5000, family="poisson"))
+summary(glm(dataM$SpRichness ~ dataM$for_5000, family="poisson"))
+```
+Native Mammal & Crop 5km
+```{r}
+#Crop
+par(mfrow=c(2,2))
+plot(glm(dataM$SpRichness ~ dataM$cro_5000, family="poisson"))
+ggplotRegression(glm(dataM$SpRichness ~ dataM$cro_5000, family="poisson"))
+summary(glm(dataM$SpRichness ~ dataM$cro_5000, family="poisson"))
+```
+Native Mammal & Grass 5km
+```{r}
+#Grass
+par(mfrow=c(2,2))
+plot(glm(dataM$SpRichness ~ dataM$gra_5000, family="poisson"))
+ggplotRegression(glm(dataM$SpRichness ~ dataM$gra_5000, family="poisson"))
+summary(glm(dataM$SpRichness ~ dataM$gra_5000, family="poisson"))
+```
+
+
+##Mammals Non Native 
+```{r}
+data<-read.csv("U:/CLI/Field Surveys/eMammal/CLI_mammal_environmental_nonnative2.csv",header=TRUE) 
+data<-subset(data, Abundance > 0)
+Data_Abund<-data[,-c(1,2,4,5,10:26)] #only abundance 
+Data_Abund$Deployment<-as.character(Data_Abund$Deployment)
+Data_Abund<-Data_Abund%>%replace(is.na(.), 0)
+
+Data_Abund<-mutate(Data_Abund, SpRichness=specnumber(Data_Abund))
+Data_Abund$SpRichness<-Data_Abund$SpRichness-1
+
+dataMN<-left_join(data[,c(1,2,3,4,5,10:26)],Data_Abund, by=c("Deployment"))#Combined back to data 
+```
+
+
+###Histograms of Non Native Mammals and Land Use Metrics
+
+```{r}
+#Species Richness 
+ggplot(gather(dataMN[27]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    xlab("Number of species per site")+
+    ylab("Number of Sites")+
+    ggtitle("Non Native Mammal Species Richness Histogram")
+#Land Use
+ggplot(gather(dataMN[,7:22]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+   ylab("Number of Sites")+
+    xlab("Percent of land use")+
+    ggtitle("Land Use Metric Histograms")
+
+```
+
+###Bar Graphs 
+Species Richness
+```{r}
+dataMN_richness_subset<-dataMN[,c(3,27,7:22)]
+dataMN_richness_subset<-as.data.frame(dataMN_richness_subset)
+dataMN_meltR<-melt(dataMN_richness_subset, id=c("Deployment", "SpRichness"))
+
+dataMN_meltR_250<-subset(dataMN_meltR, variable==c("dev_250", "for_250", "cro_250", "gra_250"))
+dataMN_meltR_500<-subset(dataMN_meltR, variable==c("dev_500", "for_500", "cro_500", "gra_500"))
+dataMN_meltR_1000<-subset(dataMN_meltR, variable==c("dev_1000", "for_1000", "cro_1000", "gra_1000"))
+dataMN_meltR_5000<-subset(dataMN_meltR, variable==c("dev_5000", "for_5000", "cro_5000", "gra_5000"))
+
+ggplot(dataMN_meltR_250, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+        ggtitle("Non Native Species Richness vs. Percent Land use (250m)")
+
+ggplot(dataMN_meltR_500, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+      ggtitle("Non Native Species Richness vs. Percent Land use (500m)")
+        
+         
+ ggplot(dataMN_meltR_1000, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+            ggtitle("Non Native Species Richness vs. Percent Land use (1km)")
+         
+ggplot(dataMN_meltR_5000, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+         ggtitle("Non Native Species Richness vs. Percent Land use (5km)")
+```
+
+
+
+###Correlation
+Non Native Mammal Correlation Plots
+```{r}
+#250 meters
+pairs(dataMN[c(7:10,27)])
+
+#500 meters
+pairs(dataMN[c(27,11:14)])
+
+#1000 meters (1km)
+pairs(dataMN[c(27,15:18)])
+
+#5000 meters (5km)
+pairs(dataMN[c(27,19:22)])
+```
+
+
+### General Linear Models-Non Native Species Richness 
+```{r}
+ggplotRegression<- function(fit){
+  ggplot(fit$model,aes_string(x=names(fit$model)[2],y=names(fit$model)[1]))+
+   geom_point()+
+    stat_smooth(method="glm", col="red")+
+    labs(title=paste(#"Adj R2 = ", signif(summary(fit)$adj.r.squared,5),
+                     "Intercept = ", signif(fit$coef[[1]],5),
+                    "Slope = ", signif(fit$coef[[2]],5),
+                     "P-value = ",signif(summary(fit)$coef[2,4],5)))
+}
+```
+Non Native Mammal & Development 250m 
+```{r}
+#250 meters
+#Development
+par(mfrow=c(2,2))
+plot(glm(dataMN$SpRichness ~ dataMN$dev_250, family="poisson"))
+ggplotRegression(glm(dataMN$SpRichness ~ dataMN$dev_250, family="poisson" ))
+summary(glm(dataMN$SpRichness ~ dataMN$dev_250, family="poisson"))
+```
+Non Native Mammal & Forest 250m
+```{r}
+#Forest
+par(mfrow=c(2,2))
+plot(glm(dataMN$SpRichness ~ dataMN$for_250, family="poisson"))
+ggplotRegression(glm(dataMN$SpRichness ~ dataMN$for_250, family="poisson"))
+summary(glm(dataMN$SpRichness ~ dataMN$for_250, family="poisson"))
+```
+Non Native Mammal & Crop 250m 
+```{r}
+#Crop
+par(mfrow=c(2,2))
+plot(glm(dataMN$SpRichness ~ dataMN$cro_250, family="poisson"))
+ggplotRegression(glm(dataMN$SpRichness ~ dataMN$cro_250, family="poisson"))
+summary(glm(dataMN$SpRichness ~ dataMN$cro_250, family="poisson"))
+```
+Non Native Mammal & Grass 250m 
+```{r}
+#Grass
+par(mfrow=c(2,2))
+plot(glm(dataMN$SpRichness ~ dataMN$gra_250, family="poisson"))
+ggplotRegression(glm(dataMN$SpRichness ~ dataMN$gra_250, family="poisson"))
+summary(glm(dataMN$SpRichness ~ dataMN$gra_250, family="poisson"))
+```
+
+Non Native Mammal & Development 500m
+```{r}
+#500 meters
+#Development
+par(mfrow=c(2,2))
+plot(glm(dataMN$SpRichness ~ dataMN$dev_500, family="poisson"))
+ggplotRegression(glm(dataMN$SpRichness ~ dataMN$dev_500, family="poisson"))
+summary(glm(dataMN$SpRichness ~ dataMN$dev_500, family="poisson"))
+```
+Non Native Mammal & Forest 500m
+```{r}
+#Forest
+par(mfrow=c(2,2))
+plot(glm(dataMN$SpRichness ~ dataMN$for_500, family="poisson"))
+ggplotRegression(glm(dataMN$SpRichness ~ dataMN$for_500, family="poisson"))
+summary(glm(dataMN$SpRichness ~ dataMN$for_500, family="poisson"))
+```
+Non Native Mammal & Crop 500m
+```{r}
+#Crop
+par(mfrow=c(2,2))
+plot(glm(dataMN$SpRichness ~ dataMN$cro_500, family="poisson"))
+ggplotRegression(glm(dataMN$SpRichness ~ dataMN$cro_500, family="poisson"))
+summary(glm(dataMN$SpRichness ~ dataMN$cro_500, family="poisson"))
+```
+Non Native Mammal & Grass 500m 
+```{r}
+#Grass
+par(mfrow=c(2,2))
+plot(glm(dataMN$SpRichness ~ dataMN$gra_500, family="poisson"))
+ggplotRegression(glm(dataMN$SpRichness ~ dataMN$gra_500, family="poisson"))
+summary(glm(dataMN$SpRichness ~ dataMN$gra_500, family="poisson"))
+```
+
+Non Native Mammal & Development 1km 
+```{r}
+#1000 meters (1km)
+#Development
+par(mfrow=c(2,2))
+plot(glm(dataMN$SpRichness ~ dataMN$dev_1000, family="poisson"))
+ggplotRegression(glm(dataMN$SpRichness ~ dataMN$dev_1000, family="poisson"))
+summary(glm(dataMN$SpRichness ~ dataMN$dev_1000, family="poisson"))
+```
+Non Native Mammal & Forest 1km 
+```{r}
+#Forest
+par(mfrow=c(2,2))
+plot(glm(dataMN$SpRichness ~ dataMN$for_1000, family="poisson"))
+ggplotRegression(glm(dataMN$SpRichness ~ dataMN$for_1000, family="poisson"))
+summary(glm(dataMN$SpRichness ~ dataMN$for_1000, family="poisson"))
+```
+Non Native Mammal & Crop 1km 
+```{r}
+#Crop
+par(mfrow=c(2,2))
+plot(glm(dataMN$SpRichness ~ dataMN$cro_1000, family="poisson"))
+ggplotRegression(glm(dataMN$SpRichness ~ dataMN$cro_1000, family="poisson"))
+summary(glm(dataMN$SpRichness ~ dataMN$cro_1000, family="poisson"))
+```
+Non Native Mammal & Grass 1km 
+```{r}
+#Grass
+par(mfrow=c(2,2))
+plot(glm(dataMN$SpRichness ~ dataMN$gra_1000, family="poisson"))
+ggplotRegression(glm(dataMN$SpRichness ~ dataMN$gra_1000, family="poisson"))
+summary(glm(dataMN$SpRichness ~ dataMN$gra_1000, family="poisson"))
+```
+
+Non Native Mammal & Development 5km 
+```{r}
+#5000 (5km)
+#Development
+par(mfrow=c(2,2))
+plot(glm(dataMN$SpRichness ~ dataMN$dev_5000, family="poisson"))
+ggplotRegression(glm(dataMN$SpRichness ~ dataMN$dev_5000, family="poisson"))
+summary(glm(dataMN$SpRichness ~ dataMN$dev_5000, family="poisson"))
+```
+Non Native Mammal & Forest 5km 
+```{r}
+#Forest
+par(mfrow=c(2,2))
+plot(glm(dataMN$SpRichness ~ dataMN$for_5000, family="poisson"))
+ggplotRegression(glm(dataMN$SpRichness ~ dataMN$for_5000, family="poisson"))
+summary(glm(dataMN$SpRichness ~ dataMN$for_5000, family="poisson"))
+```
+Non Native Mammal & Crop 5km 
+```{r}
+#Crop
+par(mfrow=c(2,2))
+plot(glm(dataMN$SpRichness ~ dataMN$cro_5000, family="poisson"))
+ggplotRegression(glm(dataMN$SpRichness ~ dataMN$cro_5000, family="poisson"))
+summary(glm(dataMN$SpRichness ~ dataMN$cro_5000, family="poisson"))
+```
+Non Native Mammal & Grass 5km
+```{r}
+#Grass
+par(mfrow=c(2,2))
+plot(glm(dataMN$SpRichness ~ dataMN$gra_5000, family="poisson"))
+ggplotRegression(glm(dataMN$SpRichness ~ dataMN$gra_5000, family="poisson"))
+summary(glm(dataMN$SpRichness ~ dataMN$gra_5000, family="poisson"))
+```
+
+#Invasives
+```{r}
+
+dataI<-read.csv("U:/CLI/Field Surveys/Invasive/SchSt_Invasive_Grid.csv",header=TRUE)
+```
+
+
+##Histograms of Invasives and Land Use Metrics
+
+```{r}
+#Abundance Histogram
+#over 0 because in first bin 0-20
+ggplot(gather(dataI[11]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    xlab("10% blocks")+
+    ylab("Number of Occurences")+
+    ggtitle("Invasive Number of Occurances Histogram")
+
+
+#Land Use
+ggplot(gather(dataI[,21:24]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    ylab("Number of Sites")+
+    xlab("Percent of Land use")+
+    ggtitle("Land Use Metric Histogram")
+
+
+```
+
+##Bar Graphs
+
+```{r}
+dataI_Abund_subset<-dataI[,c(1,11,21:24)]
+dataI_Abund_subset<-as.data.frame(dataI_Abund_subset)
+dataI_melt<-melt(dataI_Abund_subset, id=c("OBJECTID", "Sum_Woody"))
+
+dataI_melt<-subset(dataI_melt, variable==c("percent_dev", "percent_for", "percent_cro", "percent_gra"))
+
+
+ggplot(dataI_melt, aes(y=Sum_Woody, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Number of Occurences")+
+        ggtitle("Invasive Number of Occurances vs. Land Use Metrics ")
+```
+
+##Correlation
+Invasive Correlation Plots
+```{r}
+pairs(dataI[c(11, 21:24)])
+
+```
+
+
+##General Linear Model-Invasive 
+
+```{r}
+ggplotRegression<- function(fit){
+  ggplot(fit$model,aes_string(x=names(fit$model)[2],y=names(fit$model)[1]))+
+   geom_point()+
+    stat_smooth(method="glm", col="red")+
+    labs(title=paste(#"Adj R2 = ", signif(summary(fit)$adj.r.squared,5),
+                     "Intercept = ", signif(fit$coef[[1]],5),
+                    "Slope = ", signif(fit$coef[[2]],5),
+                     "P-value = ",signif(summary(fit)$coef[2,4],5)))
+}
+```
+Invasive & Development
+```{r}
+#250 meters
+#Development
+par(mfrow=c(2,2))
+plot(glm(dataI$Sum_Woody ~ dataI$percent_dev, family="poisson" ))
+ggplotRegression(glm(dataI$Sum_Woody ~ dataI$percent_dev, family="poisson" ))
+summary(glm(dataI$Sum_Woody ~ dataI$percent_dev, family="poisson" ))
+```
+Invasive & Forest 
+```{r}
+#Forest
+par(mfrow=c(2,2))
+plot(glm(dataI$Sum_Woody ~ dataI$percent_for, family="poisson" ))
+ggplotRegression(glm(dataI$Sum_Woody ~ dataI$percent_for, family="poisson" ))
+summary(glm(dataI$Sum_Woody ~ dataI$percent_for, family="poisson" ))
+```
+Invasive & Crop
+```{r}
+#Crop
+par(mfrow=c(2,2))
+plot(glm(dataI$Sum_Woody ~ dataI$percent_cro, family="poisson" ))
+ggplotRegression(glm(dataI$Sum_Woody ~ dataI$percent_cro, family="poisson" ))
+summary(glm(dataI$Sum_Woody ~ dataI$percent_cro, family="poisson" ))
+```
+Invasive & Grass 
+```{r}
+#Grass
+par(mfrow=c(2,2))
+plot(glm(dataI$Sum_Woody ~ dataI$percent_gra, family="poisson" ))
+ggplotRegression(glm(dataI$Sum_Woody ~ dataI$percent_gra, family="poisson" ))
+summary(glm(dataI$Sum_Woody ~ dataI$percent_gra, family="poisson" ))
+```
+#Birds 
+```{r}
+data2013<-read.csv("U:/CLI/Field Surveys/Birds/RawDataFixedDistance2013_sh-xlsx_afterOR.csv")
+SummaryData2013<-data2013%>%group_by(Month,Day,Site_Name)%>% #group by site
+distinct(Day)
+
+SummaryDataSites<-count(SummaryData2013%>%group_by(Site_Name))
+
+write.csv(SummaryDataSites,"U:/CLI/Field Surveys/Birds/RawDataFixedDistance2013_sh-numbersites.csv", row.names = FALSE)
+```

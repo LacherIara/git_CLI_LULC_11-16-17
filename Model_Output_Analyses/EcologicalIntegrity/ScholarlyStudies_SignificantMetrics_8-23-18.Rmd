@@ -1,0 +1,139 @@
+---
+title: "Significant Metrics Regressions"
+output:
+  html_document: 
+    toc: yes
+editor_options:
+  chunk_output_type: console
+---
+#Packages 
+```{r message=FALSE, warning=FALSE}
+setwd("U:/CLI/Field Surveys/MultiTaxaProducts/")
+
+library(vegan) #diversity index
+library(picante)
+library(dplyr) #tibbles and data manipulation
+library(tidyr) #transpose data
+library(knitr) #print tables in R Markdown
+library(ggplot2)
+library(lubridate)#manipulate date-time data
+library(lattice)
+library(gridExtra)
+library(reshape2)
+library(sandwich)
+```
+#INTRODUCTION
+IGNORE THE P-VALUES ON THE GRAPHS THESE DO NOT REFLECT ROBUST STANDAND ERRORS AND ROBUST P-VALUES. 
+https://stats.idre.ucla.edu/r/dae/poisson-regression/
+
+#Bee Data
+```{r}
+data<-read.csv("U:/CLI/Field Surveys/Bees/Data/CLI_bee_CF_8-22-18.csv")
+```
+
+##General Linear Regression- Bee Species Richness 
+```{r}
+ggplotRegression<- function(fit){
+  ggplot(fit$model,aes_string(x=names(fit$model)[2],y=names(fit$model)[1]))+
+   geom_point()+
+    stat_smooth(method="glm", col="red")+
+    labs(title=paste(#"Adj R2 = ", signif(summary(fit)$adj.r.squared,5),
+                     "Intercept = ", signif(fit$coef[[1]],5),
+                    "Slope = ", signif(fit$coef[[2]],5),
+                     "P-value = ",signif(summary(fit)$coef[2,4],5)))
+}
+```
+
+###Bee Richness and Percent of Development within 250m 
+```{r}
+ggplotRegression(glm(data$SpRichness ~ data$dev_250, family="poisson"))
+```
+
+
+#Bird Data
+```{r}
+dataB<-read.csv("U:/CLI/Field Surveys/Birds/Birds_Pre2018_join.csv")
+dataB[dataB=="-9999"]<-NA
+```
+##General Linear Regression- Bird Species Richness
+
+###Bird Richness and Percent of Grass within 500m 
+```{r}
+ggplotRegression(glm(dataB$Bird_Richness ~ dataB$gra_500, family="poisson"))
+```
+
+
+###Bird Richness and Percent of Grass within 1000m 
+```{r}
+ggplotRegression(glm(dataB$Bird_Richness ~ dataB$gra_1000, family="poisson"))
+```
+
+###Bird Richness and Percent of Grass within 5000m 
+```{r}
+ggplotRegression(glm(dataB$Bird_Richness ~ dataB$gra_5000, family="poisson"))
+```
+
+###Bird Richness and Percent of Core Grass within 500m
+```{r}
+ggplotRegression(glm(dataB$Bird_Richness ~ dataB$P_GraC_500, family="poisson"))
+```
+
+###Bird Richness and Percent of Core Grass within 1000m 
+```{r}
+ggplotRegression(glm(dataB$Bird_Richness ~ dataB$P_GraC_1k, family="poisson"))
+```
+
+###Bird Richness and Percent of Core Grass within 5000m 
+```{r}
+ggplotRegression(glm(dataB$Bird_Richness ~ dataB$P_GraC_5k, family="poisson"))
+```
+
+#Invasive Data
+```{r}
+dataI<-read.csv("U:/CLI/Field Surveys/Invasive/SchSt_Invasive_Grid_join.csv",header=TRUE)
+dataI[dataI=="-9999"]<-NA
+```
+
+##General Linear Model-Invasive Abundance 
+
+###Invasive Abundance and Percent of Development within 500m 
+```{r}
+ggplotRegression(glm(dataI$Sum_Woody ~ dataI$dev_500, family="poisson"))
+```
+
+#Native Mammal Data 
+```{r}
+dataM<-read.csv("U:/CLI/Field Surveys/eMammal/CLI_NativeMammal_8-22-18.csv")
+```
+
+##General Linear Model-Native Mammal Richness 
+###Native Mammal Richness and Percent of Grass within 500m 
+```{r}
+ggplotRegression(glm(dataM$SpRichness ~ dataM$gra_500, family="poisson"))
+```
+
+###Native Mammal Richness and Percent of Grass within 1000m 
+```{r}
+ggplotRegression(glm(dataM$SpRichness ~ dataM$gra_1000, family="poisson"))
+```
+
+###Native Mammal Richness and Percent of Grass within 5000m 
+```{r}
+ggplotRegression(glm(dataM$SpRichness ~ dataM$gra_5000, family="poisson"))
+```
+
+###Native Mammal Richness and Percent of Core Grass within 500m 
+```{r}
+ggplotRegression(glm(dataM$SpRichness ~ dataM$P_GraC_500, family="poisson"))
+```
+
+###Native Mammal Richness and Percent of Core Grass within 1000m 
+```{r}
+ggplotRegression(glm(dataM$SpRichness ~ dataM$P_GraC_1k, family="poisson"))
+```
+
+###Native Mammal Richness and Percent of Core Grass within 5000m 
+```{r}
+ggplotRegression(glm(dataM$SpRichness ~ dataM$P_GraC_5k, family="poisson")) 
+
+```
