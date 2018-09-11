@@ -48,7 +48,7 @@ Comb_outputReshape<-paste0(version_table, tables, "County/v2016_Reshape/")
 # ----------------------------------------------
 #County Tables
 
-FolderM<-list.files(Comb_outputCounty, pattern="ctny.csv", full.names = TRUE) 
+FolderM<-list.files(Comb_outputCounty, pattern="ctny.csv", full.names = TRUE) #Bring in merged scenario tables and combine all scenarios. Scenario tables are merged by timestep and for this example contains all counties. 
 CSV_Melt<-lapply(FolderM,function(i){
   read.csv(i)
 })
@@ -125,7 +125,7 @@ write.csv(CombinedRegionLC_SA, paste0(Comb_outputRegion,"V21016_ZonalHistogram_A
 
 
 # ----------------------------------------------
-# Aggregated tables full study area
+# Full study area
 FolderS<-list.files(Comb_outputBuffer, pattern=".csv", full.names = TRUE) 
 CSV_Sum<-lapply(FolderS,function(i){
   read.csv(i)
@@ -142,7 +142,7 @@ CombinedSumLC<-do.call(rbind.data.frame,CSV_Sum)
 write.csv(CombinedSumLC, paste0(Comb_outputBuffer,"v2016_ZonalHistogram_AllScenarios_Buffer.csv"), row.names=FALSE)
 
 # ----------------------------------------------
-#Aggregated tables study area only 
+#Study area only (no buffer)
 FolderS_SA<-list.files(Comb_outputSA, pattern=".csv", full.names = TRUE) 
 CSV_Sum_SA<-lapply(FolderS_SA,function(i){
   read.csv(i)
@@ -172,7 +172,7 @@ write.csv(CombinedSumLC_SA, paste0(Comb_outputSA,"v2016_ZonalHistogram_AllScenar
 # ----------------------------------------------
 
 # ----------------------------------------------
-#IF TABLES ALREADY GENERATED
+# USE IF TABLES ALREADY GENERATED
 CombinedMeltPC<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/Tables/v2016_County/v2016_ZonalHistogram_AllScenarios_ctny_SA.csv")
 
 

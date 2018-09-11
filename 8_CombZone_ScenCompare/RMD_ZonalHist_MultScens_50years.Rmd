@@ -40,6 +40,7 @@ Sarah Halperin: added code to loop through different scenarios
 
 IMPORTANT: USE eval= FALSE to turn off code you don't want to use 
 
+Code is written with different options. The commenting tells you generally when to run each piece depending on what scenario you want run. 
 ## PACKAGES NEEDED 
 
 ```{r,warning=FALSE, message=FALSE}

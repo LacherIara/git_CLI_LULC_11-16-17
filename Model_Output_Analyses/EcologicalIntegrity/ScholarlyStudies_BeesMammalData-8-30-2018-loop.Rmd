@@ -8,7 +8,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-This RMarkdown document is the data exploration for apidae bee data (subset by VWL) and emammal raw data (Mike Cove). Explored are the relationship between species abundance and species richness with land use change metrics. The land use change metrics are at four scales (250 m, 500m, 1000m, 5000m). The goal is to see if there is a relationship between these biodiversity surrogates and land use change metrics to include in the proposal for scholarly studies. Ultimately, we are looking to create an SEM that determines the naturalness of the area. 
+This RMarkdown document is the data exploration for apidae bee data (subset by VWL) and emammal raw data (Mike Cove). Explored are the relationship between species abundance, species richness, diversity with land use change metrics. The land use change metrics are at four scales (250 m, 500m, 1000m, 5000m). The goal is to see if there is a relationship between these biodiversity surrogates and land use change metrics to include in the proposal for scholarly studies. Ultimately, we are looking to create an SEM that determines the naturalness of the area. 
 
 #Packages 
 ```{r message=FALSE, warning=FALSE}
@@ -57,7 +57,7 @@ dataE[dataE=="-9999"]<-NA
 
 data<-left_join(data, dataE[,c(5,20:53)], by="SiteLocatC")
 
-#data<-write.csv(data, "U:/CLI/Field Surveys/Bees/Data/CLI_bee_CF_8-22-18.csv")
+#data<-write.csv(data, "U:/CLI/Field Surveys/Bees/Data/CLI_bee_CF_8-22-18.csv") You can use this to see the data we ran the models on 
 ```
 
 

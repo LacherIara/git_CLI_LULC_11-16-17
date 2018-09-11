@@ -29,7 +29,8 @@
 #3/2018 - Sarah Halperin  
 # added code to loop through different scenarios and comparison plots of scenarios based on development type over the timesteps #Updated by Sarah Halperin 
 # added compatibility to code for creating transitions raster with multiple landscapes (second suite of code on page)
-#added visual graphs of zonal histogram outputs 
+
+#Code is written with different options. The commenting tells you generally when to run each piece depending on what scenario you want run. 
 
 ############################
 
