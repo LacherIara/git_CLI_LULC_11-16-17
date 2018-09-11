@@ -11,7 +11,7 @@
 
 #Updated by Sarah Halperin to allow inputs for each scenario (RT, Q1, Q2, Q3, Q4). 
 #CONTACT: halperinS@si.edu
-
+#This analysis does the work that can be conducted using the program Fragstats, but in R. Here we determine common statistics in Fragstats of just the land cover class, forest. The analysis can be run over the entire study area, county, or region. Similar to zonal histograms, the analysis starts with the future landscapes, find just forested areas, masks to desired size (aka county/region) and then determines metrics. This is outputted as text files which are then transformed for use in ggplot. In addition, core area was determined in ArcMap as fragstats could not calculate properly. This is done using focal statistics. The code is written so you have options on the scale (eg. county/region).
 ############################
 
 # SET WORKING DIRECTORY
