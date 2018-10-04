@@ -205,9 +205,9 @@ WarningDF <- data.frame(County = NA, Timestep= NA, Landuse = NA) # create empty 
 # ----------------------------------------------
 
 
-
-for(county in 1:8){ 
-# for(county in 3){ 
+tsteps <- c(1)
+# for(county in 1:8){ 
+for(county in 1){ 
 
 
   cty <- sa_cty_transitions[,c(1,county + 1)]; RT_CTY <-cty

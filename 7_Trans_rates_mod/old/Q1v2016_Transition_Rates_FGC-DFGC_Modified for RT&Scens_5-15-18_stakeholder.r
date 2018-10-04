@@ -80,19 +80,18 @@ sa_zonal_T0<-sa_zonal_T0[,-1]
 
 # nlcd 2001-2011 with *LUMBER COUNTY MODIFIERS* based off of nlcd06 averages:
 # ----------------------------------------------
-sa_cty_transitions_lum<-read.table("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2011/Parameters/Combine/Tables/SA_nlCcomb_0111_LUMBER.txt", header=TRUE,sep=",")##CF- from previous script
+#sa_cty_transitions_lum<-read.table("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2011/Parameters/Combine/Tables/SA_nlCcomb_0111_LUMBER.txt", header=TRUE,sep=",")##CF- from previous script
+# note: unlike the tables above, don't need to remove first column bc of how this one was written... #CF as of 08/18/17 this note is no longer true so next lline of code added
+#sa_cty_transitions_lum<-sa_cty_transitions_lum[,-1]
+# remove persistant land use.
+#sa_cty_transitions_lum<-subset(sa_cty_transitions_lum, sa_cty_transitions_lum$LABEL %in% c("53","63","73","65","75","56","76","57","67"))
+
+sa_cty_transitions_lum<-read.table("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/Parameters/Transition_Rates/modifiers/NLCOMB_Q1_5-15-18_notdev.txt", header=TRUE,sep=",")##CF- from previous script
 # note: unlike the tables above, don't need to remove first column bc of how this one was written... #CF as of 08/18/17 this note is no longer true so next lline of code added
 sa_cty_transitions_lum<-sa_cty_transitions_lum[,-1]
 # remove persistant land use.
 sa_cty_transitions_lum<-subset(sa_cty_transitions_lum, sa_cty_transitions_lum$LABEL %in% c("53","63","73","65","75","56","76","57","67"))
 
-#For recalculating Q1 rates after JAGS modification
-# ----------------------------------------------
-#sa_cty_transitions_lum<-read.table("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/Parameters/Transition_Rates/modifiers/NLCOMB_Q1_5-15-18_notdev.txt", header=TRUE,sep=",")##CF- from previous script
-# note: unlike the tables above, don't need to remove first column bc of how this one was written... #CF as of 08/18/17 this note is no longer true so next lline of code added
-#sa_cty_transitions_lum<-sa_cty_transitions_lum[,-1]
-# remove persistant land use.
-#sa_cty_transitions_lum<-subset(sa_cty_transitions_lum, sa_cty_transitions_lum$LABEL %in% c("53","63","73","65","75","56","76","57","67"))
 ############################################################################################
 # ~~~ CODE BEGINS ~~~ #
 ############################################################################################
@@ -200,20 +199,14 @@ modify.rate <- function(Transitions,Regions,ModifiersDF,TransitionDF){
 #Modifier_Q1_notdev <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/Parameters/Transition_Rates/modifiers/Rate_Modifier_Q1_5-15-18_notdev.csv")
 #new_rates <- modify.rate(Modifier_Q1_notdev$Transition_Number, regioncols, Modifier_Q1_notdev,sa_cty_transitions_lum)
 
-# Modifier_Q1_dev <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/Parameters/Transition_Rates/modifiers/Rate_Modifier_Q1_5-15-18_dev.csv")
-# new_rates <- modify.rate(Modifier_Q1_dev$Transition_Number, regioncols, Modifier_Q1_dev,sa_cty_transitions_lum)
+ Modifier_Q1_dev <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/Parameters/Transition_Rates/modifiers/Rate_Modifier_Q1_5-15-18_dev.csv")
+ new_rates <- modify.rate(Modifier_Q1_dev$Transition_Number, regioncols, Modifier_Q1_dev,sa_cty_transitions_lum)
 
 # Modifier_Q2 <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/Parameters/Transition_Rates/modifiers/Rate_Modifier_Q2_5-15-18.csv")
 # new_rates <- modify.rate(Modifier_Q2$Transition_Number, regioncols, Modifier_Q2,sa_cty_transitions_lum)
 
 # Modifier_Q3 <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/Parameters/Transition_Rates/modifiers/Rate_Modifier_Q3_5-15-18.csv")
 # new_rates <- modify.rate(Modifier_Q3$Transition_Number, regioncols, Modifier_Q3,sa_cty_transitions_lum)
-
-# Modifier_Q3 <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/Parameters/Transition_Rates/modifiers/Rate_Modifier_Q3_5-15-18_only1and4.csv")
-# new_rates <- modify.rate(Modifier_Q3$Transition_Number, regioncols, Modifier_Q3,sa_cty_transitions_lum)
- 
- Modifier_Q3 <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/Parameters/Transition_Rates/modifiers/Rate_Modifier_Q3_5-15-18_mod1457.csv")
- new_rates <- modify.rate(Modifier_Q3$Transition_Number, regioncols, Modifier_Q3,sa_cty_transitions_lum)
 
 # Modifier_Q4 <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/Parameters/Transition_Rates/modifiers/Rate_Modifier_Q4_5-15-18.csv")
 # new_rates <- modify.rate(Modifier_Q4$Transition_Number, regioncols, Modifier_Q4,sa_cty_transitions_lum)
@@ -330,14 +323,14 @@ FINAL$Rate <- as.numeric(substr(as.character(FINAL$Rate),1,10))
 #write.csv(FINAL, file="U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/Parameters/Transition_Rates/sa_Trans_Rates_FGC-DFGC_Q1_stakeholder_notdev.csv",row.names=FALSE, quote=FALSE)
 
 # # Q1_dev:
-# write.csv(FINAL, file="U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/Parameters/Transition_Rates/sa_Trans_Rates_FGC-DFGC_Q1_stakeholder_dev.csv",row.names=FALSE, quote=FALSE)
+ write.csv(FINAL, file="U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/Parameters/Transition_Rates/sa_Trans_Rates_FGC-DFGC_Q1_pop_and_stakeholder_dev.csv",row.names=FALSE, quote=FALSE)
 
 
 # # Q2:
 # write.csv(FINAL, file="U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/Parameters/Transition_Rates/sa_Trans_Rates_FGC-DFGC_Q2_stakeholder.csv",row.names=FALSE, quote=FALSE)
 
 # # Q3:
- write.csv(FINAL, file="U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/Parameters/Transition_Rates/sa_Trans_Rates_FGC-DFGC_Q3_stakeholder_mod1457.csv",row.names=FALSE, quote=FALSE)
+# write.csv(FINAL, file="U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/Parameters/Transition_Rates/sa_Trans_Rates_FGC-DFGC_Q3_stakeholder.csv",row.names=FALSE, quote=FALSE)
 
 # # Q4:
 # write.csv(FINAL, file="U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/Parameters/Transition_Rates/sa_Trans_Rates_FGC-DFGC_Q4_stakeholder.csv",row.names=FALSE, quote=FALSE)

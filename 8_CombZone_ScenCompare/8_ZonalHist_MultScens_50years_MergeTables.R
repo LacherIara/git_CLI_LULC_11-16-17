@@ -15,12 +15,13 @@ library(ggpubr)
 #set inputs
 version<-"/StudyArea_V201/SA_V2016"
 version_table<-paste0("U:/CLI/Dinamica_Runs",version, "/BasicDataAnalyses/Zonal_Histogram/")
-
+tables<-paste0("Tables/", "v2016_")#make sure change version
 #--------------------------------------------------------------------#
-Comb_outputCounty<-paste0(version_table,"Tables/County/")
-Comb_outputSum<-paste0(version_table,"Tables/Sum/")
-Comb_outputRegion<-paste0(version_table, "Tables/Region/")
-Comb_outputReshape<-paste0(version_table, "Tables/Reshape/")
+Comb_outputCounty<-paste0(version_table, tables, "County/")
+Comb_outputSA<-paste0(version_table, tables,"StudyArea/")
+Comb_outputBuffer<-paste0(version_table,tables, "Buffer/")
+Comb_outputRegion<-paste0(version_table, tables, "Region/")
+Comb_outputReshape<-paste0(version_table, tables, "County/v2016_Reshape/") #manually change for this one
 
 Region_SA<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/CountyNmsGEOIDRegion_cnty.csv")
 Region_SA$variable<-paste0(Region_SA$GEOID_, Region_SA$GEOID)
@@ -114,12 +115,16 @@ CombinedList<-list(CombinedRT, CombinedQ1, CombinedQ2, CombinedQ3, CombinedQ4)
 
 #------------------------------------------------#
 #Melt Tables and Region sum tables 
-ScenarioMelt<-list("RT_MeltC.csv", "Q1_MeltC.csv", "Q2_MeltC.csv", "Q3_MeltC.csv", "Q4_MeltC.csv")
-ScenarioRegion<-list("RT_MeltR.csv", "Q1_MeltR.csv", "Q2_MeltR.csv", "Q3_MeltR.csv", "Q4_MeltR.csv")
-ScenarioSum<-list("RT_Sum.csv", "Q1_Sum.csv", "Q2_Sum.csv", "Q3_Sum.csv", "Q4_Sum.csv")
-ScenarioSA_sum<-list("RT_SAsum.csv", "Q1_SAsum.csv", "Q2_SAsum.csv", "Q3_SAsum.csv", "Q4_SAsum.csv")
-ScenarioSA_Region<-list("RT_MeltR_SA.csv", "Q1_MeltR_SA.csv", "Q2_MeltR_SA.csv", "Q3_MeltR_SA.csv", "Q4_MeltR_SA.csv")
-ScenarioSA_County<-list("RT_MeltC_SA.csv", "Q1_MeltC_SA.csv", "Q2_MeltC_SA.csv", "Q3_MeltC_SA.csv", "Q4_MeltC_SA.csv")
+Version_Name<-"v2016_"
+
+ScenarioMelt<-list(paste0(Version_Name, "ZonalHistogram_RT_ctny.csv"), paste0(Version_Name,"ZonalHistogram_Q1_ctny.csv"), paste0(Version_Name, "ZonalHistogram_Q2_ctny.csv"), paste0(Version_Name, "ZonalHistogram_Q3_ctny.csv"), paste0(Version_Name, "ZonalHistogram_Q4_ctny.csv"))
+ScenarioRegion<-list(paste0(Version_Name, "ZonalHistogram_RT_rgn.csv"), paste0(Version_Name, "ZonalHistogram_Q1_rgn.csv"), paste0(Version_Name, "ZonalHistogram_Q2_rgn.csv"),paste0(Version_Name,  "ZonalHistogram_Q3_rgn.csv"),paste0(Version_Name,"ZonalHistogram_Q4_rgn.csv"))
+ScenarioSum<-list(paste0(Version_Name, "ZonalHistogram_RT_buffer.csv"), paste0(Version_Name, "ZonalHistogram_Q1_buffer.csv"), paste0(Version_Name, "ZonalHistogram_Q2_buffer.csv"),paste0(Version_Name,  "ZonalHistogram_Q3_buffer.csv"),paste0(Version_Name,"ZonalHistogram_Q4_buffer.csv"))
+ScenarioSA_sum<-list(paste0(Version_Name, "ZonalHistogram_RT_SA.csv"), paste0(Version_Name, "ZonalHistogram_Q1_SA.csv"), paste0(Version_Name, "ZonalHistogram_Q2_SA.csv"),paste0(Version_Name,  "ZonalHistogram_Q3_SA.csv"),paste0(Version_Name,"ZonalHistogram_Q4_SA.csv"))
+ScenarioSA_Region<-list(paste0(Version_Name, "ZonalHistogram_RT_rgn_SA.csv"), paste0(Version_Name, "ZonalHistogram_Q1_rgn_SA.csv"), paste0(Version_Name, "ZonalHistogram_Q2_rgn_SA.csv"),paste0(Version_Name,  "ZonalHistogram_Q3_rgn_SA.csv"),paste0(Version_Name,"ZonalHistogram_Q4_rgn_SA.csv"))
+                                                                 
+ScenarioSA_County<-list(paste0(Version_Name, "ZonalHistogram_RT_ctny_SA.csv"), paste0(Version_Name, "ZonalHistogram_Q1_ctny_SA.csv"), paste0(Version_Name, "ZonalHistogram_Q2_ctny_SA.csv"),paste0(Version_Name,  "ZonalHistogram_Q3_ctny_SA.csv"),paste0(Version_Name,"ZonalHistogram_Q4_ctny_SA.csv"))
+
 
 
 CombinedMelt<-lapply(CombinedList, function(x){
@@ -139,8 +144,8 @@ for(i in 1:length(CombinedMelt)){
       SA_County<-subset(CombinedMelt[[i]], CombinedMelt[[i]]$SA==1)
       SA_Sum<-aggregate(valuekm~LABEL + TimeStep, SA_Region, sum)
       write.csv(SA_Region,paste0(Comb_outputRegion,(ScenarioSA_Region[[i]])), row.names=FALSE )
-      write.csv(SA_Sum,paste0(Comb_outputSum,(ScenarioSA_sum[[i]])), row.names=FALSE )
-      write.csv(Full_sum,paste0(Comb_outputSum,(ScenarioSum[[i]])), row.names=FALSE )
+      write.csv(SA_Sum,paste0(Comb_outputSA,(ScenarioSA_sum[[i]])), row.names=FALSE )
+      write.csv(Full_sum,paste0(Comb_outputBuffer,(ScenarioSum[[i]])), row.names=FALSE )
       write.csv(SA_Region, paste0(Comb_outputRegion,(ScenarioSA_Region[[i]])), row.names=FALSE)
       write.csv(SA_County, paste0(Comb_outputCounty,(ScenarioSA_County[[i]])), row.names=FALSE)
 }
@@ -149,7 +154,7 @@ for(i in 1:length(CombinedMelt)){
 
 #-----------------------------------------------------------------#
 #Reshape Tables 
-ScenarioReshape<-list("RT_Reshape", "Q1_Reshape", "Q2_Reshape", "Q3_Reshape", "Q4_Reshape")
+ScenarioReshape<-list(paste0(Version_Name, "ZonalHistogram_RT_Reshape.csv"), paste0(Version_Name, "ZonalHistogram_Q1_Reshape.csv"), paste0(Version_Name, "ZonalHistogram_Q2_Reshape.csv"),paste0(Version_Name,  "ZonalHistogram_Q3_Reshape.csv"),paste0(Version_Name,"ZonalHistogram_Q4_Reshape.csv"))
 
 for( i in 1:length(CombinedList)){
   Combined<-CombinedList[[i]]

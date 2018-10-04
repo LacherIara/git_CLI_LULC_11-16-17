@@ -201,7 +201,7 @@ for(in_to_fin in names(LS_trans)){ # Makes code flexible for use with more than 
 
 Final_Landscape <-paste0(inRasterLoc, LS_trans[[in_to_fin]][1]) #full file path using inRasterLoc as the base
 #Final_hist_output <- paste0(Comb_output, gsub(".img","_hist.txt",LS_trans[[in_to_fin]][1])) #For NCLD 
-Final_hist_output <- paste0(Comb_output, gsub(".img","_hist.txt",LS_trans[[in_to_fin]][1])) #naming the file output. Taking the name of the raster to make the name of the output table. Remove tif. put _hist.txt
+Final_hist_output <- paste0(Comb_output, gsub(".tif","_hist.txt",LS_trans[[in_to_fin]][1])) #naming the file output. Taking the name of the raster to make the name of the output table. Remove tif. put _hist.txt
 Final_Landscape <- raster(Final_Landscape) 
 fin_vals <- getValues(Final_Landscape) 
   #plot of different land use types. 

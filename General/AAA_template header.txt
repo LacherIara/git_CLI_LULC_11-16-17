@@ -47,6 +47,9 @@ rasterOptions(tmpdir = "V:/IaraSpatialLayers/rtempCLEARME/")
 # ~~~ CODE BEGINS ~~~ #
 ###########################################
 
+###########################################
+# ~~~ CODE ENDS ~~~ #
+###########################################
 
 
 ############################ 
@@ -83,11 +86,11 @@ rasterOptions(tmpdir = "V:/IaraSpatialLayers/rtempCLEARME/")
 
 # Output file location 
 
-# READ FROM FILE
+### READ FROM FILE ###
 
 # file name:  / R label: 
 
-# WRITE TO FILE
+### WRITE TO FILE ###
 
 # TEST TEST TEST #
 
