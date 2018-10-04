@@ -27,12 +27,18 @@
 # For version 2012, use nlcd landcover data WITH protected lands 
 #any where there is a "version" you will need to change based on desired inputs and outputs 
 
+# Make sure the correct version folder is pulled in! Do a search for phrases associated with "version" (capitalized or not)
+
 ### ADDED STEPS#### 
 #3/2018 - Sarah Halperin  
 # added code to loop through different scenarios and comparison plots of scenarios based on development type over the timesteps #Updated by Sarah Halperin 
 # added compatibility to code for creating transitions raster with multiple landscapes (second suite of code on page)
 
 #Code is written with different options. The commenting tells you generally when to run each piece depending on what scenario you want run. 
+
+##### NEXT STEPS #####
+
+############################
 
 ############################
 
