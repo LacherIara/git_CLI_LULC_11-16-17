@@ -1,0 +1,1100 @@
+---
+title: "Scholarly Studies Bee and Mammal Data"
+output:
+  html_document: 
+    toc: yes
+  pdf_document: default
+editor_options:
+  chunk_output_type: console
+---
+
+This RMarkdown document is the data exploration for apidae bee data (subset by VWL) and emammal raw data (Mike Cove). Explored are the relationship between species abundance, species richness, diversity with land use change metrics. The land use change metrics are at four scales (250 m, 500m, 1000m, 5000m). The goal is to see if there is a relationship between these biodiversity surrogates and land use change metrics to include in the proposal for scholarly studies. Ultimately, we are looking to create an SEM that determines the naturalness of the area. 
+
+#Packages 
+```{r message=FALSE, warning=FALSE}
+setwd("U:/CLI/Field Surveys/")
+
+library(vegan) #diversity index
+library(picante)
+library(dplyr) #tibbles and data manipulation
+library(tidyr) #transpose data
+library(knitr) #print tables in R Markdown
+library(ggplot2)
+library(lubridate)#manipulate date-time data
+library(lattice)
+library(gridExtra)
+library(reshape2)
+library(sandwich)
+```
+
+#Bee
+```{r warning=FALSE}
+data<-read.csv("U:/CLI/Field Surveys/Bees/Data/apidae_subset_bluevane_bee_data_2014_2017_CF_OneYearsData.csv",header=TRUE)
+data$Date_collected<-as.POSIXct(data$Date_collected,format="%m/%d/%Y")
+
+SummaryData<-data%>%group_by(Year,Lat,Lon,SiteLocatC,Family_species)%>% #group by site and spp
+  summarize(Abundance=sum(Number_of_specimens))%>% #sum abundance of each spp by site
+  spread(Family_species, Abundance)%>% #transpose
+  replace(is.na(.), 0)
+
+SummaryData_Abund<-SummaryData[,-c(1:3)]
+SummaryData_Abund$SiteLocatC<-as.character(SummaryData_Abund$SiteLocatC)
+SummaryData_Abund<-mutate(SummaryData_Abund,SpRichness=specnumber(SummaryData_Abund))
+SummaryData_Abund$SpRichness<-SummaryData_Abund$SpRichness-1
+SummaryData_Abund<-mutate(SummaryData_Abund, SpDiversity=diversity(SummaryData_Abund[,c(-1,-14)]))
+
+
+
+data<-left_join(SummaryData[,c(1:4)], SummaryData_Abund,by="SiteLocatC")
+data$Abundance<-rowSums(data[c(5:16)])
+```
+
+
+Bring in Data created in ArcMap. We needed to determine the percent of each land use at each point, which we did in ArcMap. This used exported Summary Data from above. 
+```{r}
+dataE<-read.csv("U:/CLI/Field Surveys/Bees/Data/apidae_subset_bluevane_bee_data_2014_2017_CF_OneYearsDataV2.csv",header=TRUE)
+dataE[dataE=="-9999"]<-NA
+
+data<-left_join(data, dataE[,c(5,20:53)], by="SiteLocatC")
+
+#data<-write.csv(data, "U:/CLI/Field Surveys/Bees/Data/CLI_bee_CF_8-22-18.csv") You can use this to see the data we ran the models on 
+```
+
+
+##Histograms of Bees and Land Use Metrics
+
+```{r}
+#Abundance Histogram
+#over 0 because in first bin 0-20
+ggplot(gather(data[,19]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    xlab("Number of individuals per site")+
+    ylab("Number of Sites")+
+    ggtitle("Bee Diversity Histogram")
+#Species Richness Histogram
+ggplot(gather(data[,17]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    xlab("Number of species per site")+
+    ylab("Number of Sites")+
+    ggtitle("Bee Species Richness Histogram")
+#Species Diversity Histogram 
+ggplot(gather(data[,18]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    xlab("Species Diversity Index")+
+    ylab("Number of Sites")+
+    ggtitle("Bee Diversity Histogram")
+
+
+#Land Use (same for all taxa)
+ggplot(gather(data[,19:52]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    ylab("Number of Sites")+
+    xlab("Percent of Land use")+
+    ggtitle("Land Use Metric Histograms")
+
+
+
+```
+
+##Bar Graphs
+Abundance
+```{r}
+data_Abund_subset<-data[,c(4,18:34)]
+data_Abund_subset<-as.data.frame(data_Abund_subset)
+data_melt<-melt(data_Abund_subset, id=c("SiteLocatC", "Abundance"))
+
+data_melt_250<-subset(data_melt, variable==c("dev_250", "for_250", "cro_250", "gra_250"))
+data_melt_500<-subset(data_melt, variable==c("dev_500", "for_500", "cro_500", "gra_500"))
+data_melt_1000<-subset(data_melt, variable==c("dev_1000", "for_1000", "cro_1000", "gra_1000"))
+data_melt_5000<-subset(data_melt, variable==c("dev_5000", "for_5000", "cro_5000", "gra_5000"))
+
+ggplot(data_melt_250, aes(y=Abundance, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Abundance (Number of Individuals)")+
+        ggtitle("Bee Abundance vs. Percent of Land Use (250m)")
+
+ggplot(data_melt_500, aes(y=Abundance, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Abundance (Number of Individuals)")+
+          ggtitle("Bee Abundance vs. Percent of Land Use (500m)")
+         
+ ggplot(data_melt_1000, aes(y=Abundance, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Abundance (Number of Individuals)")+
+        ggtitle("Bee Abundance vs. Percent of Land Use (1km)")
+         
+ggplot(data_melt_5000, aes(y=Abundance, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Abundance (Number of Individuals)")+
+        ggtitle("Bee Abundance vs. Percent of Land Use (5km)")
+         
+```
+
+Species Richness
+```{r}
+data_Richness_subset<-data[,c(4,17,19:34)]
+data_Richness_subset<-as.data.frame(data_Richness_subset)
+data_meltR<-melt(data_Richness_subset, id=c("SiteLocatC", "SpRichness"))
+
+data_meltR_250<-subset(data_meltR, variable==c("dev_250", "for_250", "cro_250", "gra_250"))
+data_meltR_500<-subset(data_meltR, variable==c("dev_500", "for_500", "cro_500", "gra_500"))
+data_meltR_1000<-subset(data_meltR, variable==c("dev_1000", "for_1000", "cro_1000", "gra_1000"))
+data_meltR_5000<-subset(data_meltR, variable==c("dev_5000", "for_5000", "cro_5000", "gra_5000"))
+
+ggplot(data_meltR_250, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+        ggtitle("Bee Species Richness vs. Percent of Land Use (250)")
+
+ggplot(data_meltR_500, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+        ggtitle("Bee Species Richness vs. Percent of Land Use (500)")
+         
+ ggplot(data_meltR_1000, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+        ggtitle("Bee Species Richness vs. Percent of Land Use (1km)")
+         
+ggplot(data_meltR_5000, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+        ggtitle("Bee Species Richness vs. Percent of Land Use (5km)")
+         
+```
+
+
+##Correlation
+Bee Correlatipon Plots 
+```{r}
+#250 meters
+pairs(data[c(17:22)])
+
+#500 meters
+pairs(data[c(17,18,23,24,25,26)])
+
+#1000 meters (1km)
+pairs(data[c(17,18,27,28,29,30)])
+
+#5000 meters (5km)
+pairs(data[c(17,18,31,32,33,34)])
+```
+
+
+## General Linear Models -Species Richness
+```{r}
+ggplotRegression<- function(fit){
+  ggplot(fit$model,aes_string(x=names(fit$model)[2],y=names(fit$model)[1]))+
+   geom_point()+
+    stat_smooth(method="glm", col="red")+
+    labs(title=paste(#"Adj R2 = ", signif(summary(fit)$adj.r.squared,5),
+                     "Intercept = ", signif(fit$coef[[1]],5),
+                    "Slope = ", signif(fit$coef[[2]],5),
+                     "P-value = ",signif(summary(fit)$coef[2,4],5)))
+}
+```
+
+```{r}
+LU_Metric<-list('dev_250'="dev_250", 'for_250'="for_250", 'gra_250'="gra_250", 'cro_250'="cro_250",'dev_500'="dev_500",	'for_500'="for_500",'gra_500'="gra_500",	'cro_500'="cro_500",	'dev_1000'="dev_1000",	'for_1000'="for_1000",'gra_1000'="gra_1000", 'cro_1000'="cro_1000",	'dev_5000'="dev_5000",	'for_5000'="for_5000",	'gra_5000'="gra_5000", 'cro_5000'="cro_5000",	'Cont_Gra1k'="Cont_Gra1k", 'Dist_Gra'="Dist_Gra",	'Dist_Cro'="Dist_Cro", 'Dist_For'="Dist_For",	'Dist_Dev'="Dist_Dev",'Dist_ForC'="Dist_ForC",	'Dist_GraC'="Dist_GraC",	'For_Area_x'="For_Area_x",	'Gra_Area'="Gra_Area",'For_CAI_x'="For_CAI_x",'P_ForC_250'="P_ForC_250", 'P_ForC_500'="P_ForC_500",	'P_ForC_1k'="P_ForC_1k",	'P_ForC_5k'="P_ForC_5k",	'P_GraC_250'="P_GraC_250", 'P_GraC_500'="P_GraC_500",	'P_GraC_1k'="P_GraC_1k",'P_GraC_5k'="P_GraC_5k")
+
+model<-list()
+for(i in 1:length(LU_Metric)){
+  model[[i]]<-glm(SpRichness ~ get(LU_Metric[[i]][1]), data=data)
+}
+
+names(model)<-c("dev_250", "for_250","gra_250", "cro_250","dev_500",	"for_500","gra_500","cro_500",	"dev_1000","for_1000","gra_1000", "cro_1000",	"dev_5000",	"for_5000",	"gra_5000", "cro_5000",	"Cont_Gra1k", "Dist_Gra",	"Dist_Cro", "Dist_For",	"Dist_Dev","Dist_ForC",	"Dist_GraC",	"For_Area_x",	"Gra_Area","For_CAI_x","P_ForC_250", "P_ForC_500","P_ForC_1k","P_ForC_5k",	"P_GraC_250", "P_GraC_500",	"P_GraC_1k","P_GraC_5k")
+
+for(j in 1:length(model)){
+  par(mfrow=c(2,2))
+  plot(model[[j]], main=names(model[j]))
+ }
+```
+
+```{r}
+lapply(model, function(x){
+  summary(x)
+})
+
+```
+## General Linear Models -Species Diversity
+```{r}
+ggplotRegression<- function(fit){
+  ggplot(fit$model,aes_string(x=names(fit$model)[2],y=names(fit$model)[1]))+
+   geom_point()+
+    stat_smooth(method="glm", col="red")+
+    labs(title=paste(#"Adj R2 = ", signif(summary(fit)$adj.r.squared,5),
+                     "Intercept = ", signif(fit$coef[[1]],5),
+                    "Slope = ", signif(fit$coef[[2]],5),
+                     "P-value = ",signif(summary(fit)$coef[2,4],5)))
+}
+```
+
+```{r}
+LU_Metric<-list('dev_250'="dev_250", 'for_250'="for_250", 'gra_250'="gra_250", 'cro_250'="cro_250",'dev_500'="dev_500",	'for_500'="for_500",'gra_500'="gra_500",	'cro_500'="cro_500",	'dev_1000'="dev_1000",	'for_1000'="for_1000",'gra_1000'="gra_1000", 'cro_1000'="cro_1000",	'dev_5000'="dev_5000",	'for_5000'="for_5000",	'gra_5000'="gra_5000", 'cro_5000'="cro_5000",	'Cont_Gra1k'="Cont_Gra1k", 'Dist_Gra'="Dist_Gra",	'Dist_Cro'="Dist_Cro", 'Dist_For'="Dist_For",	'Dist_Dev'="Dist_Dev",'Dist_ForC'="Dist_ForC",	'Dist_GraC'="Dist_GraC",	'For_Area_x'="For_Area_x",	'Gra_Area'="Gra_Area",'For_CAI_x'="For_CAI_x",'P_ForC_250'="P_ForC_250", 'P_ForC_500'="P_ForC_500",	'P_ForC_1k'="P_ForC_1k",	'P_ForC_5k'="P_ForC_5k",	'P_GraC_250'="P_GraC_250", 'P_GraC_500'="P_GraC_500",	'P_GraC_1k'="P_GraC_1k",'P_GraC_5k'="P_GraC_5k")
+
+modelS<-list()
+for(i in 1:length(LU_Metric)){
+  modelS[[i]]<-glm(SpDiversity ~ get(LU_Metric[[i]][1]), data=data)
+}
+
+names(modelS)<-c("dev_250", "for_250","gra_250", "cro_250","dev_500",	"for_500","gra_500","cro_500",	"dev_1000","for_1000","gra_1000", "cro_1000",	"dev_5000",	"for_5000",	"gra_5000", "cro_5000",	"Cont_Gra1k", "Dist_Gra",	"Dist_Cro", "Dist_For",	"Dist_Dev","Dist_ForC",	"Dist_GraC",	"For_Area_x",	"Gra_Area","For_CAI_x","P_ForC_250", "P_ForC_500","P_ForC_1k","P_ForC_5k",	"P_GraC_250", "P_GraC_500",	"P_GraC_1k","P_GraC_5k")
+
+for(j in 1:length(modelS)){
+  par(mfrow=c(2,2))
+  plot(modelS[[j]], main=names(modelS[j]))
+ }
+```
+
+```{r}
+lapply(modelS, function(x){
+  summary(x)
+})
+
+```
+## General Linear Models - Abundance 
+```{r}
+LU_Metric<-list('dev_250'="dev_250", 'for_250'="for_250", 'gra_250'="gra_250", 'cro_250'="cro_250",'dev_500'="dev_500",	'for_500'="for_500",'gra_500'="gra_500",	'cro_500'="cro_500",	'dev_1000'="dev_1000",	'for_1000'="for_1000",'gra_1000'="gra_1000", 'cro_1000'="cro_1000",	'dev_5000'="dev_500",	'for_5000'="for_5000",	'gra_5000'="gra_5000", 'cro_5000'="cro_5000",	'Cont_Gra1k'="Cont_Gra1k", 'Dist_Gra'="Dist_Gra",	'Dist_Cro'="Dist_Cro", 'Dist_For'="Dist_For",	'Dist_Dev'="Dist_Dev",'Dist_ForC'="Dist_ForC",	'Dist_GraC'="Dist_GraC",	'For_Area_x'="For_Area_x",	'Gra_Area'="Gra_Area",'For_CAI_x'="For_CAI_x",'P_ForC_250'="P_ForC_250", 'P_ForC_500'="P_ForC_500",	'P_ForC_1k'="P_ForC_1k",	'P_ForC_5k'="P_ForC_5k",	'P_GraC_250'="P_GraC_250", 'P_GraC_500'="P_GraC_500",	'P_GraC_1k'="P_GraC_1k",'P_GraC_5k'="P_GraC_5k")
+
+modelA<-list()
+for(i in 1:length(LU_Metric)){
+  modelA[[i]]<-glm(Abundance ~ get(LU_Metric[[i]][1]), family="poisson", data=data)
+}
+
+names(modelA)<-c("dev_250", "for_250","gra_250", "cro_250","dev_500",	"for_500","gra_500","cro_500",	"dev_1000","for_1000","gra_1000", "cro_1000",	"dev_5000",	"for_5000",	"gra_5000", "cro_5000",	"Cont_Gra1k", "Dist_Gra",	"Dist_Cro", "Dist_For",	"Dist_Dev","Dist_ForC",	"Dist_GraC",	"For_Area_x",	"Gra_Area","For_CAI_x","P_ForC_250", "P_ForC_500","P_ForC_1k","P_ForC_5k",	"P_GraC_250", "P_GraC_500",	"P_GraC_1k","P_GraC_5k")
+
+for(j in 1:length(modelA)){
+  par(mfrow=c(2,2))
+  plot(modelA[[j]], main=names(modelA[j]))
+ }
+```
+
+```{r, eval=FALSE}
+lapply(modelA, function(x){
+  summary(x)
+})
+
+```
+### Bee Abundance Robust Regression Summary 
+```{r}
+for(m in 1:length(modelA)){
+cov.b<-vcovHC(modelA[[m]], type="HC0")
+std.err <- sqrt(diag(cov.b))
+r.est <- cbind(Estimate= coef(modelA[[m]]), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(modelA[[m]])/std.err), lower.tail=FALSE),
+LL = coef(modelA[[m]]) - 1.96 * std.err,
+UL = coef(modelA[[m]]) + 1.96 * std.err)
+
+print(names(modelA[m]))
+print(r.est)
+
+print(with(modelA[[m]], cbind(res.deviance =deviance, df=df.residual, p=pchisq(deviance, df.residual, lower.tail=FALSE))))
+}
+```
+
+
+#Mammal 
+```{r, eval=FALSE}
+dataraw<-read.csv("U:/CLI/Field Surveys/eMammal/RAW_Urban_to_Wild_data.csv",header=TRUE)
+
+dataraw_Abund<-dataraw%>%group_by(Year,Deployment,Year,Species.Name, Lat, Long)%>% #group by site and spp
+  summarize(Abundance=sum(Count))%>% #sum abundance of each spp by site
+  spread(Species.Name, Abundance)%>% #transpose
+  replace(is.na(.), 0)
+
+#write.csv(dataraw_Abund, "U:/CLI/Field Surveys/eMammal/CLI_mammal_dat_habitat_SH.csv")
+```
+
+Bring in Tables made in ArcGIS adding land use variables 
+
+##Mammal Native
+```{r}
+
+data<-read.csv("U:/CLI/Field Surveys/eMammal/CLI_mammal_environmental_native3.csv",header=TRUE) #we removed values of -9999 in excel 
+Data_Abund<-data[,-c(1,2,4,5,19:52)] #only abundance 
+Data_Abund$Deployment<-as.character(Data_Abund$Deployment)
+Data_Abund<-Data_Abund%>%replace(is.na(.), 0)
+
+Data_Abund<-mutate(Data_Abund, SpRichness=specnumber(Data_Abund))
+Data_Abund$SpRichness<-Data_Abund$SpRichness-1
+
+data$SpRichness<-Data_Abund$SpRichness
+dataM<-data
+
+#dataM<-left_join(data[,c(1,2,3,4,5,19:52)],Data_Abund, by=c("Deployment"))#Combined back to data 
+dataM$Abundance<-rowSums(dataM[c(6:18)])
+dataM<-subset(dataM, Abundance > 0)
+dataM[dataM=="-9999"]<-NA
+dataM<-dataM%>%replace(is.na(.), 0)
+
+#write.csv(dataM,"U:/CLI/Field Surveys/eMammal/CLI_NativeMammal_8-22-18.csv", row.names=FALSE)
+```
+
+###Histograms of Native Mammals and Land use Metrics
+
+```{r}
+#Species Richness 
+ggplot(gather(dataM[53]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    xlab("Number of species per site")+
+    ylab("Number of Sites")+
+    ggtitle("Native Mammals Species Richness Histogram")
+#Land Use
+#ggplot(gather(dataM[,19:52]), aes(value)) + 
+   # geom_histogram(bins = 20) + 
+   # facet_wrap(~key, scales = 'free_x')+
+  # ylab("Number of Sites")+
+  #  xlab("Percent of land use")+
+  #  ggtitle("Land Use Metric Histograms")
+```
+
+###Bar Graphs 
+Species  Richness
+```{r}
+dataM_richness_subset<-dataM[,c(3,19:54)]
+dataM_richness_subset<-as.data.frame(dataM_richness_subset)
+dataM_meltR<-melt(dataM_richness_subset, id=c("Deployment", "SpRichness"))
+
+dataM_meltR_250<-subset(dataM_meltR, variable==c("dev_250", "for_250", "cro_250", "gra_250"))
+dataM_meltR_500<-subset(dataM_meltR, variable==c("dev_500", "for_500", "cro_500", "gra_500"))
+dataM_meltR_1000<-subset(dataM_meltR, variable==c("dev_1000", "for_1000", "cro_1000", "gra_1000"))
+dataM_meltR_5000<-subset(dataM_meltR, variable==c("dev_5000", "for_5000", "cro_5000", "gra_5000"))
+
+ggplot(dataM_meltR_250, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+        ggtitle("Native Mammals Species Richness vs. Percent of Land Use (250m)")
+
+ggplot(dataM_meltR_500, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+      ggtitle("Native Mammals Species Richness vs. Percent of Land Use (500m)")
+         
+ ggplot(dataM_meltR_1000, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+          ggtitle("Native Mammals Species Richness vs. Percent of Land Use (1km)")
+         
+ggplot(dataM_meltR_5000, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+        ggtitle("Native Mammals Species Richness vs. Percent of Land Use (5km)")
+```
+
+###Correlation
+Native Mammal Correlation Plots
+```{r}
+#250 meters
+pairs(dataM[c(19:22,53)])
+
+#500 meters
+pairs(dataM[c(53,23:26)])
+
+#1000 meters (1km)
+pairs(dataM[c(53,27:30)])
+
+#5000 meters (5km)
+pairs(dataM[c(53,31:34)])
+```
+
+
+### General Linear Models-Native Mammals Species Richness 
+
+```{r}
+ggplotRegression<- function(fit){
+  ggplot(fit$model,aes_string(x=names(fit$model)[2],y=names(fit$model)[1]))+
+   geom_point()+
+    stat_smooth(method="glm", col="red")+
+    labs(title=paste(#"Adj R2 = ", signif(summary(fit)$adj.r.squared,5),
+                     "Intercept = ", signif(fit$coef[[1]],5),
+                    "Slope = ", signif(fit$coef[[2]],5),
+                     "P-value = ",signif(summary(fit)$coef[2,4],5)))
+}
+```
+```{r}
+LU_Metric<-list('dev_250'="dev_250", 'for_250'="for_250", 'gra_250'="gra_250", 'cro_250'="cro_250",'dev_500'="dev_500",	'for_500'="for_500",'gra_500'="gra_500",	'cro_500'="cro_500",	'dev_1000'="dev_1000",	'for_1000'="for_1000",'gra_1000'="gra_1000", 'cro_1000'="cro_1000",	'dev_5000'="dev_5000",	'for_5000'="for_5000",	'gra_5000'="gra_5000", 'cro_5000'="cro_5000",	'Cont_Gra1k'="Cont_Gra1k", 'Dist_Gra'="Dist_Gra",	'Dist_Cro'="Dist_Cro", 'Dist_For'="Dist_For",	'Dist_Dev'="Dist_Dev",'Dist_ForC'="Dist_ForC",	'Dist_GraC'="Dist_GraC",	'For_Area_x'="For_Area_x",	'Gra_Area'="Gra_Area",'For_CAI_x'="For_CAI_x",'P_ForC_250'="P_ForC_250", 'P_ForC_500'="P_ForC_500",	'P_ForC_1k'="P_ForC_1k",	'P_ForC_5k'="P_ForC_5k",	'P_GraC_250'="P_GraC_250", 'P_GraC_500'="P_GraC_500",	'P_GraC_1k'="P_GraC_1k",'P_GraC_5k'="P_GraC_5k")
+
+modelM<-list()
+for(i in 1:length(LU_Metric)){
+  modelM[[i]]<-glm(SpRichness ~ get(LU_Metric[[i]][1]), family="poisson", data=dataM)
+}
+
+names(modelM)<-c("dev_250", "for_250","gra_250", "cro_250","dev_500",	"for_500","gra_500","cro_500",	"dev_1000","for_1000","gra_1000", "cro_1000",	"dev_5000",	"for_5000",	"gra_5000", "cro_5000",	"Cont_Gra1k", "Dist_Gra",	"Dist_Cro", "Dist_For",	"Dist_Dev","Dist_ForC",	"Dist_GraC",	"For_Area_x",	"Gra_Area","For_CAI_x","P_ForC_250", "P_ForC_500","P_ForC_1k","P_ForC_5k",	"P_GraC_250", "P_GraC_500",	"P_GraC_1k","P_GraC_5k")
+
+for(j in 1:length(modelM)){
+  par(mfrow=c(2,2))
+  plot(modelM[[j]], main=names(modelM[j]))
+ }
+```
+
+```{r, eval=FALSE}
+lapply(modelM, function(x){
+  summary(x)
+})
+
+```
+### Native Mammal Robust Regression Summary 
+```{r}
+for(m in 1:length(modelM)){
+cov.b<-vcovHC(modelM[[m]], type="HC0")
+std.err <- sqrt(diag(cov.b))
+r.est <- cbind(Estimate= coef(modelM[[m]]), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(modelM[[m]])/std.err), lower.tail=FALSE),
+LL = coef(modelM[[m]]) - 1.96 * std.err,
+UL = coef(modelM[[m]]) + 1.96 * std.err)
+
+print(names(modelM[m]))
+print(r.est)
+
+print(with(modelM[[m]], cbind(res.deviance =deviance, df=df.residual, p=pchisq(deviance, df.residual, lower.tail=FALSE))))
+}
+```
+
+##Mammals Non Native 
+```{r}
+data<-read.csv("U:/CLI/Field Surveys/eMammal/CLI_mammal_environmental_nonnative3.csv",header=TRUE) 
+Data_Abund<-data[,-c(1,2,4,5,10:43)] #only abundance 
+Data_Abund$Deployment<-as.character(Data_Abund$Deployment)
+Data_Abund<-Data_Abund%>%replace(is.na(.), 0)
+
+Data_Abund<-mutate(Data_Abund, SpRichness=specnumber(Data_Abund))
+Data_Abund$SpRichness<-Data_Abund$SpRichness-1
+
+data$SpRichness<-Data_Abund$SpRichness
+dataMN<-data
+
+#dataM<-left_join(data[,c(1,2,3,4,5,19:52)],Data_Abund, by=c("Deployment"))#Combined back to data 
+dataMN$Abundance<-rowSums(dataMN[c(6:9)])
+dataMN<-subset(dataMN, Abundance > 0)
+dataMN[dataMN=="-9999"]<-NA
+
+#write.csv(dataMN, "U:/CLI/Field Surveys/eMammal/CLI_NonnativeMammal_8-22-18.csv", row.names = FALSE)
+
+```
+
+
+###Histograms of Non Native Mammals and Land Use Metrics
+
+```{r}
+#Species Richness 
+ggplot(gather(dataMN[44]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    xlab("Number of species per site")+
+    ylab("Number of Sites")+
+    ggtitle("Non Native Mammal Species Richness Histogram")
+#Land Use
+#ggplot(gather(dataMN[,7:22]), aes(value)) + 
+   # geom_histogram(bins = 20) + 
+    #facet_wrap(~key, scales = 'free_x')+
+   #ylab("Number of Sites")+
+   # xlab("Percent of land use")+
+   # ggtitle("Land Use Metric Histograms")
+
+```
+
+###Bar Graphs 
+Species Richness
+```{r}
+dataMN_richness_subset<-dataMN[,c(3,44,7:22)]
+dataMN_richness_subset<-as.data.frame(dataMN_richness_subset)
+dataMN_meltR<-melt(dataMN_richness_subset, id=c("Deployment", "SpRichness"))
+
+dataMN_meltR_250<-subset(dataMN_meltR, variable==c("dev_250", "for_250", "cro_250", "gra_250"))
+dataMN_meltR_500<-subset(dataMN_meltR, variable==c("dev_500", "for_500", "cro_500", "gra_500"))
+dataMN_meltR_1000<-subset(dataMN_meltR, variable==c("dev_1000", "for_1000", "cro_1000", "gra_1000"))
+dataMN_meltR_5000<-subset(dataMN_meltR, variable==c("dev_5000", "for_5000", "cro_5000", "gra_5000"))
+
+ggplot(dataMN_meltR_250, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+        ggtitle("Non Native Species Richness vs. Percent Land use (250m)")
+
+ggplot(dataMN_meltR_500, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+      ggtitle("Non Native Species Richness vs. Percent Land use (500m)")
+        
+         
+ ggplot(dataMN_meltR_1000, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+            ggtitle("Non Native Species Richness vs. Percent Land use (1km)")
+         
+ggplot(dataMN_meltR_5000, aes(y=SpRichness, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Species Richness (Number of Species)")+
+         ggtitle("Non Native Species Richness vs. Percent Land use (5km)")
+```
+
+
+
+###Correlation
+Non Native Mammal Correlation Plots
+```{r}
+#250 meters
+pairs(dataMN[c(10:13,44)])
+
+#500 meters
+pairs(dataMN[c(44,14:17)])
+
+#1000 meters (1km)
+pairs(dataMN[c(44,18:21)])
+
+#5000 meters (5km)
+pairs(dataMN[c(44,22:25)])
+```
+
+
+### General Linear Models-Non Native Species Richness 
+```{r}
+ggplotRegression<- function(fit){
+  ggplot(fit$model,aes_string(x=names(fit$model)[2],y=names(fit$model)[1]))+
+   geom_point()+
+    stat_smooth(method="glm", col="red")+
+    labs(title=paste(#"Adj R2 = ", signif(summary(fit)$adj.r.squared,5),
+                     "Intercept = ", signif(fit$coef[[1]],5),
+                    "Slope = ", signif(fit$coef[[2]],5),
+                     "P-value = ",signif(summary(fit)$coef[2,4],5)))
+}
+```
+
+```{r}
+ggplotRegression<- function(fit){
+  ggplot(fit$model,aes_string(x=names(fit$model)[2],y=names(fit$model)[1]))+
+   geom_point()+
+    stat_smooth(method="glm", col="red")+
+    labs(title=paste(#"Adj R2 = ", signif(summary(fit)$adj.r.squared,5),
+                     "Intercept = ", signif(fit$coef[[1]],5),
+                    "Slope = ", signif(fit$coef[[2]],5),
+                     "P-value = ",signif(summary(fit)$coef[2,4],5)))
+}
+```
+```{r}
+LU_Metric<-list('dev_250'="dev_250", 'for_250'="for_250", 'gra_250'="gra_250", 'cro_250'="cro_250",'dev_500'="dev_500",	'for_500'="for_500",'gra_500'="gra_500",	'cro_500'="cro_500",	'dev_1000'="dev_1000",	'for_1000'="for_1000",'gra_1000'="gra_1000", 'cro_1000'="cro_1000",	'dev_5000'="dev_5000",	'for_5000'="for_5000",	'gra_5000'="gra_5000", 'cro_5000'="cro_5000",	'Cont_Gra1k'="Cont_Gra1k", 'Dist_Gra'="Dist_Gra",	'Dist_Cro'="Dist_Cro", 'Dist_For'="Dist_For",	'Dist_Dev'="Dist_Dev",'Dist_ForC'="Dist_ForC",	'Dist_GraC'="Dist_GraC",	'For_Area_x'="For_Area_x",	'Gra_Area'="Gra_Area",'For_CAI_x'="For_CAI_x",'P_ForC_250'="P_ForC_250", 'P_ForC_500'="P_ForC_500",	'P_ForC_1k'="P_ForC_1k",	'P_ForC_5k'="P_ForC_5k",	'P_GraC_250'="P_GraC_250", 'P_GraC_500'="P_GraC_500",	'P_GraC_1k'="P_GraC_1k",'P_GraC_5k'="P_GraC_5k")
+
+modelMN<-list()
+for(i in 1:length(LU_Metric)){
+  modelMN[[i]]<-glm(SpRichness ~ get(LU_Metric[[i]][1]), family="poisson", data=dataMN)
+}
+
+names(modelMN)<-c("dev_250", "for_250","gra_250", "cro_250","dev_500",	"for_500","gra_500","cro_500",	"dev_1000","for_1000","gra_1000", "cro_1000",	"dev_5000",	"for_5000",	"gra_5000", "cro_5000",	"Cont_Gra1k", "Dist_Gra",	"Dist_Cro", "Dist_For",	"Dist_Dev","Dist_ForC",	"Dist_GraC",	"For_Area_x",	"Gra_Area","For_CAI_x","P_ForC_250", "P_ForC_500","P_ForC_1k","P_ForC_5k",	"P_GraC_250", "P_GraC_500",	"P_GraC_1k","P_GraC_5k")
+
+for(j in 1:length(modelMN)){
+  par(mfrow=c(2,2))
+  plot(modelMN[[j]], main=names(modelMN[j]))
+}
+```
+
+```{r, eval=FALSE}
+lapply(modelMN, function(x){
+  summary(x)
+})
+
+```
+### Nonnative Mammal Robust Regression Summary 
+```{r}
+for(m in 1:length(modelMN)){
+cov.b<-vcovHC(modelMN[[m]], type="HC0")
+std.err <- sqrt(diag(cov.b))
+r.est <- cbind(Estimate= coef(modelMN[[m]]), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(modelMN[[m]])/std.err), lower.tail=FALSE),
+LL = coef(modelMN[[m]]) - 1.96 * std.err,
+UL = coef(modelMN[[m]]) + 1.96 * std.err)
+
+print(names(modelMN[m]))
+print(r.est)
+
+print(with(modelMN[[m]], cbind(res.deviance =deviance, df=df.residual, p=pchisq(deviance, df.residual, lower.tail=FALSE))))
+}
+```
+
+#Invasives
+```{r}
+dataI<-read.csv("U:/CLI/Field Surveys/Invasive/SchSt_Invasive_Grid_join.csv",header=TRUE)
+dataI[dataI=="-9999"]<-NA
+
+```
+
+
+##Histograms of Invasives and Land Use Metrics
+
+```{r}
+#Abundance Histogram
+#over 0 because in first bin 0-20
+ggplot(gather(dataI[50]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    xlab("10% blocks")+
+    ylab("Number of Occurences")+
+    ggtitle("Invasive Number of Occurances Histogram")
+
+
+#Land Use
+#ggplot(gather(dataI[,21:24]), aes(value)) + 
+    #geom_histogram(bins = 20) + 
+    #facet_wrap(~key, scales = 'free_x')+
+    #ylab("Number of Sites")+
+   # xlab("Percent of Land use")+
+    #ggtitle("Land Use Metric Histogram")
+
+
+```
+
+##Bar Graphs
+
+```{r}
+dataI_Abund_subset<-dataI[,c(3,50,62:65)]
+dataI_Abund_subset<-as.data.frame(dataI_Abund_subset)
+dataI_melt<-melt(dataI_Abund_subset, id=c("OBJECTID", "Sum_Woody"))
+
+dataI_melt<-subset(dataI_melt, variable==c("dev_500", "for_500", "cro_500", "gra_500"))
+
+
+ggplot(dataI_melt, aes(y=Sum_Woody, x=value, width=.1))+
+         geom_bar(stat="identity", position="identity")+
+         facet_grid(.~variable)+
+          xlab("Percent of Land Use")+
+         ylab("Number of Occurences")+
+        ggtitle("Invasive Number of Occurances vs. Land Use Metrics ")
+```
+
+##Correlation
+Invasive Correlation Plots
+```{r}
+pairs(dataI[c(50, 62:65)])
+
+```
+
+
+##General Linear Model-Invasive 
+
+```{r}
+ggplotRegression<- function(fit){
+  ggplot(fit$model,aes_string(x=names(fit$model)[2],y=names(fit$model)[1]))+
+   geom_point()+
+    stat_smooth(method="glm", col="red")+
+    labs(title=paste(#"Adj R2 = ", signif(summary(fit)$adj.r.squared,5),
+                     "Intercept = ", signif(fit$coef[[1]],5),
+                    "Slope = ", signif(fit$coef[[2]],5),
+                     "P-value = ",signif(summary(fit)$coef[2,4],5)))
+}
+```
+
+```{r}
+ggplotRegression<- function(fit){
+  ggplot(fit$model,aes_string(x=names(fit$model)[2],y=names(fit$model)[1]))+
+   geom_point()+
+    stat_smooth(method="glm", col="red")+
+    labs(title=paste(#"Adj R2 = ", signif(summary(fit)$adj.r.squared,5),
+                     "Intercept = ", signif(fit$coef[[1]],5),
+                    "Slope = ", signif(fit$coef[[2]],5),
+                     "P-value = ",signif(summary(fit)$coef[2,4],5)))
+}
+```
+```{r}
+LU_Metric<-list('dev_500'="dev_500",	'for_500'="for_500",'gra_500'="gra_500",	'cro_500'="cro_500",'P_ForC_500'="P_ForC_500", 'P_GraC_500'="P_GraC_500")
+
+modelI<-list()
+for(i in 1:length(LU_Metric)){
+  modelI[[i]]<-glm(Sum_Woody ~ get(LU_Metric[[i]][1]), family="poisson", data=dataI)
+}
+
+names(modelI)<-c("dev_500",	"for_500","gra_500","cro_500",	"P_ForC_500", "P_GraC_500")
+
+for(j in 1:length(modelI)){
+  par(mfrow=c(2,2))
+  plot(modelI[[j]], main=names(modelI[j]))
+ }
+```
+
+```{r, eval=FALSE}
+lapply(modelI, function(x){
+  summary(x)
+})
+
+```
+### Invasive Robust Regression Summary 
+```{r}
+for(m in 1:length(modelI)){
+cov.b<-vcovHC(modelI[[m]], type="HC0")
+std.err <- sqrt(diag(cov.b))
+r.est <- cbind(Estimate= coef(modelI[[m]]), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(modelI[[m]])/std.err), lower.tail=FALSE),
+LL = coef(modelI[[m]]) - 1.96 * std.err,
+UL = coef(modelI[[m]]) + 1.96 * std.err)
+
+print(names(modelI[m]))
+print(r.est)
+
+print(with(modelI[[m]], cbind(res.deviance =deviance, df=df.residual, p=pchisq(deviance, df.residual, lower.tail=FALSE))))
+}
+```
+
+#Birds 
+```{r}
+dataB<-read.csv("U:/CLI/Field Surveys/Birds/Birds_Pre2018_join.csv")
+dataB[dataB=="-9999"]<-NA
+
+dataBgrass<-read.csv("U:/CLI/Field Surveys/Birds/Bird_TargetGrassland.csv")
+dataBgrass<-dataBgrass%>% replace(is.na(.), 0)
+
+
+dataBgrass<-left_join(dataB, dataBgrass, by="Row_Labels")
+dataBgrass<-subset(dataBgrass, ABUNDANCE > 0)
+dataBgrass<-mutate(dataBgrass, SpDiversity=diversity(dataBgrass[,-c(1:49,59,60)]))
+
+dataBshrub<-read.csv("U:/CLI/Field Surveys/Birds/Bird_TargetShrub.csv")
+dataBshrub<-dataBshrub%>%replace(is.na(.), 0)
+
+dataBshrub<-left_join(dataB, dataBshrub, by="Row_Labels")
+dataBshrub<-subset(dataBshrub, ABUNDANCE > 0)
+dataBshrub<-mutate(dataBshrub, SpDiversity=diversity(dataBshrub[,-c(1:49,64,65)]))
+```
+
+##Histograms of Birds 
+
+```{r}
+#Abundance Histogram Grass
+#over 0 because in first bin 0-20
+ggplot(gather(dataBgrass[59]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    xlab("Number of individuals per site")+
+    ylab("Number of Sites")+
+    ggtitle("Bird Abundance Histogram")
+#Species Richness Histogram Grass
+ggplot(gather(dataBgrass[60]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    xlab("Number of species per site")+
+    ylab("Number of Sites")+
+    ggtitle("Bird Species Richness Histogram")
+#Species Diversity Histogram Grass
+ggplot(gather(dataBgrass[61]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    xlab("Number of species per site")+
+    ylab("Number of Sites")+
+    ggtitle("Bird Species Diversity Histogram")
+```
+
+```{r}
+#Abundance Histogram shrub
+#over 0 because in first bin 0-20
+ggplot(gather(dataBshrub[64]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    xlab("Number of individuals per site")+
+    ylab("Number of Sites")+
+    ggtitle("Bird Abundance Histogram")
+#Species Richness Histogram shrub
+ggplot(gather(dataBshrub[65]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    xlab("Number of species per site")+
+    ylab("Number of Sites")+
+    ggtitle("Bird Species Richness Histogram")
+#Species Diversity Histogram shrub
+ggplot(gather(dataBshrub[66]), aes(value)) + 
+    geom_histogram(bins = 20) + 
+    facet_wrap(~key, scales = 'free_x')+
+    xlab("Number of species per site")+
+    ylab("Number of Sites")+
+    ggtitle("Bird Species Diversity Histogram")
+```
+
+##General Linear Models-Grass Bird Abundance
+```{r}
+ggplotRegression<- function(fit){
+  ggplot(fit$model,aes_string(x=names(fit$model)[2],y=names(fit$model)[1]))+
+   geom_point()+
+    stat_smooth(method="glm", col="red")+
+    labs(title=paste(#"Adj R2 = ", signif(summary(fit)$adj.r.squared,5),
+                     "Intercept = ", signif(fit$coef[[1]],5),
+                    "Slope = ", signif(fit$coef[[2]],5),
+                     "P-value = ",signif(summary(fit)$coef[2,4],5)))
+}
+```
+
+```{r, error=TRUE}
+LU_Metric<-list('dev_250'="dev_250", 'for_250'="for_250", 'gra_250'="gra_250", 'cro_250'="cro_250",'dev_500'="dev_500",	'for_500'="for_500",'gra_500'="gra_500",	'cro_500'="cro_500",	'dev_1000'="dev_1000",	'for_1000'="for_1000",'gra_1000'="gra_1000", 'cro_1000'="cro_1000",	'dev_5000'="dev_5000",	'for_5000'="for_5000",	'gra_5000'="gra_5000", 'cro_5000'="cro_5000",	'Cont_Gra1k'="Cont_Gra1k", 'Dist_Gra'="Dist_Gra",	'Dist_Cro'="Dist_Cro", 'Dist_For'="Dist_For",	'Dist_Dev'="Dist_Dev",'Dist_ForC'="Dist_ForC",	'Dist_GraC'="Dist_GraC",	'For_Area_x'="For_Area_x",	'Gra_Area'="Gra_Area",'For_CAI_x'="For_CAI_x",'P_ForC_250'="P_ForC_250", 'P_ForC_500'="P_ForC_500",	'P_ForC_1k'="P_ForC_1k",	'P_ForC_5k'="P_ForC_5k",	'P_GraC_250'="P_GraC_250", 'P_GraC_500'="P_GraC_500",	'P_GraC_1k'="P_GraC_1k",'P_GraC_5k'="P_GraC_5k")
+
+modelB<-list()
+for(i in 1:length(LU_Metric)){
+  modelB[[i]]<-glm(ABUNDANCE ~ get(LU_Metric[[i]][1]), family="poisson", data=dataBgrass)
+}
+
+names(modelB)<-c("dev_250", "for_250","gra_250", "cro_250","dev_500",	"for_500","gra_500","cro_500",	"dev_1000","for_1000","gra_1000", "cro_1000",	"dev_5000",	"for_5000",	"gra_5000", "cro_5000",	"Cont_Gra1k", "Dist_Gra",	"Dist_Cro", "Dist_For",	"Dist_Dev","Dist_ForC",	"Dist_GraC",	"For_Area_x",	"Gra_Area","For_CAI_x","P_ForC_250", "P_ForC_500","P_ForC_1k","P_ForC_5k",	"P_GraC_250", "P_GraC_500",	"P_GraC_1k","P_GraC_5k")
+
+
+for(j in 1:length(modelB)){
+ par(mfrow=c(2,2))
+  plot(modelB[[j]], main=names(modelB[j]))
+}
+```
+
+```{r, eval=FALSE}
+lapply(modelB, function(x){
+  summary(x)
+})
+
+```
+### Bird Abundance Robust Regression Summary 
+```{r}
+for(m in 1:length(modelB)){
+cov.b<-vcovHC(modelB[[m]], type="HC0")
+std.err <- sqrt(diag(cov.b))
+r.est <- cbind(Estimate= coef(modelB[[m]]), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(modelB[[m]])/std.err), lower.tail=FALSE),
+LL = coef(modelB[[m]]) - 1.96 * std.err,
+UL = coef(modelB[[m]]) + 1.96 * std.err)
+
+print(names(modelB[m]))
+print(r.est)
+
+print(with(modelB[[m]], cbind(res.deviance =deviance, df=df.residual, p=pchisq(deviance, df.residual, lower.tail=FALSE))))
+}
+```
+##General Linear Model-Grass Bird Species Richness
+```{r}
+ggplotRegression<- function(fit){
+  ggplot(fit$model,aes_string(x=names(fit$model)[2],y=names(fit$model)[1]))+
+   geom_point()+
+    stat_smooth(method="glm", col="red")+
+    labs(title=paste(#"Adj R2 = ", signif(summary(fit)$adj.r.squared,5),
+                     "Intercept = ", signif(fit$coef[[1]],5),
+                    "Slope = ", signif(fit$coef[[2]],5),
+                     "P-value = ",signif(summary(fit)$coef[2,4],5)))
+}
+```
+```{r, error=TRUE}
+LU_Metric<-list('dev_250'="dev_250", 'for_250'="for_250", 'gra_250'="gra_250", 'cro_250'="cro_250",'dev_500'="dev_500",	'for_500'="for_500",'gra_500'="gra_500",	'cro_500'="cro_500",	'dev_1000'="dev_1000",	'for_1000'="for_1000",'gra_1000'="gra_1000", 'cro_1000'="cro_1000",	'dev_5000'="dev_5000",	'for_5000'="for_5000",	'gra_5000'="gra_5000", 'cro_5000'="cro_5000",	'Cont_Gra1k'="Cont_Gra1k", 'Dist_Gra'="Dist_Gra",	'Dist_Cro'="Dist_Cro", 'Dist_For'="Dist_For",	'Dist_Dev'="Dist_Dev",'Dist_ForC'="Dist_ForC",	'Dist_GraC'="Dist_GraC",	'For_Area_x'="For_Area_x",	'Gra_Area'="Gra_Area",'For_CAI_x'="For_CAI_x",'P_ForC_250'="P_ForC_250", 'P_ForC_500'="P_ForC_500",	'P_ForC_1k'="P_ForC_1k",	'P_ForC_5k'="P_ForC_5k",	'P_GraC_250'="P_GraC_250", 'P_GraC_500'="P_GraC_500",	'P_GraC_1k'="P_GraC_1k",'P_GraC_5k'="P_GraC_5k")
+
+modelB<-list()
+for(i in 1:length(LU_Metric)){
+  modelB[[i]]<-glm(COUNT ~ get(LU_Metric[[i]][1]), family="poisson", data=dataBgrass)
+}
+
+names(modelB)<-c("dev_250", "for_250","gra_250", "cro_250","dev_500",	"for_500","gra_500","cro_500",	"dev_1000","for_1000","gra_1000", "cro_1000",	"dev_5000",	"for_5000",	"gra_5000", "cro_5000",	"Cont_Gra1k", "Dist_Gra",	"Dist_Cro", "Dist_For",	"Dist_Dev","Dist_ForC",	"Dist_GraC",	"For_Area_x",	"Gra_Area","For_CAI_x","P_ForC_250", "P_ForC_500","P_ForC_1k","P_ForC_5k",	"P_GraC_250", "P_GraC_500",	"P_GraC_1k","P_GraC_5k")
+
+for(j in 1:length(modelB)){
+  par(mfrow=c(2,2))
+  plot(modelB[[j]], main=names(modelB[j]))
+ }
+```
+
+```{r,eval=FALSE}
+lapply(modelB, function(x){
+  summary(x)
+})
+
+```
+### Bird Grass Abundance Robust Regression Summary 
+```{r}
+for(m in 1:length(modelB)){
+cov.b<-vcovHC(modelB[[m]], type="HC0")
+std.err <- sqrt(diag(cov.b))
+r.est <- cbind(Estimate= coef(modelB[[m]]), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(modelB[[m]])/std.err), lower.tail=FALSE),
+LL = coef(modelB[[m]]) - 1.96 * std.err,
+UL = coef(modelB[[m]]) + 1.96 * std.err)
+
+print(names(modelB[m]))
+print(r.est)
+
+print(with(modelB[[m]], cbind(res.deviance =deviance, df=df.residual, p=pchisq(deviance, df.residual, lower.tail=FALSE))))
+}
+```
+##General Linear Model-Grass Bird Species Diversity 
+```{r}
+ggplotRegression<- function(fit){
+  ggplot(fit$model,aes_string(x=names(fit$model)[2],y=names(fit$model)[1]))+
+   geom_point()+
+    stat_smooth(method="glm", col="red")+
+    labs(title=paste(#"Adj R2 = ", signif(summary(fit)$adj.r.squared,5),
+                     "Intercept = ", signif(fit$coef[[1]],5),
+                    "Slope = ", signif(fit$coef[[2]],5),
+                     "P-value = ",signif(summary(fit)$coef[2,4],5)))
+}
+```
+```{r, error=TRUE}
+LU_Metric<-list('dev_250'="dev_250", 'for_250'="for_250", 'gra_250'="gra_250", 'cro_250'="cro_250",'dev_500'="dev_500",	'for_500'="for_500",'gra_500'="gra_500",	'cro_500'="cro_500",	'dev_1000'="dev_1000",	'for_1000'="for_1000",'gra_1000'="gra_1000", 'cro_1000'="cro_1000",	'dev_5000'="dev_5000",	'for_5000'="for_5000",	'gra_5000'="gra_5000", 'cro_5000'="cro_5000",	'Cont_Gra1k'="Cont_Gra1k", 'Dist_Gra'="Dist_Gra",	'Dist_Cro'="Dist_Cro", 'Dist_For'="Dist_For",	'Dist_Dev'="Dist_Dev",'Dist_ForC'="Dist_ForC",	'Dist_GraC'="Dist_GraC",	'For_Area_x'="For_Area_x",	'Gra_Area'="Gra_Area",'For_CAI_x'="For_CAI_x",'P_ForC_250'="P_ForC_250", 'P_ForC_500'="P_ForC_500",	'P_ForC_1k'="P_ForC_1k",	'P_ForC_5k'="P_ForC_5k",	'P_GraC_250'="P_GraC_250", 'P_GraC_500'="P_GraC_500",	'P_GraC_1k'="P_GraC_1k",'P_GraC_5k'="P_GraC_5k")
+
+modelB<-list()
+for(i in 1:length(LU_Metric)){
+  modelB[[i]]<-glm(SpDiversity ~ get(LU_Metric[[i]][1]), data=dataBgrass)
+}
+
+names(modelB)<-c("dev_250", "for_250","gra_250", "cro_250","dev_500",	"for_500","gra_500","cro_500",	"dev_1000","for_1000","gra_1000", "cro_1000",	"dev_5000",	"for_5000",	"gra_5000", "cro_5000",	"Cont_Gra1k", "Dist_Gra",	"Dist_Cro", "Dist_For",	"Dist_Dev","Dist_ForC",	"Dist_GraC",	"For_Area_x",	"Gra_Area","For_CAI_x","P_ForC_250", "P_ForC_500","P_ForC_1k","P_ForC_5k",	"P_GraC_250", "P_GraC_500",	"P_GraC_1k","P_GraC_5k")
+
+for(j in 1:length(modelB)){
+  par(mfrow=c(2,2))
+  plot(modelB[[j]], main=names(modelB[j]))
+ }
+```
+
+```{r}
+lapply(modelB, function(x){
+  summary(x)
+})
+
+```
+
+
+
+##General Linear Models-Shrub Bird Abundance
+```{r}
+ggplotRegression<- function(fit){
+  ggplot(fit$model,aes_string(x=names(fit$model)[2],y=names(fit$model)[1]))+
+   geom_point()+
+    stat_smooth(method="glm", col="red")+
+    labs(title=paste(#"Adj R2 = ", signif(summary(fit)$adj.r.squared,5),
+                     "Intercept = ", signif(fit$coef[[1]],5),
+                    "Slope = ", signif(fit$coef[[2]],5),
+                     "P-value = ",signif(summary(fit)$coef[2,4],5)))
+}
+```
+```{r}
+LU_Metric<-list('dev_250'="dev_250", 'for_250'="for_250", 'gra_250'="gra_250", 'cro_250'="cro_250",'dev_500'="dev_500",	'for_500'="for_500",'gra_500'="gra_500",	'cro_500'="cro_500",	'dev_1000'="dev_1000",	'for_1000'="for_1000",'gra_1000'="gra_1000", 'cro_1000'="cro_1000",	'dev_5000'="dev_5000",	'for_5000'="for_5000",	'gra_5000'="gra_5000", 'cro_5000'="cro_5000",	'Cont_Gra1k'="Cont_Gra1k", 'Dist_Gra'="Dist_Gra",	'Dist_Cro'="Dist_Cro", 'Dist_For'="Dist_For",	'Dist_Dev'="Dist_Dev",'Dist_ForC'="Dist_ForC",	'Dist_GraC'="Dist_GraC",	'For_Area_x'="For_Area_x",	'Gra_Area'="Gra_Area",'For_CAI_x'="For_CAI_x",'P_ForC_250'="P_ForC_250", 'P_ForC_500'="P_ForC_500",	'P_ForC_1k'="P_ForC_1k",	'P_ForC_5k'="P_ForC_5k",	'P_GraC_250'="P_GraC_250", 'P_GraC_500'="P_GraC_500",	'P_GraC_1k'="P_GraC_1k",'P_GraC_5k'="P_GraC_5k")
+
+modelB<-list()
+for(i in 1:length(LU_Metric)){
+  modelB[[i]]<-glm(ABUNDANCE ~ get(LU_Metric[[i]][1]), family="poisson", data=dataBshrub)
+}
+
+names(modelB)<-c("dev_250", "for_250","gra_250", "cro_250","dev_500",	"for_500","gra_500","cro_500",	"dev_1000","for_1000","gra_1000", "cro_1000",	"dev_5000",	"for_5000",	"gra_5000", "cro_5000",	"Cont_Gra1k", "Dist_Gra",	"Dist_Cro", "Dist_For",	"Dist_Dev","Dist_ForC",	"Dist_GraC",	"For_Area_x",	"Gra_Area","For_CAI_x","P_ForC_250", "P_ForC_500","P_ForC_1k","P_ForC_5k",	"P_GraC_250", "P_GraC_500",	"P_GraC_1k","P_GraC_5k")
+
+
+for(j in 1:length(modelB)){
+  par(mfrow=c(2,2))
+  plot(modelB[[j]], main=names(modelB[j]) )
+}
+```
+
+```{r, eval=FALSE}
+lapply(modelB, function(x){
+  summary(x)
+})
+
+```
+### Bird Abundance Robust Regression Summary 
+```{r}
+for(m in 1:length(modelB)){
+cov.b<-vcovHC(modelB[[m]], type="HC0")
+std.err <- sqrt(diag(cov.b))
+r.est <- cbind(Estimate= coef(modelB[[m]]), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(modelB[[m]])/std.err), lower.tail=FALSE),
+LL = coef(modelB[[m]]) - 1.96 * std.err,
+UL = coef(modelB[[m]]) + 1.96 * std.err)
+
+print(names(modelB[m]))
+print(r.est)
+
+print(with(modelB[[m]], cbind(res.deviance =deviance, df=df.residual, p=pchisq(deviance, df.residual, lower.tail=FALSE))))
+}
+```
+##General Linear Model-Shrub Bird Species Richness
+```{r}
+ggplotRegression<- function(fit){
+  ggplot(fit$model,aes_string(x=names(fit$model)[2],y=names(fit$model)[1]))+
+   geom_point()+
+    stat_smooth(method="glm", col="red")+
+    labs(title=paste(#"Adj R2 = ", signif(summary(fit)$adj.r.squared,5),
+                     "Intercept = ", signif(fit$coef[[1]],5),
+                    "Slope = ", signif(fit$coef[[2]],5),
+                     "P-value = ",signif(summary(fit)$coef[2,4],5)))
+}
+```
+```{r}
+LU_Metric<-list('dev_250'="dev_250", 'for_250'="for_250", 'gra_250'="gra_250", 'cro_250'="cro_250",'dev_500'="dev_500",	'for_500'="for_500",'gra_500'="gra_500",	'cro_500'="cro_500",	'dev_1000'="dev_1000",	'for_1000'="for_1000",'gra_1000'="gra_1000", 'cro_1000'="cro_1000",	'dev_5000'="dev_5000",	'for_5000'="for_5000",	'gra_5000'="gra_5000", 'cro_5000'="cro_5000",	'Cont_Gra1k'="Cont_Gra1k", 'Dist_Gra'="Dist_Gra",	'Dist_Cro'="Dist_Cro", 'Dist_For'="Dist_For",	'Dist_Dev'="Dist_Dev",'Dist_ForC'="Dist_ForC",	'Dist_GraC'="Dist_GraC",	'For_Area_x'="For_Area_x",	'Gra_Area'="Gra_Area",'For_CAI_x'="For_CAI_x",'P_ForC_250'="P_ForC_250", 'P_ForC_500'="P_ForC_500",	'P_ForC_1k'="P_ForC_1k",	'P_ForC_5k'="P_ForC_5k",	'P_GraC_250'="P_GraC_250", 'P_GraC_500'="P_GraC_500",	'P_GraC_1k'="P_GraC_1k",'P_GraC_5k'="P_GraC_5k")
+
+modelB<-list()
+for(i in 1:length(LU_Metric)){
+  modelB[[i]]<-glm(COUNT ~ get(LU_Metric[[i]][1]), data=dataBshrub)
+}
+
+names(modelB)<-c("dev_250", "for_250","gra_250", "cro_250","dev_500",	"for_500","gra_500","cro_500",	"dev_1000","for_1000","gra_1000", "cro_1000",	"dev_5000",	"for_5000",	"gra_5000", "cro_5000",	"Cont_Gra1k", "Dist_Gra",	"Dist_Cro", "Dist_For",	"Dist_Dev","Dist_ForC",	"Dist_GraC",	"For_Area_x",	"Gra_Area","For_CAI_x","P_ForC_250", "P_ForC_500","P_ForC_1k","P_ForC_5k",	"P_GraC_250", "P_GraC_500",	"P_GraC_1k","P_GraC_5k")
+
+for(j in 1:length(modelB)){
+  par(mfrow=c(2,2))
+  plot(modelB[[j]], main=names(modelB[j]))
+ }
+```
+
+```{r}
+lapply(modelB, function(x){
+  summary(x)
+})
+
+```
+##General Linear Model-Shrub Bird Species Diversity 
+```{r}
+ggplotRegression<- function(fit){
+  ggplot(fit$model,aes_string(x=names(fit$model)[2],y=names(fit$model)[1]))+
+   geom_point()+
+    stat_smooth(method="glm", col="red")+
+    labs(title=paste(#"Adj R2 = ", signif(summary(fit)$adj.r.squared,5),
+                     "Intercept = ", signif(fit$coef[[1]],5),
+                    "Slope = ", signif(fit$coef[[2]],5),
+                     "P-value = ",signif(summary(fit)$coef[2,4],5)))
+}
+```
+```{r}
+LU_Metric<-list('dev_250'="dev_250", 'for_250'="for_250", 'gra_250'="gra_250", 'cro_250'="cro_250",'dev_500'="dev_500",	'for_500'="for_500",'gra_500'="gra_500",	'cro_500'="cro_500",	'dev_1000'="dev_1000",	'for_1000'="for_1000",'gra_1000'="gra_1000", 'cro_1000'="cro_1000",	'dev_5000'="dev_5000",	'for_5000'="for_5000",	'gra_5000'="gra_5000", 'cro_5000'="cro_5000",	'Cont_Gra1k'="Cont_Gra1k", 'Dist_Gra'="Dist_Gra",	'Dist_Cro'="Dist_Cro", 'Dist_For'="Dist_For",	'Dist_Dev'="Dist_Dev",'Dist_ForC'="Dist_ForC",	'Dist_GraC'="Dist_GraC",	'For_Area_x'="For_Area_x",	'Gra_Area'="Gra_Area",'For_CAI_x'="For_CAI_x",'P_ForC_250'="P_ForC_250", 'P_ForC_500'="P_ForC_500",	'P_ForC_1k'="P_ForC_1k",	'P_ForC_5k'="P_ForC_5k",	'P_GraC_250'="P_GraC_250", 'P_GraC_500'="P_GraC_500",	'P_GraC_1k'="P_GraC_1k",'P_GraC_5k'="P_GraC_5k")
+
+modelB<-list()
+for(i in 1:length(LU_Metric)){
+  modelB[[i]]<-glm(SpDiversity ~ get(LU_Metric[[i]][1]), data=dataBshrub)
+}
+
+names(modelB)<-c("dev_250", "for_250","gra_250", "cro_250","dev_500",	"for_500","gra_500","cro_500",	"dev_1000","for_1000","gra_1000", "cro_1000",	"dev_5000",	"for_5000",	"gra_5000", "cro_5000",	"Cont_Gra1k", "Dist_Gra",	"Dist_Cro", "Dist_For",	"Dist_Dev","Dist_ForC",	"Dist_GraC",	"For_Area_x",	"Gra_Area","For_CAI_x","P_ForC_250", "P_ForC_500","P_ForC_1k","P_ForC_5k",	"P_GraC_250", "P_GraC_500",	"P_GraC_1k","P_GraC_5k")
+
+for(j in 1:length(modelB)){
+  par(mfrow=c(2,2))
+  plot(modelB[[j]], main=names(modelB[j]))
+ }
+```
+
+```{r}
+lapply(modelB, function(x){
+  summary(x)
+})
+
+```
