@@ -269,15 +269,9 @@ LABEL7<-as.data.frame(LABEL7)
 LABEL7$Change7<-LABEL7$`2061`-LABEL7$`2011`
 
 CombinedReshape<-cbind(LABEL3, LABEL5,LABEL6,LABEL7) 
-write.csv(CombinedReshape, paste0(Comb_outputReshape,(ScenarioReshape[[i]]),".csv")) 
+write.csv(CombinedReshape, paste0(Comb_outputReshape,(ScenarioReshape[[i]]))) 
 
 }
-
-# Error in file(file, ifelse(append, "a", "w")) : 
-  # cannot open the connection
-# In addition: Warning message:
-# In file(file, ifelse(append, "a", "w")) :
-  # cannot open file 'U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/Tables/v2016_County/v2016_Reshape/v2016_ZonalHistogram_RT_Reshape.csv.csv': No such file or directory
 
 #BRING IN TABLES
 

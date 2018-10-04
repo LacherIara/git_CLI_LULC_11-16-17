@@ -9,11 +9,39 @@
 
 #NOTES: There are a lot of options here on how to organize the data and generate graphs. First imports all Scenario  tables and combines them. Then possible graphs. Followed by exploratory analysis for county and region. These exploratory analysis and very rough.
 
+# Multiple issues with script:
+	# Why are some things called "melt" ?? shouldn't they be counties?
+	# in this line of code, "variable" refers to the county name, but in this case it sould be "Region"
+
+	# CombinedRegionPC<-merge(CombinedRegionLC,PercentChangeRegion, by=c("Scenario","TimeStep","LABEL","Region"), all.x=TRUE)  # Region is the variable! But, why would you ever merge this??
+
+
+	# CombinedRegionLC27<-CombinedRegionLC27[,c(1,2,3,5,6,7,8,13)] # QUESTION: WHY IS THIS SAYING 13 COLUMNS? THERE ARE ONLY 10 COLUMNS
+
+	# > str(CombinedRegionLC27)
+	# 'data.frame':	160 obs. of  10 variables:
+	 # $ LABEL   : int  3 5 6 7 3 5 6 7 3 5 ...
+	 # $ TimeStep: int  2 2 2 2 2 2 2 2 2 2 ...
+	 # $ Region  : int  1 1 1 1 2 2 2 2 3 3 ...
+	 # $ valuekm : num  147.7 2500.8 1242.9 65.3 678.8 ...
+	 # $ Scenario: chr  "Q1" "Q1" "Q1" "Q1" ...
+	 # $ LABEL   : int  3 5 6 7 3 5 6 7 3 5 ...
+	 # $ TimeStep: int  7 7 7 7 7 7 7 7 7 7 ...
+	 # $ Region  : int  1 1 1 1 2 2 2 2 3 3 ...
+	 # $ valuekm : num  245.5 2413.3 1232.8 65.1 1287.1 ...
+	 # $ Scenario: chr  "Q1" "Q1" "Q1" "Q1" ...
+
+
+
+
+
 #IMPORTANT: 
 # Make sure the correct version folder is pulled in! Do a search for phrases associated with "version" (capitalized or not)
+# there are options to select the buffer or the study area. Make sure you know which you have!!
+
 # Watch capitalization!!! There are two files with "_cnty". one is capitalized, and the other is not.
-	# v2016_ZonalHistogram_AllScenarios_CTNY
-	# v2016_ZonalHistogram_AllScenarios_CTNY_SA
+	# v2016_ZonalHistogram_AllScenarios_CNTY
+	# v2016_ZonalHistogram_AllScenarios_CNTY_SA
 	# v2016_ZonalHistogram_AllScenarios_RGN
 
  ##### NEXT STEPS #####
@@ -70,7 +98,7 @@ Comb_outputReshape<-paste0(version_table, tables, "County/v2016_Reshape/")
 # COUNTIES (INCL BUFFER)
 # ----------------------------------------------
 
-FolderM<-list.files(Comb_outputCounty, pattern="ctny.csv", full.names = TRUE) #Bring in merged scenario tables and combine all scenarios. Scenario tables are merged by timestep and for this example contains all counties. 
+FolderM<-list.files(Comb_outputCounty, pattern="cnty.csv", full.names = TRUE) #Bring in merged scenario tables and combine all scenarios. Scenario tables are merged by timestep and for this example contains all counties. 
 CSV_Melt<-lapply(FolderM,function(i){
   read.csv(i)
 })
@@ -85,13 +113,13 @@ CSV_Melt[[5]]$Scenario<-"RT"
 
 CombinedMeltLC<-do.call(rbind.data.frame,CSV_Melt)
 CombinedMeltLC<-subset(CombinedMeltLC, CombinedMeltLC$TimeStep > 1) #IF STILL NEED AFTER 2001
-write.csv(CombinedMeltLC, paste0(Comb_outputCounty,"v2016_ZonalHistogram_AllScenarios_CTNY", ".csv"), row.names=FALSE)
+write.csv(CombinedMeltLC, paste0(Comb_outputCounty,"v2016_ZonalHistogram_AllScenarios_CNTY", ".csv"), row.names=FALSE)
 
 #--------------------------------------------------#
 # COUNTIES WITHIN STUDY AREA
 # ----------------------------------------------
 
-FolderM_SA<-list.files(Comb_outputCounty, pattern="SA.csv", full.names = TRUE) 
+FolderM_SA<-list.files(Comb_outputCounty, pattern="cnty_SA", full.names = TRUE) 
 CSV_Melt_SA<-lapply(FolderM_SA,function(i){
   read.csv(i)
 })
@@ -106,7 +134,7 @@ CSV_Melt_SA[[5]]$Scenario<-"RT"
 
 CombinedMeltLC_SA<-do.call(rbind.data.frame,CSV_Melt_SA)
 CombinedMeltLC_SA<-subset(CombinedMeltLC_SA, CombinedMeltLC_SA$TimeStep > 1) #IF STILL NEED AFTER 2001
-write.csv(CombinedMeltLC_SA, paste0(Comb_outputCounty,"v2016_ZonalHistogram_AllScenarios_CTNY_SA", ".csv"), row.names=FALSE)
+write.csv(CombinedMeltLC_SA, paste0(Comb_outputCounty,"v2016_ZonalHistogram_AllScenarios_CNTY_SA", ".csv"), row.names=FALSE)
 
 
 # ----------------------------------------------
@@ -206,9 +234,7 @@ write.csv(CombinedSumLC_SA, paste0(Comb_outputSA,"v2016_ZonalHistogram_AllScenar
 # ----------------------------------------------
 # USE IF TABLES ALREADY GENERATED:
 
-# CombinedMeltPC<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/Tables/v2016_County/v2016_ZonalHistogram_AllScenarios_CTNY_SA.csv")
-
-
+# CombinedMeltPC<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/Tables/v2016_County/v2016_ZonalHistogram_AllScenarios_cnty_SA.csv")
 
 
 #PERCENT CHANGE INDIVIDUAL COUNTIES
@@ -228,57 +254,61 @@ CombinedMeltLC27$PercentChange<-round(CombinedMeltLC27$PercentChange, digits = 2
 #CombinedMeltLC27$PercentChange<-paste0(CombinedMeltLC27$PercentChange,"%")
 
 
-CombinedMeltLC27$TimeStep<-7
+CombinedMeltLC27$TimeStep<-27
 PercentChangeMelt<-CombinedMeltLC27[,c(1,2,4,7)]
 
-CombinedMeltPC<-merge(CombinedMeltLC,PercentChangeMelt, by=c("Scenario","TimeStep","LABEL"), all.x=TRUE)
+# I DON'T KNOW WHY YOU WOULD WANT TO DO THIS.
+# CombinedMeltPC<-merge(CombinedMeltLC,PercentChangeMelt, by=c("Scenario","TimeStep","LABEL"), all.x=TRUE)
 
-CombinedMeltPC<-subset(CombinedMeltPC, TimeStep > 1)
+# CombinedMeltPC<-subset(CombinedMeltPC, TimeStep > 1)
 
-# ----------------------------------------------
-# SUBSET BY LANDCOVER TYPE
-DevelopmentM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "3")
-ForestM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "5")
-GrassM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "6")
-CropM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "7")
+# I CANNOT GET THE BELOW TO WORK:
 
-
-# ----------------------------------------------
-# SUBSET BY COUNTY EXAMPLE
-Loudoun<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51107")
-Frederick<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51069")
-Fauquier<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51061")
-Shenandoah<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51171")
-Albemarle<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51003")
-Rockingham<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51165")
+# # ----------------------------------------------
+# # SUBSET BY LANDCOVER TYPE
+# DevelopmentM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "3")
+# ForestM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "5")
+# GrassM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "6")
+# CropM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "7")
 
 
+# # ----------------------------------------------
+# # SUBSET BY COUNTY EXAMPLE
+# Loudoun<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51107")
+# Frederick<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51069")
+# Fauquier<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51061")
+# Shenandoah<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51171")
+# Albemarle<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51003")
+# Rockingham<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51165")
 
 
-# ----------------------------------------------
-# SUBSET BY COUNTY AND LANDCOVER TYPE EXAMPLES
-FauquierD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51061")
-FauquierF<-subset(ForestM, ForestM$variable == "GEOID_51061")
-FauquierG<-subset(GrassM, GrassM$variable == "GEOID_51061")
-FauquierC<-subset(CropM, CropM$variable == "GEOID_51061")
 
 
-FrederickD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51069")
-FrederickF<-subset(ForestM, ForestM$variable == "GEOID_51069")
-FrederickG<-subset(GrassM, GrassM$variable == "GEOID_51069")
-FrederickC<-subset(CropM, CropM$variable == "GEOID_51069")
+# # ----------------------------------------------
+# # SUBSET BY COUNTY AND LANDCOVER TYPE EXAMPLES
+# FauquierD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51061")
+# FauquierF<-subset(ForestM, ForestM$variable == "GEOID_51061")
+# FauquierG<-subset(GrassM, GrassM$variable == "GEOID_51061")
+# FauquierC<-subset(CropM, CropM$variable == "GEOID_51061")
 
-AlbemarleD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51003")
-AlbemarleF<-subset(ForestM, ForestM$variable == "GEOID_51003")
-AlbemarleG<-subset(GrassM, GrassM$variable == "GEOID_51003")
-AlbemarleC<-subset(CropM, CropM$variable == "GEOID_51003")
+
+# FrederickD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51069")
+# FrederickF<-subset(ForestM, ForestM$variable == "GEOID_51069")
+# FrederickG<-subset(GrassM, GrassM$variable == "GEOID_51069")
+# FrederickC<-subset(CropM, CropM$variable == "GEOID_51069")
+
+# AlbemarleD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51003")
+# AlbemarleF<-subset(ForestM, ForestM$variable == "GEOID_51003")
+# AlbemarleG<-subset(GrassM, GrassM$variable == "GEOID_51003")
+# AlbemarleC<-subset(CropM, CropM$variable == "GEOID_51003")
 
 # ----------------------------------------------
 # REGION
 # ----------------------------------------------
 #---------------------------------------------------#
 #PERCENT CHANGE REGION
-#CombinedRegionLC<-CombinedRegionLC_SA #set study area equal if want graphs just for study area. Saves repeating a bunch of code.
+
+CombinedRegionLC<-CombinedRegionLC_SA #set study area equal if want graphs just for study area. Saves repeating a bunch of code.
 
 CombinedRegionLC$Rowid_<-NULL
 
@@ -287,16 +317,51 @@ CombinedRegionLCT7<-subset(CombinedRegionLC, CombinedRegionLC$TimeStep ==7)
 CombinedRegionLC27<-cbind(CombinedRegionLCT2,CombinedRegionLCT7)
 
 
-CombinedRegionLC27<-CombinedRegionLC27[,c(1,2,3,5,6,7,8,13)]
+# > str(CombinedRegionLC27)
+# 'data.frame':	160 obs. of  10 variables:
+ # $ LABEL   : int  3 5 6 7 3 5 6 7 3 5 ...
+ # $ TimeStep: int  2 2 2 2 2 2 2 2 2 2 ...
+ # $ Region  : int  1 1 1 1 2 2 2 2 3 3 ...
+ # $ valuekm : num  147.7 2500.8 1242.9 65.3 678.8 ...
+ # $ Scenario: chr  "Q1" "Q1" "Q1" "Q1" ...
+ # $ LABEL   : int  3 5 6 7 3 5 6 7 3 5 ...
+ # $ TimeStep: int  7 7 7 7 7 7 7 7 7 7 ...
+ # $ Region  : int  1 1 1 1 2 2 2 2 3 3 ...
+ # $ valuekm : num  245.5 2413.3 1232.8 65.1 1287.1 ...
+ # $ Scenario: chr  "Q1" "Q1" "Q1" "Q1" ...
+
+CombinedRegionLC27<-CombinedRegionLC27[,c(1,2,3,4,5,9)] # Iara changed this 10-4-18:
 CombinedRegionLC27<-mutate(CombinedRegionLC27, PercentChange=((valuekm.1-valuekm)/valuekm)*100)
 CombinedRegionLC27$PercentChange<-round(CombinedRegionLC27$PercentChange, digits = 0)
-CombinedRegionLC27$PercentChange<-paste0(CombinedRegionLC27$PercentChange,"%")
+# CombinedRegionLC27$PercentChange<-paste0(CombinedRegionLC27$PercentChange,"%")# Iara changed this. We don't need a percent symbol:
 
 
-CombinedRegionLC27$TimeStep<-7
-PercentChangeRegion<-CombinedRegionLC27[,c(1,2,3,7,9)]
+# > str(CombinedRegionLC27)
+# 'data.frame':	700 obs. of  7 variables:
+ # $ LABEL        : int  3 5 6 7 3 5 6 7 3 5 ...
+ # $ TimeStep     : int  2 2 2 2 2 2 2 2 2 2 ...
+ # $ Region       : int  1 1 1 1 2 2 2 2 3 3 ...
+ # $ valuekm      : num  147.7 2500.8 1242.9 65.3 188.6 ...
+ # $ Scenario     : chr  "Q1" "Q1" "Q1" "Q1" ...
+ # $ valuekm.1    : num  245.5 2413.3 1232.8 65.1 369.2 ...
+ # $ PercentChange: num  66 -4 -1 0 96 -7 -1 -18 14 -2 ...
 
-CombinedRegionPC<-merge(CombinedRegionLC,PercentChangeRegion, by=c("Scenario","TimeStep","LABEL","variable"), all.x=TRUE)
+
+CombinedRegionLC27$TimeStep<-27
+PercentChangeRegion<-CombinedRegionLC27[,c(1,2,3,5,7)]
+
+# CombinedRegionPC<-merge(CombinedRegionLC,PercentChangeRegion, by=c("Scenario","TimeStep","LABEL","Region"), all.x=TRUE)  # Region is the variable! But, why would you ever merge this??
+
+# > str(PercentChangeRegion)
+# 'data.frame':	700 obs. of  5 variables:
+ # $ LABEL        : int  3 5 6 7 3 5 6 7 3 5 ...
+ # $ TimeStep     : num  27 27 27 27 27 27 27 27 27 27 ...
+ # $ Region       : int  1 1 1 1 2 2 2 2 3 3 ...
+ # $ Scenario     : chr  "Q1" "Q1" "Q1" "Q1" ...
+ # $ PercentChange: num  66 -4 -1 0 96 -7 -1 -18 14 -2 ...
+
+# THIS IS WHERE I ENDED. NEED TO USE ABOVE AS REFERENCE TO CREATE SUMMED REGION VALUES AND MAKE SURE COUNTY VALUES ARE CORRECTLY SOURCED.
+
 
 # ----------------------------------------------
 # SUM
