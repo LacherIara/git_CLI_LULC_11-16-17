@@ -12,43 +12,20 @@
 #PURPOSE: clean figures for LULC paper
 
 #NOTES: There are multiple options here for organizing data and generating graphs, depending on what you want to display. 
-# Section 1 (lines 91-262, Sarah): imports all Scenario tables and combines them.
-# Section 2 (lines 266-637 Erin, lines 639-789 Sarah): generates possible graphs, including those used in the LULC paper. IMPORTANT: IT IS NOT NECESSARY TO RUN ANY PART OF SECTION 1 IN ORDER TO RUN SECTIONS 2.1 or 2.2.
-# Section 3 (lines 794-1060, Sarah) contains exploratory analysis for county and region. These exploratory analyses are very rough.
-
-
-# Notes from Sarah:
-# Multiple issues with script:
-# Why are some things called "melt" ?? shouldn't they be counties?
-# in this line of code, "variable" refers to the county name, but in this case it sould be "Region"
-
-# CombinedRegionPC<-merge(CombinedRegionLC,PercentChangeRegion, by=c("Scenario","TimeStep","LABEL","Region"), all.x=TRUE)  # Region is the variable! But, why would you ever merge this??
-
-# CombinedRegionLC27<-CombinedRegionLC27[,c(1,2,3,5,6,7,8,13)] # QUESTION: WHY IS THIS SAYING 13 COLUMNS? THERE ARE ONLY 10 COLUMNS
-
-# > str(CombinedRegionLC27)
-# 'data.frame':	160 obs. of  10 variables:
-# $ LABEL   : int  3 5 6 7 3 5 6 7 3 5 ...
-# $ TimeStep: int  2 2 2 2 2 2 2 2 2 2 ...
-# $ Region  : int  1 1 1 1 2 2 2 2 3 3 ...
-# $ valuekm : num  147.7 2500.8 1242.9 65.3 678.8 ...
-# $ Scenario: chr  "Q1" "Q1" "Q1" "Q1" ...
-# $ LABEL   : int  3 5 6 7 3 5 6 7 3 5 ...
-# $ TimeStep: int  7 7 7 7 7 7 7 7 7 7 ...
-# $ Region  : int  1 1 1 1 2 2 2 2 3 3 ...
-# $ valuekm : num  245.5 2413.3 1232.8 65.1 1287.1 ...
-# $ Scenario: chr  "Q1" "Q1" "Q1" "Q1" ...
+# Section 1 (lines 91-262, Sarah/Erin): calculates percent change over counties, regions, and study area.
+# Section 2 (lines 266-637 Erin, lines 639-789 Sarah): generates possible graphs, including those used in the LULC paper. IMPORTANT: Sections 2.1 and 2.2 run independently. Part of section 2.3 requires you to run Section 1.
+# Section 3 (lines 794-1060, Sarah) exploratory analysis - creates additional graphs for visualizing differences in net change between scenarios
 
 #IMPORTANT: 
 # Make sure the correct version folder is pulled in! Do a search for phrases associated with "version" (capitalized or not)
+
 # there are options to select the buffer or the study area. Make sure you know which you have!!
 
 # Watch capitalization!!! There are two files with "_cnty". one is capitalized, and the other is not.
 # v2016_ZonalHistogram_AllScenarios_CNTY
 # v2016_ZonalHistogram_AllScenarios_CNTY_SA
 # v2016_ZonalHistogram_AllScenarios_RGN
-
-
+# ^^cnty (lowercase) is used for individual scenario file outputs. CNTY (uppercase) is used for file outputs that include all scenarios together. This is also already differentiated by other parts of the file names, so confusion is unlikely (i.e., _AllScenarios_ vs _Q1_)
 
 
 # ----------------------------------------------
@@ -75,197 +52,128 @@ tables<-"Tables/v2016_"
 # ----------------------------------------------
 # OUTPUT FILES:
 Comb_outputCounty<-paste0(version_table, tables, "County/")
-Comb_outputSA<-paste0(version_table, tables,"StudyArea/")
-Comb_outputBuffer<-paste0(version_table,tables, "Buffer/")
 Comb_outputRegion<-paste0(version_table, tables, "Region/")
+Comb_outputBuffer<-paste0(version_table,tables, "Buffer/")
+Comb_outputSA<-paste0(version_table, tables,"StudyArea/")
+Comb_outputCountySA<-paste0(version_table, tables, "CountySA/")
+Comb_outputRegionSA<-paste0(version_table, tables, "RegionSA/")
 Comb_outputReshape<-paste0(version_table, tables, "County/v2016_Reshape/")
-
-
 
 ###########################################
 # ~~~ CODE BEGINS ~~~ #
 ###########################################
 
-# ----------------------------------------------
-# ----------------------------------------------
-# SECTION 1 - MANIPULATION FOR GRAPHS
-# ----------------------------------------------
-# ----------------------------------------------
-
-
-#NOTE: ALTER BASED ON WHICH INITIAL TABLES YOU WANT TO USE
-# county, Region, Sum
-# ----------------------------------------------
-# ----------------------------------------------
+# --------------------------------------------------------------------------
+# --------------------------------------------------------------------------
+# SECTION 1 - CALCULATE PERCENT CHANGE 2011-2061 (county, region, study area)
+# --------------------------------------------------------------------------
+# --------------------------------------------------------------------------
 
 # ----------------------------------------------
-# COUNTY
+# COUNTY (within study area only)
 # ----------------------------------------------
 
+# Pull in tabulated area (sq. km) by county for all scenarios:
+CombinedCountySA_LC<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/NoPL/Tables/v2016_CountySA/All/v2016_ZonalHistogram_AllScenarios_CNTY_SA.csv")
 
-# ----------------------------------------------
-# Tables already generated in 8_ZonalHist_50years_MergeTables.R
-CombinedMeltPC<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/Tables/v2016_County/v2016_ZonalHistogram_AllScenarios_cnty_SA.csv")
+# if want to include counties in the buffer area, use instead:
+# CombinedCounty_LC<-read.csv("/Users/erincarroll/Desktop/scbi/NoPL/Tables/v2016_County/All/v2016_ZonalHistogram_AllScenarios_CNTY.csv")")
+# also change below accordingly (CombinedCountySA_LC to CombinedCounty_LC)
 
+# Extract Change 2011 (T2) and 2061 (T7)
+CombinedCountySA_LC_T2<-CombinedCountySA_LC[CombinedCountySA_LC$TimeStep==2,]
+CombinedCountySA_LC_T7<-CombinedCountySA_LC[CombinedCountySA_LC$TimeStep==7,]
 
-#PERCENT CHANGE INDIVIDUAL COUNTIES
-CombinedMeltLC<-CombinedSumLC_SA #set combinedmeltlc_sa to combinedmeltlc if want just study area 
-#CombinedMeltLC<-CombinedSumLC 
+# Calculate Percent Change (PC)
+CombinedCountySA_PC<-CombinedCountySA_LC_T2[,c(1,3,4,7,9)]
+CombinedCountySA_PC$PercentChange<-((CombinedCountySA_LC_T7$valuekm - CombinedCountySA_LC_T2$valuekm)/CombinedCountySA_LC_T2$valuekm)*100
+CombinedCountySA_PC$PercentChange<-round(CombinedCountySA_PC$PercentChange, digits = 2)
 
-CombinedMeltLC$Rowid_<-NULL
-
-CombinedMeltLCT2<-subset(CombinedMeltLC, CombinedMeltLC$TimeStep ==2)
-CombinedMeltLCT7<-subset(CombinedMeltLC, CombinedMeltLC$TimeStep ==7)
-CombinedMeltLC27<-cbind(CombinedMeltLCT2,CombinedMeltLCT7)
-
-
-CombinedMeltLC27<-CombinedMeltLC27[,c(1,2,3,4,6,7)]
-CombinedMeltLC27<-mutate(CombinedMeltLC27, PercentChange=((valuekm.1-valuekm)/valuekm)*100)
-CombinedMeltLC27$PercentChange<-round(CombinedMeltLC27$PercentChange, digits = 2)
-#CombinedMeltLC27$PercentChange<-paste0(CombinedMeltLC27$PercentChange,"%")
-
-
-CombinedMeltLC27$TimeStep<-27
-PercentChangeMelt<-CombinedMeltLC27[,c(1,2,4,7)]
-
-# I DON'T KNOW WHY YOU WOULD WANT TO DO THIS.
-# CombinedMeltPC<-merge(CombinedMeltLC,PercentChangeMelt, by=c("Scenario","TimeStep","LABEL"), all.x=TRUE)
-
-# CombinedMeltPC<-subset(CombinedMeltPC, TimeStep > 1)
-
-# I CANNOT GET THE BELOW TO WORK:
+CombinedCountySA_PC$TimeStep<- "2 to 7"
 
 # # ----------------------------------------------
 # # SUBSET BY LANDCOVER TYPE
-# DevelopmentM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "3")
-# ForestM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "5")
-# GrassM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "6")
-# CropM<-subset(CombinedMeltPC, CombinedMeltPC$LABEL == "7")
-
+Development_PC<-subset(CombinedCountySA_PC, CombinedCountySA_PC$LABEL == "3")
+Forest_PC<-subset(CombinedCountySA_PC, CombinedCountySA_PC$LABEL == "5")
+Grass_PC<-subset(CombinedCountySA_PC, CombinedCountySA_PC$LABEL == "6")
+Crop_PC<-subset(CombinedCountySA_PC, CombinedCountySA_PC$LABEL == "7")
 
 # # ----------------------------------------------
 # # SUBSET BY COUNTY EXAMPLE
-# Loudoun<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51107")
-# Frederick<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51069")
-# Fauquier<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51061")
-# Shenandoah<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51171")
-# Albemarle<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51003")
-# Rockingham<-subset(CombinedMeltPC, CombinedMeltPC$variable == "GEOID_51165")
-
+Loudoun_PC <-subset(CombinedCountySA_PC, CombinedCountySA_PC$variable == "GEOID_51107")
+Frederick_PC<-subset(CombinedCountySA_PC, CombinedCountySA_PC$variable == "GEOID_51069")
+Fauquier_PC<-subset(CombinedCountySA_PC, CombinedCountySA_PC$variable == "GEOID_51061")
+Shenandoah_PC<-subset(CombinedCountySA_PC, CombinedCountySA_PC$variable == "GEOID_51171")
+Albemarle_PC<-subset(CombinedCountySA_PC, CombinedCountySA_PC$variable == "GEOID_51003")
+Rockingham_PC<-subset(CombinedCountySA_PC, CombinedCountySA_PC$variable == "GEOID_51165")
 
 # # ----------------------------------------------
 # # SUBSET BY COUNTY AND LANDCOVER TYPE EXAMPLES
-# FauquierD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51061")
-# FauquierF<-subset(ForestM, ForestM$variable == "GEOID_51061")
-# FauquierG<-subset(GrassM, GrassM$variable == "GEOID_51061")
-# FauquierC<-subset(CropM, CropM$variable == "GEOID_51061")
+FauquierD<-subset(Development_PC, Development_PC$variable == "GEOID_51061")
+FauquierF<-subset(Forest_PC, Forest_PC$variable == "GEOID_51061")
+FauquierG<-subset(Grass_PC, Grass_PC$variable == "GEOID_51061")
+FauquierC<-subset(Crop_PC, Crop_PC$variable == "GEOID_51061")
 
+FrederickD<-subset(Development_PC, Development_PC$variable == "GEOID_51069")
+FrederickF<-subset(Forest_PC, Forest_PC$variable == "GEOID_51069")
+FrederickG<-subset(Grass_PC, Grass_PC$variable == "GEOID_51069")
+FrederickC<-subset(Crop_PC, Crop_PC$variable == "GEOID_51069")
 
-# FrederickD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51069")
-# FrederickF<-subset(ForestM, ForestM$variable == "GEOID_51069")
-# FrederickG<-subset(GrassM, GrassM$variable == "GEOID_51069")
-# FrederickC<-subset(CropM, CropM$variable == "GEOID_51069")
+AlbemarleD<-subset(Development_PC, Development_PC$variable == "GEOID_51003")
+AlbemarleF<-subset(Forest_PC, Forest_PC$variable == "GEOID_51003")
+AlbemarleG<-subset(Grass_PC, Grass_PC$variable == "GEOID_51003")
+AlbemarleC<-subset(Crop_PC, Crop_PC$variable == "GEOID_51003")
 
-# AlbemarleD<-subset(DevelopmentM, DevelopmentM$variable == "GEOID_51003")
-# AlbemarleF<-subset(ForestM, ForestM$variable == "GEOID_51003")
-# AlbemarleG<-subset(GrassM, GrassM$variable == "GEOID_51003")
-# AlbemarleC<-subset(CropM, CropM$variable == "GEOID_51003")
 
 # ----------------------------------------------
 # REGION
 # ----------------------------------------------
-#---------------------------------------------------#
-#PERCENT CHANGE REGION
 
-CombinedRegionLC<-CombinedRegionLC_SA #set study area equal if want graphs just for study area. Saves repeating a bunch of code.
+# Pull in tabulated area (sq. km) by region for all scenarios:
+CombinedRegionSA_LC<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/NoPL/Tables/v2016_RegionSA/All/V21016_ZonalHistogram_AllScenarios_RGN_SA.csv")
 
-CombinedRegionLC$Rowid_<-NULL
+# if want to include regions in the buffer area, use instead:
+# CombinedRegion_LC<-read.csv("/Users/erincarroll/Desktop/scbi/NoPL/Tables/v2016_Region/All/v2016_ZonalHistogram_AllScenarios_RGN.csv")
+# also change below accordingly (CombinedRegionSA_LC to CombinedRegion_LC)
 
-CombinedRegionLCT2<-subset(CombinedRegionLC, CombinedRegionLC$TimeStep ==2)
-CombinedRegionLCT7<-subset(CombinedRegionLC, CombinedRegionLC$TimeStep ==7)
-CombinedRegionLC27<-cbind(CombinedRegionLCT2,CombinedRegionLCT7)
+# Change 2011 (T2) to 2061 (T7)
+CombinedRegionSA_LC_T2<-CombinedRegionSA_LC[CombinedRegionSA_LC$TimeStep==2,]
+CombinedRegionSA_LC_T7<-CombinedRegionSA_LC[CombinedRegionSA_LC$TimeStep==7,]
 
+CombinedRegionSA_PC<-CombinedRegionSA_LC_T2[,c(1,2,3,5)]
+CombinedRegionSA_PC$PercentChange<- ((CombinedRegionSA_LC_T7$valuekm - CombinedRegionSA_LC_T2$valuekm)/CombinedRegionSA_LC_T2$valuekm)*100
 
-# > str(CombinedRegionLC27)
-# 'data.frame':	160 obs. of  10 variables:
-# $ LABEL   : int  3 5 6 7 3 5 6 7 3 5 ...
-# $ TimeStep: int  2 2 2 2 2 2 2 2 2 2 ...
-# $ Region  : int  1 1 1 1 2 2 2 2 3 3 ...
-# $ valuekm : num  147.7 2500.8 1242.9 65.3 678.8 ...
-# $ Scenario: chr  "Q1" "Q1" "Q1" "Q1" ...
-# $ LABEL   : int  3 5 6 7 3 5 6 7 3 5 ...
-# $ TimeStep: int  7 7 7 7 7 7 7 7 7 7 ...
-# $ Region  : int  1 1 1 1 2 2 2 2 3 3 ...
-# $ valuekm : num  245.5 2413.3 1232.8 65.1 1287.1 ...
-# $ Scenario: chr  "Q1" "Q1" "Q1" "Q1" ...
+CombinedRegionSA_PC$PercentChange<-round(CombinedRegionSA_PC$PercentChange, digits = 2)
 
-CombinedRegionLC27<-CombinedRegionLC27[,c(1,2,3,4,5,9)] # Iara changed this 10-4-18:
-CombinedRegionLC27<-mutate(CombinedRegionLC27, PercentChange=((valuekm.1-valuekm)/valuekm)*100)
-CombinedRegionLC27$PercentChange<-round(CombinedRegionLC27$PercentChange, digits = 0)
-# CombinedRegionLC27$PercentChange<-paste0(CombinedRegionLC27$PercentChange,"%")# Iara changed this. We don't need a percent symbol:
-
-
-# > str(CombinedRegionLC27)
-# 'data.frame':	700 obs. of  7 variables:
-# $ LABEL        : int  3 5 6 7 3 5 6 7 3 5 ...
-# $ TimeStep     : int  2 2 2 2 2 2 2 2 2 2 ...
-# $ Region       : int  1 1 1 1 2 2 2 2 3 3 ...
-# $ valuekm      : num  147.7 2500.8 1242.9 65.3 188.6 ...
-# $ Scenario     : chr  "Q1" "Q1" "Q1" "Q1" ...
-# $ valuekm.1    : num  245.5 2413.3 1232.8 65.1 369.2 ...
-# $ PercentChange: num  66 -4 -1 0 96 -7 -1 -18 14 -2 ...
-
-
-CombinedRegionLC27$TimeStep<-27
-PercentChangeRegion<-CombinedRegionLC27[,c(1,2,3,5,7)]
-
-# CombinedRegionPC<-merge(CombinedRegionLC,PercentChangeRegion, by=c("Scenario","TimeStep","LABEL","Region"), all.x=TRUE)  # Region is the variable! But, why would you ever merge this??
-
-# > str(PercentChangeRegion)
-# 'data.frame':	700 obs. of  5 variables:
-# $ LABEL        : int  3 5 6 7 3 5 6 7 3 5 ...
-# $ TimeStep     : num  27 27 27 27 27 27 27 27 27 27 ...
-# $ Region       : int  1 1 1 1 2 2 2 2 3 3 ...
-# $ Scenario     : chr  "Q1" "Q1" "Q1" "Q1" ...
-# $ PercentChange: num  66 -4 -1 0 96 -7 -1 -18 14 -2 ...
-
-# THIS IS WHERE I ENDED. NEED TO USE ABOVE AS REFERENCE TO CREATE SUMMED REGION VALUES AND MAKE SURE COUNTY VALUES ARE CORRECTLY SOURCED.
-
+CombinedRegionSA_PC$TimeStep<- "2 to 7"
 
 # ----------------------------------------------
-# SUM
+# STUDY AREA
 # ----------------------------------------------
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-#PERCENT CHANGE of SUM 
+# Pull in tabulated area (sq. km) over study area for all scenarios:
+CombinedSA_LC<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/NoPL/Tables/v2016_StudyArea/All/v2016_ZonalHistogram_AllScenarios_SA.csv")
 
-#CombinedSumLC<-CombinedSumLC_SA #set equal to study area if desired 
-CombinedSumLC<-CombinedSumLC_SA
+# if want to do whole buffer area, use instead:
+# CombinedBuffer_LC<-read.csv("/Users/erincarroll/Desktop/scbi/NoPL/Tables/v2016_Buffer/All/v2016_ZonalHistogram_AllScenarios_Buffer.csv")
+# also change below accordingly (CombinedSA_LC to CombinedBuffer_LC)
 
-CombinedSumLCT2<-subset(CombinedSumLC, CombinedSumLC$TimeStep ==2)
-CombinedSumLCT7<-subset(CombinedSumLC, CombinedSumLC$TimeStep ==7)
-CombinedSumLC27<-cbind(CombinedSumLCT2,CombinedSumLCT7)
-CombinedSumLC27<-CombinedSumLC27[,c(1,2,3,4,7,8)]
-CombinedSumLC27<-mutate(CombinedSumLC27, PercentChange=((valuekm.1-valuekm)/valuekm)*100) #calculate percent change after only haveing time step 2 and 7
-CombinedSumLC27$PercentChange<-round(CombinedSumLC27$PercentChange, digits = 2)
+# Change 2011 (T2) to 2061 (T7)
+CombinedSA_LC_T2<-CombinedSA_LC[CombinedSA_LC$TimeStep==2,]
+CombinedSA_LC_T7<-CombinedSA_LC[CombinedSA_LC$TimeStep==7,]
 
+CombinedSA_PC<-CombinedSA_LC_T2[,c(1,2,4)]
+CombinedSA_PC$PercentChange<- ((CombinedSA_LC_T7$valuekm - CombinedSA_LC_T2$valuekm)/CombinedSA_LC_T2$valuekm)*100
 
-CombinedSumLC27$TimeStep<-7
-PercentChange<-CombinedSumLC27[,c(1,2,4,7)]
+CombinedSA_PC$PercentChange<-round(CombinedSA_PC$PercentChange, digits = 2)
 
-CombinedSumPC<-merge(CombinedSumLC,PercentChange, by=c("Scenario","TimeStep","LABEL"), all.x=TRUE)
-
-
-#AREADY COMBINED CAN JUST BRING IN TABLE 
-CombinedSumPC<-read.csv(paste0(Comb_outputSA,"All/v2016_ZonalHistogram_AllScenarios_SA.csv"))
-
-
+CombinedSA_PC$TimeStep<- "2 to 7"
 
 # ----------------------------------------------
 # ----------------------------------------------
 # SECTION 2 - GRAPHS
 # 2.1 Line Graphs (total area of each scenario by land use class, over time) -- Erin
-# 2.2 Bar Graphs (...percent change?) -- Erin
+# 2.2 Bar Graphs (net change 2011-2061, sq. km) -- Erin
 # 2.3 Individual Counties  -- Sarah
 # ----------------------------------------------
 # ----------------------------------------------
@@ -276,21 +184,21 @@ CombinedSumPC<-read.csv(paste0(Comb_outputSA,"All/v2016_ZonalHistogram_AllScenar
 # ---------------------------------------------------------
 
 # DATA PREP
-CombinedSumPC<-read.csv(paste0(Comb_outputSA,"All/v2016_ZonalHistogram_AllScenarios_SA.csv"))
+CombinedSA_LC<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/NoPL/Tables/v2016_StudyArea/All/v2016_ZonalHistogram_AllScenarios_SA.csv")
 
 # New scenario names
-levels(CombinedSumPC$Scenario)
-levels(CombinedSumPC$Scenario) = c("HS", "HA", "LA", "LS", "RT")
+levels(CombinedSA_LC$Scenario)
+levels(CombinedSA_LC$Scenario) = c("HS", "HR", "LR", "LS", "BAU")
 
 # TimeStep as date (in case you want to create a vertical bar highlighting 2011; works either way)
-CombinedSumPC$TimeStep[CombinedSumPC$TimeStep == 2] = "2011"
-CombinedSumPC$TimeStep[CombinedSumPC$TimeStep == 3] = "2021"
-CombinedSumPC$TimeStep[CombinedSumPC$TimeStep == 4] = "2031"
-CombinedSumPC$TimeStep[CombinedSumPC$TimeStep == 5] = "2041"
-CombinedSumPC$TimeStep[CombinedSumPC$TimeStep == 6] = "2051"
-CombinedSumPC$TimeStep[CombinedSumPC$TimeStep == 7] = "2061"
+CombinedSA_LC$TimeStep[CombinedSA_LC$TimeStep == 2] = "2011"
+CombinedSA_LC$TimeStep[CombinedSA_LC$TimeStep == 3] = "2021"
+CombinedSA_LC$TimeStep[CombinedSA_LC$TimeStep == 4] = "2031"
+CombinedSA_LC$TimeStep[CombinedSA_LC$TimeStep == 5] = "2041"
+CombinedSA_LC$TimeStep[CombinedSA_LC$TimeStep == 6] = "2051"
+CombinedSA_LC$TimeStep[CombinedSA_LC$TimeStep == 7] = "2061"
 
-# function to set y-axis breaks
+# function to set y-axis breaks for either line graph (invidiual LU class or all 4 together)
 my_breaks <- function(x) {
   seq(floor( (min(x) ) / 100) * 100,
       ceiling( (max(x) ) / 100) * 100,
@@ -301,10 +209,10 @@ my_breaks <- function(x) {
 ##### INDIVIDUAL LAND USE CLASS BY SCENARIO, OVER ENTIRE STUDY AREA (ex: grass)
 
 # subset by land use class
-DevelopmentPC <- subset(CombinedSumPC, CombinedSumPC$LABEL == "3")
-ForestPC <- subset(CombinedSumPC, CombinedSumPC$LABEL == "5")
-GrassPC <- subset(CombinedSumPC, CombinedSumPC$LABEL == "6")
-CropPC <- subset(CombinedSumPC, CombinedSumPC$LABEL == "7")
+DevelopmentPC <- subset(CombinedSA_LC, CombinedSA_LC$LABEL == "3")
+ForestPC <- subset(CombinedSA_LC, CombinedSA_LC$LABEL == "5")
+GrassPC <- subset(CombinedSA_LC, CombinedSA_LC$LABEL == "6")
+CropPC <- subset(CombinedSA_LC, CombinedSA_LC$LABEL == "7")
 
 # set y-axis limits
 ## NOTE: edit LABEL and value to correspond to land use class and max/min
@@ -368,7 +276,7 @@ blank_data_all = data.frame(TimeStep=(NA), LABEL=rep(c(3,5,6,7), each=2),
                             valuekm=c(600,1100,6700,7200,5200,5400,500,700))
 
 # generate graph
-All_LUType <- ggplot(CombinedSumPC)+
+All_LUType <- ggplot(CombinedSA_LC)+
   facet_wrap(~LABEL, scales = "free", nrow=2, ncol=2, labeller=labeller(LABEL = LULCclasses))+
   geom_line(aes(x=TimeStep, y=valuekm, group=Scenario, colour=Scenario, linetype=Scenario), size=0.5)+
   geom_point(aes(x=TimeStep, y=valuekm, group=Scenario, colour=Scenario, shape=Scenario), size=1)+
@@ -425,7 +333,7 @@ cntySa.GEOID = read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/CountyNmsGEOID_cnty
 
 # New scenario names
 levels(countySA.data$Scenario)
-levels(countySA.data$Scenario) = c("HS", "HA", "LA", "LS", "RT")
+levels(countySA.data$Scenario) = c("HS", "HR", "LR", "LS", "BAU")
 
 # Calculating net change
 countySA.2011 = countySA.data[countySA.data$TimeStep==2,]
@@ -484,27 +392,27 @@ region4 <- unique(countySA.netchange$County[countySA.netchange$Region==4])
 region5 <- unique(countySA.netchange$County[countySA.netchange$Region==5])
 
 # adding region labels
-region1.label2 <- data.frame(
+region1.label <- data.frame(
   label = "Region 1",
   LABEL = c(3,5,6,7),
   x = 3,
   y = c(115, 15, 45, 7))
-region2.label2 <- data.frame(
+region2.label <- data.frame(
   label = "2",
   LABEL = c(3,5,6,7),
   x = 7,
   y = c(115, 15, 45, 7))
-region3.label2 <- data.frame(
+region3.label <- data.frame(
   label = "3",
   LABEL = c(3,5,6,7),
   x = 10.5,
   y = c(115, 15, 45, 7))
-region4.label2 <- data.frame(
+region4.label <- data.frame(
   label = "4",
   LABEL = c(3,5,6,7),
   x = 13.5,
   y = c(115, 15, 45, 7))
-region5.label2 <- data.frame(
+region5.label <- data.frame(
   label = "5",
   LABEL = c(3,5,6,7),
   x = 15,
@@ -521,19 +429,19 @@ County_SA = ggplot(countySA.netchange)+
   geom_vline(xintercept = 8.5, size=0.25)+
   geom_vline(xintercept = 12.5, size=0.25)+
   geom_vline(xintercept = 14.5, size=0.25)+
-  geom_text(data=region1.label2,
+  geom_text(data=region1.label,
             mapping=aes(x=x, y=y, label = label),
             size=2.5)+
-  geom_text(data=region2.label2,
+  geom_text(data=region2.label,
             mapping=aes(x=x, y=y, label = label),
             size=2.5)+
-  geom_text(data=region3.label2,
+  geom_text(data=region3.label,
             mapping=aes(x=x, y=y, label = label),
             size=2.5)+
-  geom_text(data=region4.label2,
+  geom_text(data=region4.label,
             mapping=aes(x=x, y=y, label = label),
             size=2.5)+
-  geom_text(data=region5.label2,
+  geom_text(data=region5.label,
             mapping=aes(x=x, y=y, label = label),
             size=2.5)+
   geom_blank(data=blank_data_cty, aes(County, valuekm))+
@@ -566,7 +474,7 @@ regionSA.GEOID = read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/CountyNmsGEOID_sa
 
 # New scenario names
 levels(regionSA.data$Scenario)
-levels(regionSA.data$Scenario) = c("HS", "HA", "LA", "LS", "RT")
+levels(regionSA.data$Scenario) = c("HS", "HR", "LR", "LS", "BAU")
 
 # Calculating net change
 regionSA.2011 = regionSA.data[regionSA.data$TimeStep==2,]
@@ -638,153 +546,109 @@ dev.off()
 ## 2.3 INDIVIDUAL COUNTIES
 # ---------------------------------------------------------
 
+countySA.data = read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/NoPL/Tables/v2016_CountySA/All/v2016_ZonalHistogram_AllScenarios_CNTY_SA.csv")
+
 #FAUQUIER
-FauqC<-ggplot(FauquierD, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
-  geom_line(size=3)+
-  scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c("2011", "2021", "2031", "2041", "2051", "2061"))+
-  scale_colour_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
-  #Forest#scale_y_continuous(name =expression('Total Area km'^2), limits = c(675,775), breaks=c(675,700,725,750,775))+
-  #grass# scale_y_continuous(name =expression('Total Area km'^2), limits=c(550,615), breaks=c(550,565,580,595,610))+
-  #development#
-  scale_y_continuous(name =expression('Total Area km'^2),  limits=c(0,125), breaks=c(25,50,75,100,125))+
-  #crop# scale_y_continuous(name =expression('Total Area km'^2), limits=c(115,151), breaks=c(115,125,135,145))+
+Fauquier <- countySA.data[countySA.data$variable=="GEOID_51061",]
+
+# New scenario names
+levels(Fauquier$Scenario)
+levels(Fauquier$Scenario) = c("HS", "HR", "LR", "LS", "BAU")
+
+# set facet_wrap labels
+LULCclasses <- c(
+  '3'="Development",
+  '5'="Forest",
+  '6'="Grass",
+  '7'="Crop")
+
+Fauq <- ggplot(Fauquier)+
+  facet_wrap(~LABEL, scales = "free", nrow=2, ncol=2, labeller=labeller(LABEL = LULCclasses))+
+  geom_line(aes(x=TimeStep, y=valuekm, group=Scenario, colour=Scenario, linetype=Scenario), size=0.5)+
+  geom_point(aes(x=TimeStep, y=valuekm, group=Scenario, colour=Scenario, shape=Scenario), size=1)+
+  scale_shape_manual(values=c(18,15,17,8,19))+
+  scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c("2011*", "2021", "2031", "2041", "2051", "2061"))+
+  scale_y_continuous(name=expression('Total Area sq. km')) +
+  scale_colour_manual(values=c("#36003B","#004191","#297512","#FF4B45","#FFB430"))+
   theme_bw()+
-  theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
-  theme(axis.title.x = element_text(margin=margin(t=20, r=0, b=0, l =0)))+
-  theme(axis.text=element_text(size=40, colour="black"),
-        axis.title.x=element_text(size=40), axis.title.y =element_text(size=40, face="bold"), legend.text=element_text(size=20), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
-  theme(plot.margin=unit(c(1,1,1,1), "in"))+#+
-  #geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), size=20, show.legend=FALSE)+
-  theme(axis.line = element_line(size=1.5, colour="grey69"), 
-        panel.grid.major = element_blank(),
+  theme(axis.title.y = element_text(margin = margin(t=0, r=0, b=0, l=0), size=10),
+        axis.title.x = element_text(margin=margin(t=0, r=0, b=0, l=0), size=10),
+        axis.text.x=element_text(colour="black", margin=margin(t=5,r=0,b=10,l=0), face=c("bold", "plain", "plain","plain","plain","plain"), size=c(9,9,9,9,9,9)), 
+        axis.text.y=element_text(size=9, colour="black", margin=margin(t=0,r=5,b=0,l=10)),
+        axis.ticks.length = unit(0.1, "cm"),
+        legend.text=element_text(size=9, margin = margin(t=0,r=0,b=0,l=0)), 
+        legend.title=element_blank(),
+        legend.key.width = unit(0.35, "in"),
+        legend.position = "bottom",
+        plot.margin=unit(c(0.1,0.1,0.1,0.1), "in"),
+        axis.line = element_line(colour="grey45"),
         panel.grid.minor = element_blank(),
         panel.border = element_blank(),
-        panel.background = element_blank())
+        panel.background = element_blank(),
+        strip.background = element_blank(),
+        strip.text = element_text(face="bold", size = 12, hjust = 0, vjust = 3))
+
+Fauq = annotate_figure(Fauq,
+                       fig.lab = "*2011 observed, 2021-2061 projected",
+                       fig.lab.pos = "bottom.left",
+                       fig.lab.size=8)
 
 setwd("U:/CLI/Presentations/ESA-08-XX-2018")
-png("v2016_Fauq_Crop.png", width=480, height=480, units="px", res=300) #can't put units and resolution
-FauqC
+png("v2016_Fauq.png", width=7.5, height=5.5, units="in", res=300) #can't put units and resolution
+Fauq
 dev.off()
-
-
-ggsave(file="v2016_Fauq_Crop.png", dpi=300,width=15, height=15)
-
-
-
-#FREDERICK
-FredF<-ggplot(FrederickF, aes(x=TimeStep, y=valuekm, colour=Scenario, group=Scenario))+
-  geom_line(size=3)+
-  scale_x_continuous(name= "Time Step", breaks= c(2,3,4,5,6,7), labels=c("2011", "2021", "2031", "2041", "2051", "2061"))+
-  scale_colour_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
-  #Forest#
-  scale_y_continuous(name =expression('Total Area km'^2), limits=c(525,625), breaks=c(525,550,575,600,625))+
-  #grass#scale_y_continuous(name =expression('Total Area km'^2), limits=c(300,330), breaks=c(305,310,315,320,325))+
-  #development#scale_y_continuous(name =expression('Total Area km'^2), limits=c(50,150), breaks=c(50,75,100,125,150))+
-  #crop#scale_y_continuous(name =expression('Total Area km'^2), limits=c(10,16), breaks=c(10,11,12,13,14,15))+
-  theme_bw()+
-  theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
-  theme(axis.title.x = element_text(margin=margin(t=20, r=0, b=0, l =0)))+
-  theme(axis.text=element_text(size=40, colour="black"),
-        axis.title.x=element_text(size=40), axis.title.y =element_text(size=40, face="bold"), legend.text=element_text(size=20), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
-  theme(plot.margin=unit(c(1,1,1,1), "in"))+#+
-  #geom_label_repel(aes(label=ifelse(is.na(PercentChange),"",paste0(PercentChange,"%"))), size=20, show.legend=FALSE)+
-  theme(axis.line = element_line(size=1.5, colour="grey69"), 
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank())
-
-setwd("U:/CLI/Presentations/ESA-08-XX-2018")
-png("v2016_Fred_Development.png", width=480, height=480, units="px", res=300) #can't put units and resolution
-FredD
-dev.off()
-
-
-ggsave(file="v2016_Fred_Development.png", dpi=300,width=15, height=15)
-
+ggsave(file="v2016_Fauq.png", dpi=300,width=7.5, height=5.5)
 
 
 #-----------------------------------------------------------#
 #Table to show percent change
 
-#Frederick County 
-#Fred_PC<-subset(PercentChangeMelt, variable=="GEOID_51069")
-#Fred_Q1<-subset(Fred_PC, Scenario =="Q1")
-#Fred_Q2<-subset(Fred_PC, Scenario =="Q2")
-#Fred_Q3<-subset(Fred_PC, Scenario =="Q3")
-#Fred_Q4<-subset(Fred_PC, Scenario =="Q4")
-#Fred_RT<-subset(Fred_PC, Scenario =="RT")
-
-#Fred_Table<-cbind(Fred_RT[,5],Fred_Q1[,5],Fred_Q2[,5],Fred_Q3[,5],Fred_Q4[,5])
-#Fred_Table<-as.data.frame(Fred_Table)
-#colnames(Fred_Table)<-c("RT", "Q1", "Q2", "Q3", "Q4")
-#rownames(Fred_Table)<-c("Development", "Forest", "Grass", "Crop")
-
-#Fred_Table_plot<-ggtexttable(Fred_Table, theme=ttheme("mBlackWhite", base_size=15))
-
-#windows()
-#FrederickGraph<-ggarrange(development, forest, grass, crop, labels=c("Development", "Forest", "Grass", "Crop"), common.legend= TRUE, legend="left")
-
-#windows()
-#ggarrange(FrederickGraph, Fred_Table_plot, ncol=2, nrow=1, widths =c(1,.35))
-
-
 #Fauquier County 
-#Fauq_PC<-subset(PercentChangeMelt, variable=="GEOID_51061")
-#Fauq_Q1<-subset(Fauq_PC, Scenario =="Q1")
-#Fauq_Q2<-subset(Fauq_PC, Scenario =="Q2")
-#Fauq_Q3<-subset(Fauq_PC, Scenario =="Q3")
-#Fauq_Q4<-subset(Fauq_PC, Scenario =="Q4")
-#Fauq_RT<-subset(Fauq_PC, Scenario =="RT")
+Fauq_PC<-Fauquier_PC
+Fauq_Q1<-subset(Fauq_PC, Scenario =="Q1")
+Fauq_Q2<-subset(Fauq_PC, Scenario =="Q2")
+Fauq_Q3<-subset(Fauq_PC, Scenario =="Q3")
+Fauq_Q4<-subset(Fauq_PC, Scenario =="Q4")
+Fauq_RT<-subset(Fauq_PC, Scenario =="RT")
 
-#Fauq_Table<-cbind(Fauq_RT[,5],Fauq_Q1[,5],Fauq_Q2[,5],Fauq_Q3[,5],Fauq_Q4[,5])
-#Fauq_Table<-as.data.frame(Fauq_Table)
-#colnames(Fauq_Table)<-c("RT", "Q1", "Q2", "Q3", "Q4")
-#rownames(Fauq_Table)<-c("Development", "Forest", "Grass", "Crop")
+Fauq_Table<-cbind(Fauq_RT[,6],Fauq_Q1[,6],Fauq_Q2[,6],Fauq_Q3[,6],Fauq_Q4[,6])
+Fauq_Table<-as.data.frame(Fauq_Table)
+colnames(Fauq_Table)<-c("BAU", "HS", "HR", "LR", "LS")
+rownames(Fauq_Table)<-c("Development", "Forest", "Grass", "Crop")
 
-#Fauq_Table_plot<-ggtexttable(Fauq_Table, theme=ttheme("mBlackWhite", base_size=15))
+Fauq_Table_plot<-ggtexttable(Fauq_Table, theme=ttheme("mBlackWhite", base_size=15))
 
-#windows()
-#FauqerickGraph<-ggarrange(development, forest, grass, crop, labels=c("Development", "Forest", "Grass", "Crop"), common.legend= TRUE, legend="left")
+Fauq_Table_plot
 
-#windows()
-#ggarrange(FauqerickGraph, Fauq_Table_plot, ncol=2, nrow=1, widths =c(1,.35))
+ggarrange(Fauq, Fauq_Table_plot, ncol=2, nrow=1, widths =c(1,.35))
 
 # ----------------------------------------------
 # GRAPH PERCENT CHANGE 
-#windows()
-#ggplot(DevelopmentPC, aes(x=Scenario, y=PercentChange, fill=Scenario))+
-#  geom_bar(stat="identity", position = 'dodge')+
-# scale_fill_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
-# scale_y_continuous(name="Percent Change", limits=c(-100,120), labels=c("-100%","-50%", "-0%","50%", "100%", "120%"))+
-# theme_bw()+
-# theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
-# theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
-# theme(axis.text.y =element_text(size=40),
-#    axis.text.x =element_blank(),
-#      axis.title.x=element_blank(), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
-# theme(plot.margin=unit(c(1,1,1,1), "in"))+
-# theme(panel.border=element_blank())+
-#geom_hline(yintercept=0, size=1.5)+
-# geom_text(aes(label=paste0(PercentChange,"%")), vjust=1.6, size=10, colour="white")+
-#theme(axis.line.y =element_line(size=1.5))
+# for entire study region. All scenarios but one type of land cover 
 
+v2016_development<-ggplot(Development_PC, aes(x=Scenario, y=PercentChange, fill=Scenario))+
+ geom_bar(stat="identity", position = 'dodge')+
+ scale_fill_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
+ scale_y_continuous(name="Percent Change", limits=c(-100,120), labels=c("-100%","-50%", "-0%","50%", "100%", "120%"))+
+ theme_bw()+
+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+ theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
+ theme(axis.text.y =element_text(size=40),
+    axis.text.x =element_blank(),
+      axis.title.x=element_blank(), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
+ theme(plot.margin=unit(c(1,1,1,1), "in"))+
+ theme(panel.border=element_blank())+
+  geom_hline(yintercept=0, size=1.5)+
+  geom_text(aes(label=paste0(PercentChange,"%")), vjust=1.6, size=10, colour="white")+
+  theme(axis.line.y =element_line(size=1.5))
 
-
-# ----------------------------------------------
-# CODE TO EXPORT
-# ----------------------------------------------
 setwd("X:/Scenario Planning/Graphics/Map Images/4_17")
-png("v2015_Fauq_development.png", width=480, height=480, units="px", res=300) #can't put units and resolution
-v2015_Fauq_development
+png("v2016_development.png", width=480, height=480, units="px", res=300) #can't put units and resolution
+v2016_development
 dev.off()
+ggsave(file="v2016_development.png", dpi=300,width=15, height=15)
 
 
-ggsave(file="v2015_Fauq_development.png", dpi=300,width=15, height=15)
-
-
-
-#Graphs for entire study region. All scenarios but one type of land cover 
 
 
 
@@ -1000,25 +864,26 @@ ggplot(Crop, aes(x=TimeStep, y=valuekm, colour=GEOID, group=GEOID))+
   facet_grid(.~Scenario)
 
 #County no City 
-CombinedMeltC<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/Tables/County/CombinedMeltC_SA_NoCity.csv")
+#CombinedMeltC<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/Tables/County/CombinedMeltC_SA_NoCity.csv")
+    #^FILE DOES NOT EXIST FOR NoPL
 
-Dev<-CombinedMeltC %>%
-  filter(LABEL ==3)
-For<-CombinedMeltC %>%
-  filter(LABEL ==5)
-Gras<-CombinedMeltC %>%
-  filter(LABEL == 6) 
-Crop<-CombinedMeltC %>%
-  filter(LABEL == 7)
+#Dev<-CombinedMeltC %>%
+#  filter(LABEL ==3)
+#For<-CombinedMeltC %>%
+#  filter(LABEL ==5)
+#Gras<-CombinedMeltC %>%
+#  filter(LABEL == 6) 
+#Crop<-CombinedMeltC %>%
+#  filter(LABEL == 7)
 
-windows()
-ggplot(Crop, aes(x=TimeStep, y=valuekm, colour=variable, group=variable))+
-  geom_line(size=2)+
-  facet_grid(.~Scenario)
+#windows()
+#ggplot(Crop, aes(x=TimeStep, y=valuekm, colour=variable, group=variable))+
+#  geom_line(size=2)+
+#  facet_grid(.~Scenario)
 #-------------------------------------------------------#
 #Region Exploratory
 
-Region<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/Tables/Region/CombinedMeltR_SA.csv")
+Region<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/NoPL/Tables/v2016_RegionSA/All/V21016_ZonalHistogram_AllScenarios_RGN_SA.csv")
 
 Region_dev<-Region %>%
   filter(LABEL==3)
@@ -1038,7 +903,7 @@ ggplot(Region_crop, aes(x=TimeStep, y=valuekm, colour=factor(Region), group=fact
 
 #based on regions exploratory county
 
-County<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/Tables/County/CombinedMeltC_SA.csv")
+County<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/NoPL/Tables/v2016_CountySA/All/v2016_ZonalHistogram_AllScenarios_CNTY_SA.csv")
 
 Counties<-County %>%
   filter(Region == 5 | Region == 2)
