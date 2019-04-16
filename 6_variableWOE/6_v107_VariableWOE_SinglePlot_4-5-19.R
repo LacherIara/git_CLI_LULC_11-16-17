@@ -50,9 +50,8 @@ names(WOEplot) = substr(names(WOEplot), 2, length(names(WOEplot)))
 z=boxplot(WOEplot[,-(1:8)])
 
 pdf(paste0("v201_t",Plot_Transition, "_",Variable,"_WOE.pdf"), paper="letter")
-bxp(z, main = paste0(Title, ":"), xlab = "Bin", ylab = "Weight of Evidence", whisklty=1, medlwd=2.25)
+bxp(z, main = paste( "Transition:", Title), xlab = "Bin", ylab = "Weight of Evidence", whisklty=1, medlwd=2.25)
   abline(0,0, lty=2)
-  mtext(Variable, side=3, line=0.3, cex = 1.1)
+  mtext(paste("Variable:", Variable), side=3, line=0.3, cex = 1.1)
   
 dev.off()
-
