@@ -12,9 +12,9 @@
 #PURPOSE: clean figures for LULC paper
 
 #NOTES: There are multiple options here for organizing data and generating graphs, depending on what you want to display. 
-# Section 1 (lines 91-262, Sarah/Erin): calculates percent change over counties, regions, and study area.
-# Section 2 (lines 266-637 Erin, lines 639-789 Sarah): generates possible graphs, including those used in the LULC paper. IMPORTANT: Sections 2.1 and 2.2 run independently. Part of section 2.3 requires you to run Section 1.
-# Section 3 (lines 794-1060, Sarah) exploratory analysis - creates additional graphs for visualizing differences in net change between scenarios
+# Section 1 : calculates percent change over counties, regions, and study area.
+# Section 2 : generates possible graphs, including those used in the LULC paper (2.1, 2.2 and 2.3 can run independently. 2.4 requires you to run section 1)
+# Section 3 : exploratory analysis - creates additional graphs for visualizing differences in net change between scenarios (Sarah)
 
 #IMPORTANT: 
 # Make sure the correct version folder is pulled in! Do a search for phrases associated with "version" (capitalized or not)
@@ -172,9 +172,10 @@ CombinedSA_PC$TimeStep<- "2 to 7"
 # ----------------------------------------------
 # ----------------------------------------------
 # SECTION 2 - GRAPHS
-# 2.1 Line Graphs (total area of each scenario by land use class, over time) -- Erin
-# 2.2 Bar Graphs (net change 2011-2061, sq. km) -- Erin
-# 2.3 Individual Counties  -- Sarah
+# 2.1 Line Graphs (total area of each scenario by land use class, over time)
+# 2.2 Bar Graphs (net change 2011-2061, sq. km)
+# 2.3 Individual Counties (total area of each scenario by land use class, over time)
+# 2.4 Percent Change
 # ----------------------------------------------
 # ----------------------------------------------
 
@@ -209,10 +210,10 @@ my_breaks <- function(x) {
 ##### INDIVIDUAL LAND USE CLASS BY SCENARIO, OVER ENTIRE STUDY AREA (ex: grass)
 
 # subset by land use class
-DevelopmentPC <- subset(CombinedSA_LC, CombinedSA_LC$LABEL == "3")
-ForestPC <- subset(CombinedSA_LC, CombinedSA_LC$LABEL == "5")
-GrassPC <- subset(CombinedSA_LC, CombinedSA_LC$LABEL == "6")
-CropPC <- subset(CombinedSA_LC, CombinedSA_LC$LABEL == "7")
+Development <- subset(CombinedSA_LC, CombinedSA_LC$LABEL == "3")
+Forest <- subset(CombinedSA_LC, CombinedSA_LC$LABEL == "5")
+Grass <- subset(CombinedSA_LC, CombinedSA_LC$LABEL == "6")
+Crop <- subset(CombinedSA_LC, CombinedSA_LC$LABEL == "7")
 
 # set y-axis limits
 ## NOTE: edit LABEL and value to correspond to land use class and max/min
@@ -220,7 +221,7 @@ blank_data_indv = data.frame(TimeStep=(NA), LABEL=rep(6, each=2),
                              valuekm=c(5200,5400))
 
 # generate graph
-Individual_LUType <- ggplot(GrassPC)+
+Individual_LUType <- ggplot(Grass)+
   geom_line(aes(x=TimeStep, y=valuekm, group=Scenario, colour=Scenario, linetype=Scenario), size=0.5)+
   geom_point(aes(x=TimeStep, y=valuekm, group=Scenario, colour=Scenario, shape=Scenario), size=2)+
   scale_shape_manual(values=c(18,15,17,8,19))+
@@ -254,11 +255,9 @@ Individual_LUType = annotate_figure(Individual_LUType,
 
 # Print graph to file
 setwd("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/OutputVisuals/ZonalHistogram_ggplots/NoPL/v2016_StudyArea")
-png("v2016_SA_Individual_LUType.png", width=7.5, height=5.5, units="in", res=300) #can't put units and resolution
 Individual_LUType
-dev.off()
 ggsave(file="v2016_SA_Individual_LUType.png", dpi=300, width=7.5, height=5.5)
-
+dev.off()
 
 
 ##### ALL FOUR LAND USE TYPES TOGETHER, GROUPED BY FACET_WRAP:
@@ -311,11 +310,9 @@ All_LUType = annotate_figure(All_LUType,
 
 # Print graph to file
 setwd("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/OutputVisuals/ZonalHistogram_ggplots/NoPL/v2016_StudyArea")
-png("v2016_SA_All_LUType.png", width=7.5, height=5.5, units="in", res=300) #can't put units and resolution
 All_LUType
-dev.off()
 ggsave(file="v2016_SA_All_LUType.png", dpi=300, width=7.5, height=5.5)
-
+dev.off()
 
 # ---------------------------------------------------------
 # ---------------------------------------------------------
@@ -461,7 +458,6 @@ County_SA = ggplot(countySA.netchange)+
         strip.text = element_text(face="bold", size=12, hjust=0, vjust=1))
 
 setwd("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/OutputVisuals/ZonalHistogram_ggplots/NoPL/v2016_County")
-png("v2016_County_SA.png", width=7.5, height=5.5, units="in", res=300)
 County_SA
 ggsave(file="v2016_County_SA.png", dpi=300, width=7.5, height=5.5)
 dev.off()
@@ -537,23 +533,50 @@ Region_SA = ggplot(regionSA.netchange)+
         strip.text = element_text(face="bold", size=12, hjust=0, vjust=1))
 
 setwd("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/OutputVisuals/ZonalHistogram_ggplots/NoPL/v2016_Region/")
-png("v2016_Region_SA.png", width=7.5, height=5.5, units="in", res=300)
 Region_SA
 ggsave(file="v2016_Region_SA.png", dpi=300, width=7.5, height=5.5)
 dev.off()
 
-# ---------------------------------------------------------
-## 2.3 INDIVIDUAL COUNTIES
-# ---------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
+## 2.3 LINE GRAPHS, INDIVIDUAL COUNTIES - TOTAL AREA OF EACH SCENARIO BY LAND USE CLASS, OVER TIME
+# -------------------------------------------------------------------------------------------------
 
 countySA.data = read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/NoPL/Tables/v2016_CountySA/All/v2016_ZonalHistogram_AllScenarios_CNTY_SA.csv")
+cntySa.GEOID = read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/CountyNmsGEOID_cnty.csv")
 
-#FAUQUIER
-Fauquier <- countySA.data[countySA.data$variable=="GEOID_51061",]
+countynames = data.frame("GEOID" = unique(countySA.data$variable))
+countynames$GEOID = substr(countynames$GEOID, 7, 11)
+countynames = merge(countynames, cntySa.GEOID, by="GEOID")
+
+#Select County
+        #GEOID               Name.y
+        #1  51003     Albemarle County
+        #2  51015       Augusta County
+        #3  51043        Clarke County
+        #4  51047      Culpeper County
+        #5  51061      Fauquier County
+        #6  51069     Frederick County
+        #7  51079        Greene County
+        #8  51107       Loudoun County
+        #9  51113       Madison County
+        #10 51137        Orange County
+        #11 51139          Page County
+        #12 51157  Rappahannock County
+        #13 51165    Rockingham County
+        #14 51171    Shenandoah County
+        #15 51187        Warren County
+        #16 51540 Charlottesville city
+        #17 51660    Harrisonburg city
+        #18 51790        Staunton city
+        #19 51820      Waynesboro city
+        #20 51840      Winchester city
+
+cnty = "Loudoun County" #insert county name here
+IndvCnty <- countySA.data[countySA.data$variable==paste0("GEOID_", countynames$GEOID[countynames$Name==cnty]),]
 
 # New scenario names
-levels(Fauquier$Scenario)
-levels(Fauquier$Scenario) = c("HS", "HR", "LR", "LS", "BAU")
+levels(IndvCnty$Scenario)
+levels(IndvCnty$Scenario) = c("HS", "HR", "LR", "LS", "BAU")
 
 # set facet_wrap labels
 LULCclasses <- c(
@@ -562,7 +585,7 @@ LULCclasses <- c(
   '6'="Grass",
   '7'="Crop")
 
-Fauq <- ggplot(Fauquier)+
+Indv_County <- ggplot(IndvCnty)+
   facet_wrap(~LABEL, scales = "free", nrow=2, ncol=2, labeller=labeller(LABEL = LULCclasses))+
   geom_line(aes(x=TimeStep, y=valuekm, group=Scenario, colour=Scenario, linetype=Scenario), size=0.5)+
   geom_point(aes(x=TimeStep, y=valuekm, group=Scenario, colour=Scenario, shape=Scenario), size=1)+
@@ -588,22 +611,24 @@ Fauq <- ggplot(Fauquier)+
         strip.background = element_blank(),
         strip.text = element_text(face="bold", size = 12, hjust = 0, vjust = 3))
 
-Fauq = annotate_figure(Fauq,
+Indv_County = annotate_figure(Indv_County,
                        fig.lab = "*2011 observed, 2021-2061 projected",
                        fig.lab.pos = "bottom.left",
                        fig.lab.size=8)
 
-setwd("U:/CLI/Presentations/ESA-08-XX-2018")
-png("v2016_Fauq.png", width=7.5, height=5.5, units="in", res=300) #can't put units and resolution
-Fauq
+setwd("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/OutputVisuals/ZonalHistogram_ggplots/NoPL/v2016_IndvCoutny")
+Indv_County
+ggsave(file=paste0("v2016_", cnty, ".png"), dpi=300,width=7.5, height=5.5)
 dev.off()
-ggsave(file="v2016_Fauq.png", dpi=300,width=7.5, height=5.5)
 
+# -------------------------------------------------------------------------------------------------
+## 2.4 PERCENT CHANGE
+# -------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------#
-#Table to show percent change
+#Table to show percent change for a single county
 
-#Fauquier County 
+#Fauquier County
 Fauq_PC<-Fauquier_PC
 Fauq_Q1<-subset(Fauq_PC, Scenario =="Q1")
 Fauq_Q2<-subset(Fauq_PC, Scenario =="Q2")
@@ -620,36 +645,31 @@ Fauq_Table_plot<-ggtexttable(Fauq_Table, theme=ttheme("mBlackWhite", base_size=1
 
 Fauq_Table_plot
 
-ggarrange(Fauq, Fauq_Table_plot, ncol=2, nrow=1, widths =c(1,.35))
+#ggarrange(Indv_County, Fauq_Table_plot, ncol=2, nrow=1, widths =c(1,.35))
 
 # ----------------------------------------------
 # GRAPH PERCENT CHANGE 
-# for entire study region. All scenarios but one type of land cover 
+# Study Area, all scenarios, one type of land cover 
 
-v2016_development<-ggplot(Development_PC, aes(x=Scenario, y=PercentChange, fill=Scenario))+
+v2016_development <- ggplot(Development_PC, aes(x=Scenario, y=PercentChange, fill=Scenario))+
  geom_bar(stat="identity", position = 'dodge')+
  scale_fill_manual(values=c("#FF0404", "#FF9933","#106A0F", "#0070C1","#330066"))+
  scale_y_continuous(name="Percent Change", limits=c(-100,120), labels=c("-100%","-50%", "-0%","50%", "100%", "120%"))+
  theme_bw()+
  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
  theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))+
- theme(axis.text.y =element_text(size=40),
+ theme(axis.text.y =element_text(size=25),
     axis.text.x =element_blank(),
-      axis.title.x=element_blank(), axis.title.y =element_text(size=40,face="bold"), legend.text=element_text(size=40), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
+      axis.title.x=element_blank(), axis.title.y =element_text(size=30,face="bold"), legend.text=element_text(size=30), legend.title=element_blank(), legend.key.height= unit(1,"in"))+
  theme(plot.margin=unit(c(1,1,1,1), "in"))+
  theme(panel.border=element_blank())+
   geom_hline(yintercept=0, size=1.5)+
-  geom_text(aes(label=paste0(PercentChange,"%")), vjust=1.6, size=10, colour="white")+
   theme(axis.line.y =element_line(size=1.5))
 
 setwd("X:/Scenario Planning/Graphics/Map Images/4_17")
-png("v2016_development.png", width=480, height=480, units="px", res=300) #can't put units and resolution
 v2016_development
 dev.off()
 ggsave(file="v2016_development.png", dpi=300,width=15, height=15)
-
-
-
 
 
 
