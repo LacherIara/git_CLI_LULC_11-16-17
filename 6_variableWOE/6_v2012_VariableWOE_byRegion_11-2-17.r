@@ -19,7 +19,7 @@
 ############################
 
 # SET WORKING DIRECTORY *Must set to write pdf in file
-setwd("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2012/BasicDataAnalyses") #V SCBI
+setwd("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses") #V SCBI
 # ----------------------------------------------
 ################################################
 
@@ -61,7 +61,7 @@ colnames(sa_ctyGEOID)<-c("Din_cty", "GEOID")
 # ----------------------------------------------
 
 # Read all WOE files in (these are the final recalculated, significant ones, with alterations made to WOE)
-sav201WOE_LOC<-"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2012/Parameters/WOE_recalc/LPA/" 
+sav201WOE_LOC<-"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/Parameters/WOE_recalc/LPA/" 
 
 sav201WOE_files <- list.files(sav201WOE_LOC,pattern = ".*v201.*\\csv$")
 
@@ -85,13 +85,13 @@ sav201allWOE_sabuff<-do.call(rbind,sav201WOE)
 
 colnames(sav201allWOE_sabuff) <- c("From", "To", "Variable", "Lower", "Upper", "Weight", "Din_cty")
 
-write.csv(sav201allWOE_sabuff,"V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2012/BasicDataAnalyses/sav201allWOE_sabuff.csv", row.names=FALSE)
+write.csv(sav201allWOE_sabuff,"U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/WOE_Results/sav201allWOE_sabuff.csv", row.names=FALSE)
 
 
 # READ FROM FILE #
 
 #COMPILED WOE TABLES:
-v201WOE <- read.csv("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2012/BasicDataAnalyses/sav201allWOE_sabuff.csv")
+v201WOE <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/WOE_Results/sav201allWOE_sabuff.csv")
 # Create ID for each row 
 v201WOE$ID <- as.character(1:nrow(v201WOE))
 
@@ -148,8 +148,8 @@ v201inc <- c(100,100,1,10000,100,5,500,1,2,1,5,1)
 # ----------------------------------------------
 Transitions <- c(53,63,73,65,75,56,76,57,67)
 
-fr <- substr(ft, 1,1)
-to <- substr(ft, 2,2)
+#fr <- substr(ft, 1,1) looks like this was just a test or a scrap, same commands are used in the 3rd line of the for loop below but actually have an "ft" to work with
+#to <- substr(ft, 2,2)
 
 
 t_ft <- list()
@@ -314,7 +314,7 @@ names(sav201bins_tft) <- uvar_ft
 
 
 
-Output_Files_ft <- paste0("V:/IaraSpatialLayers/Dinamica_Runs/StudyArea_V201/SA_V2012/BasicDataAnalyses/sav2012allWOE_saBINS/", "WOEv2012_",names(cty_n[Reg_tr]), "_", names(sav201bins_tft), ".csv", sep="")
+Output_Files_ft <- paste0("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/WOE_Results/sav2016allWOE_saBINS/", "WOEv2012_",names(cty_n[Reg_tr]), "_", names(sav201bins_tft), ".csv", sep="")
 
 for(f in 1:length(sav201bins_tft)){
 write.csv(sav201bins_tft[[f]], Output_Files_ft[[f]], row.names=FALSE)
