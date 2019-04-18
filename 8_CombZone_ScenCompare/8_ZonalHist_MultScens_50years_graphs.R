@@ -133,7 +133,7 @@ AlbemarleC<-subset(Crop_PC, Crop_PC$variable == "GEOID_51003")
 CombinedRegionSA_LC<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/NoPL/Tables/v2016_RegionSA/All/V21016_ZonalHistogram_AllScenarios_RGN_SA.csv")
 
 # if want to include regions in the buffer area, use instead:
-# CombinedRegion_LC<-read.csv("/Users/erincarroll/Desktop/scbi/NoPL/Tables/v2016_Region/All/v2016_ZonalHistogram_AllScenarios_RGN.csv")
+# CombinedRegion_LC<-read.csv("U:\CLI\Dinamica_Runs\StudyArea_V201\SA_V2016\BasicDataAnalyses\Zonal_Histogram\NoPL\Tables\v2016_Region\All\v2016_ZonalHistogram_AllScenarios_RGN.csv")
 # also change below accordingly (CombinedRegionSA_LC to CombinedRegion_LC)
 
 # Change 2011 (T2) to 2061 (T7)
@@ -155,7 +155,7 @@ CombinedRegionSA_PC$TimeStep<- "2 to 7"
 CombinedSA_LC<-read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/BasicDataAnalyses/Zonal_Histogram/NoPL/Tables/v2016_StudyArea/All/v2016_ZonalHistogram_AllScenarios_SA.csv")
 
 # if want to do whole buffer area, use instead:
-# CombinedBuffer_LC<-read.csv("/Users/erincarroll/Desktop/scbi/NoPL/Tables/v2016_Buffer/All/v2016_ZonalHistogram_AllScenarios_Buffer.csv")
+# CombinedBuffer_LC<-read.csv("U:\CLI\Dinamica_Runs\StudyArea_V201\SA_V2016\BasicDataAnalyses\Zonal_Histogram\NoPL\Tables\v2016_Buffer\All\v2016_ZonalHistogram_AllScenarios_SA_Buffer.csv")
 # also change below accordingly (CombinedSA_LC to CombinedBuffer_LC)
 
 # Change 2011 (T2) to 2061 (T7)
