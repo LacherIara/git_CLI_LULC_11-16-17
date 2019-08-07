@@ -1,10 +1,10 @@
 
-setwd("I:/EI_data/plots2016")
+setwd("I:/EI_data/plots2016/7-26-19")
 
 mammal.data <- read.csv("U:/CLI/Field Surveys/eMammal/CLI_Mammals_Environmental_7-1-19.csv")
 
-names(mammal.data)[33] <- "Abundance.adj"
-names(mammal.data)[34] <- "SpRichness.adj"
+names(mammal.data)[32] <- "Abundance.adj"
+names(mammal.data)[33] <- "SpRichness.adj"
 
 library(ggplot2)
 library(MuMIn)
@@ -36,7 +36,7 @@ dd.cro <- dredge(cro.models)
 # MAMMALS : ABUNDANCE, DEVELOPMENT
 ###################################################################################################
 
-mammal.data$Abundance.adj.2 <- round(mammal.data$Abundance.adj*1000, digits=0)
+mammal.data$Abundance.adj.2 <- round(mammal.data$Abundance.adj*10, digits=0)
 
 fit250 <- glm(Abundance.adj.2 ~ dev_pct250, data=mammal.data, family = "poisson")
 fit500 <- glm(Abundance.adj.2 ~ dev_pct500, data=mammal.data, family = "poisson")
@@ -68,40 +68,40 @@ mylabel=paste0("250m: p=", metrics[1], ", AIC =", metrics[2], "\n",
 mammals.dev = ggplot() +
   geom_point(data=mammal.data, aes(y=Abundance.adj.2, x=dev_pct250, color="250m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=Abundance.adj.2, x=dev_pct250, color="250m")) +
   geom_point(data=mammal.data, aes(y=Abundance.adj.2, x=dev_pct500, color="500m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=Abundance.adj.2, x=dev_pct500, color="500m")) +
   geom_point(data=mammal.data, aes(y=Abundance.adj.2, x=dev_pct1k, color="1000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=Abundance.adj.2, x=dev_pct1k, color="1000m")) +
   geom_point(data=mammal.data, aes(y=Abundance.adj.2, x=dev_pct5k, color="5000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=Abundance.adj.2, x=dev_pct5k, color="5000m")) +
   xlab("Percent Development") +
   ggtitle("Mammals: Abundance.adj.2, Dev") +
   xlim(0,1.0) +
-  ylim(0, 12500) +
-  scale_color_manual(name="Radius", labels=c("250m", "500m", "1000m", "5000m"), values=c("red", "orange", "darkgreen", "blue")) +
+  ylim(0, 125) +
+  scale_color_manual(name="Radius", values=c("250m"="red", "500m"="orange", "1000m"="darkgreen", "5000m"="blue"), breaks=c("250m", "500m", "1000m", "5000m")) +
   theme(legend.position = c(1,0),
         legend.justification = c(1,0)) +
-  annotate(geom="text", x=0.8, y=11000, label=mylabel)
+  annotate(geom="text", x=0.8, y=110, label=mylabel)
 mammals.dev
 
 ggsave(mammals.dev, file="mammals.dev.Abundance.adj.2.png")
@@ -140,40 +140,40 @@ mylabel=paste0("250m: p=", metrics[1], ", AIC =", metrics[2], "\n",
 mammals.for = ggplot() +
   geom_point(data=mammal.data, aes(y=Abundance.adj.2, x=for_pct250, color="250m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=Abundance.adj.2, x=for_pct250, color="250m")) +
   geom_point(data=mammal.data, aes(y=Abundance.adj.2, x=for_pct500, color="500m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=Abundance.adj.2, x=for_pct500, color="500m")) +
   geom_point(data=mammal.data, aes(y=Abundance.adj.2, x=for_pct1k, color="1000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=Abundance.adj.2, x=for_pct1k, color="1000m")) +
   geom_point(data=mammal.data, aes(y=Abundance.adj.2, x=for_pct5k, color="5000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=Abundance.adj.2, x=for_pct5k, color="5000m")) +
   xlab("Percent Forest") +
   ggtitle("Mammals: Abundance.adj.2, for") +
   xlim(0,1.0) +
-  ylim(0, 12500) +
-  scale_color_manual(name="Radius", labels=c("250m", "500m", "1000m", "5000m"), values=c("red", "orange", "darkgreen", "blue")) +
+  ylim(0, 125) +
+  scale_color_manual(name="Radius", values=c("250m"="red", "500m"="orange", "1000m"="darkgreen", "5000m"="blue"), breaks=c("250m", "500m", "1000m", "5000m")) +
   theme(legend.position = c(1,0),
         legend.justification = c(1,0)) +
-  annotate(geom="text", x=0.8, y=11000, label=mylabel)
+  annotate(geom="text", x=0.8, y=110, label=mylabel)
 mammals.for
 
 ggsave(mammals.for, file="mammals.for.Abundance.adj.2.png")
@@ -212,40 +212,40 @@ mylabel=paste0("250m: p=", metrics[1], ", AIC =", metrics[2], "\n",
 mammals.gra = ggplot() +
   geom_point(data=mammal.data, aes(y=Abundance.adj.2, x=gra_pct250, color="250m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=Abundance.adj.2, x=gra_pct250, color="250m")) +
   geom_point(data=mammal.data, aes(y=Abundance.adj.2, x=gra_pct500, color="500m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=Abundance.adj.2, x=gra_pct500, color="500m")) +
   geom_point(data=mammal.data, aes(y=Abundance.adj.2, x=gra_pct1k, color="1000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=Abundance.adj.2, x=gra_pct1k, color="1000m")) +
   geom_point(data=mammal.data, aes(y=Abundance.adj.2, x=gra_pct5k, color="5000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=Abundance.adj.2, x=gra_pct5k, color="5000m")) +
   xlab("Percent Grass") +
   ggtitle("Mammals: Abundance.adj.2, gra") +
   xlim(0,1.0) +
-  ylim(0, 12500) +
-  scale_color_manual(name="Radius", labels=c("250m", "500m", "1000m", "5000m"), values=c("red", "orange", "darkgreen", "blue")) +
+  ylim(0, 125) +
+  scale_color_manual(name="Radius", values=c("250m"="red", "500m"="orange", "1000m"="darkgreen", "5000m"="blue"), breaks=c("250m", "500m", "1000m", "5000m")) +
   theme(legend.position = c(1,0),
         legend.justification = c(1,0)) +
-  annotate(geom="text", x=0.8, y=11000, label=mylabel)
+  annotate(geom="text", x=0.8, y=110, label=mylabel)
 mammals.gra
 
 ggsave(mammals.gra, file="mammals.gra.Abundance.adj.2.png")
@@ -284,40 +284,40 @@ mylabel=paste0("250m: p=", metrics[1], ", AIC =", metrics[2], "\n",
 mammals.cro = ggplot() +
   geom_point(data=mammal.data, aes(y=Abundance.adj.2, x=cro_pct250, color="250m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=Abundance.adj.2, x=cro_pct250, color="250m")) +
   geom_point(data=mammal.data, aes(y=Abundance.adj.2, x=cro_pct500, color="500m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=Abundance.adj.2, x=cro_pct500, color="500m")) +
   geom_point(data=mammal.data, aes(y=Abundance.adj.2, x=cro_pct1k, color="1000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=Abundance.adj.2, x=cro_pct1k, color="1000m")) +
   geom_point(data=mammal.data, aes(y=Abundance.adj.2, x=cro_pct5k, color="5000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=Abundance.adj.2, x=cro_pct5k, color="5000m")) +
   xlab("Percent Crop") +
   ggtitle("Mammals: Abundance.adj.2, cro") +
   xlim(0,1.0) +
-  ylim(0, 12500) +
-  scale_color_manual(name="Radius", labels=c("250m", "500m", "1000m", "5000m"), values=c("red", "orange", "darkgreen", "blue")) +
+  ylim(0, 125) +
+  scale_color_manual(name="Radius", values=c("250m"="red", "500m"="orange", "1000m"="darkgreen", "5000m"="blue"), breaks=c("250m", "500m", "1000m", "5000m")) +
   theme(legend.position = c(1,0),
         legend.justification = c(1,0)) +
-  annotate(geom="text", x=0.8, y=11000, label=mylabel)
+  annotate(geom="text", x=0.8, y=110, label=mylabel)
 mammals.cro
 
 ggsave(mammals.cro, file="mammals.cro.Abundance.adj.2.png")
@@ -326,7 +326,7 @@ ggsave(mammals.cro, file="mammals.cro.Abundance.adj.2.png")
 # MAMMALS : SpRichness, DEVELOPMENT
 ###################################################################################################
 
-mammal.data$SpRichness.adj.2 <- round(mammal.data$SpRichness.adj*1000, digits=0)
+mammal.data$SpRichness.adj.2 <- round(mammal.data$SpRichness.adj*10, digits=0)
 
 fit250 <- glm(SpRichness.adj.2 ~ dev_pct250, data=mammal.data, family = "poisson")
 fit500 <- glm(SpRichness.adj.2 ~ dev_pct500, data=mammal.data, family = "poisson")
@@ -358,40 +358,40 @@ mylabel=paste0("250m: p=", metrics[1], ", AIC =", metrics[2], "\n",
 mammals.dev = ggplot() +
   geom_point(data=mammal.data, aes(y=SpRichness.adj.2, x=dev_pct250, color="250m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=SpRichness.adj.2, x=dev_pct250, color="250m")) +
   geom_point(data=mammal.data, aes(y=SpRichness.adj.2, x=dev_pct500, color="500m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=SpRichness.adj.2, x=dev_pct500, color="500m")) +
   geom_point(data=mammal.data, aes(y=SpRichness.adj.2, x=dev_pct1k, color="1000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=SpRichness.adj.2, x=dev_pct1k, color="1000m")) +
   geom_point(data=mammal.data, aes(y=SpRichness.adj.2, x=dev_pct5k, color="5000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=SpRichness.adj.2, x=dev_pct5k, color="5000m")) +
   xlab("Percent Development") +
   ggtitle("Mammals: SpRichness.adj.2, Dev") +
   xlim(0,1.0) +
-  ylim(0, 825) +
-  scale_color_manual(name="Radius", labels=c("250m", "500m", "1000m", "5000m"), values=c("red", "orange", "darkgreen", "blue")) +
+  ylim(0, 8) +
+  scale_color_manual(name="Radius", values=c("250m"="red", "500m"="orange", "1000m"="darkgreen", "5000m"="blue"), breaks=c("250m", "500m", "1000m", "5000m")) +
   theme(legend.position = c(1,0),
         legend.justification = c(1,0)) +
-  annotate(geom="text", x=0.8, y=750, label=mylabel)
+  annotate(geom="text", x=0.8, y=6, label=mylabel)
 mammals.dev
 
 ggsave(mammals.dev, file="mammals.dev.SpRichness.adj.2.png")
@@ -430,40 +430,40 @@ mylabel=paste0("250m: p=", metrics[1], ", AIC =", metrics[2], "\n",
 mammals.for = ggplot() +
   geom_point(data=mammal.data, aes(y=SpRichness.adj.2, x=for_pct250, color="250m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=SpRichness.adj.2, x=for_pct250, color="250m")) +
   geom_point(data=mammal.data, aes(y=SpRichness.adj.2, x=for_pct500, color="500m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=SpRichness.adj.2, x=for_pct500, color="500m")) +
   geom_point(data=mammal.data, aes(y=SpRichness.adj.2, x=for_pct1k, color="1000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=SpRichness.adj.2, x=for_pct1k, color="1000m")) +
   geom_point(data=mammal.data, aes(y=SpRichness.adj.2, x=for_pct5k, color="5000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=SpRichness.adj.2, x=for_pct5k, color="5000m")) +
   xlab("Percent Forest") +
   ggtitle("Mammals: SpRichness.adj.2, for") +
   xlim(0,1.0) +
-  ylim(0, 825) +
-  scale_color_manual(name="Radius", labels=c("250m", "500m", "1000m", "5000m"), values=c("red", "orange", "darkgreen", "blue")) +
+  ylim(0, 8) +
+  scale_color_manual(name="Radius", values=c("250m"="red", "500m"="orange", "1000m"="darkgreen", "5000m"="blue"), breaks=c("250m", "500m", "1000m", "5000m")) +
   theme(legend.position = c(1,0),
         legend.justification = c(1,0)) +
-  annotate(geom="text", x=0.8, y=750, label=mylabel)
+  annotate(geom="text", x=0.8, y=6, label=mylabel)
 mammals.for
 
 ggsave(mammals.for, file="mammals.for.SpRichness.adj.2.png")
@@ -502,40 +502,40 @@ mylabel=paste0("250m: p=", metrics[1], ", AIC =", metrics[2], "\n",
 mammals.gra = ggplot() +
   geom_point(data=mammal.data, aes(y=SpRichness.adj.2, x=gra_pct250, color="250m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=SpRichness.adj.2, x=gra_pct250, color="250m")) +
   geom_point(data=mammal.data, aes(y=SpRichness.adj.2, x=gra_pct500, color="500m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=SpRichness.adj.2, x=gra_pct500, color="500m")) +
   geom_point(data=mammal.data, aes(y=SpRichness.adj.2, x=gra_pct1k, color="1000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=SpRichness.adj.2, x=gra_pct1k, color="1000m")) +
   geom_point(data=mammal.data, aes(y=SpRichness.adj.2, x=gra_pct5k, color="5000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=SpRichness.adj.2, x=gra_pct5k, color="5000m")) +
   xlab("Percent Grass") +
   ggtitle("Mammals: SpRichness.adj.2, gra") +
   xlim(0,1.0) +
-  ylim(0, 825) +
-  scale_color_manual(name="Radius", labels=c("250m", "500m", "1000m", "5000m"), values=c("red", "orange", "darkgreen", "blue")) +
+  ylim(0, 8) +
+  scale_color_manual(name="Radius", values=c("250m"="red", "500m"="orange", "1000m"="darkgreen", "5000m"="blue"), breaks=c("250m", "500m", "1000m", "5000m")) +
   theme(legend.position = c(1,0),
         legend.justification = c(1,0)) +
-  annotate(geom="text", x=0.8, y=750, label=mylabel)
+  annotate(geom="text", x=0.8, y=6, label=mylabel)
 mammals.gra
 
 ggsave(mammals.gra, file="mammals.gra.SpRichness.adj.2.png")
@@ -574,40 +574,40 @@ mylabel=paste0("250m: p=", metrics[1], ", AIC =", metrics[2], "\n",
 mammals.cro = ggplot() +
   geom_point(data=mammal.data, aes(y=SpRichness.adj.2, x=cro_pct250, color="250m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=SpRichness.adj.2, x=cro_pct250, color="250m")) +
   geom_point(data=mammal.data, aes(y=SpRichness.adj.2, x=cro_pct500, color="500m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=SpRichness.adj.2, x=cro_pct500, color="500m")) +
   geom_point(data=mammal.data, aes(y=SpRichness.adj.2, x=cro_pct1k, color="1000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=SpRichness.adj.2, x=cro_pct1k, color="1000m")) +
   geom_point(data=mammal.data, aes(y=SpRichness.adj.2, x=cro_pct5k, color="5000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=mammal.data,
               aes(y=SpRichness.adj.2, x=cro_pct5k, color="5000m")) +
   xlab("Percent Crop") +
   ggtitle("Mammals: SpRichness.adj.2, cro") +
   xlim(0,1.0) +
-  ylim(0, 825) +
-  scale_color_manual(name="Radius", labels=c("250m", "500m", "1000m", "5000m"), values=c("red", "orange", "darkgreen", "blue")) +
+  ylim(0, 8) +
+  scale_color_manual(name="Radius", values=c("250m"="red", "500m"="orange", "1000m"="darkgreen", "5000m"="blue"), breaks=c("250m", "500m", "1000m", "5000m")) +
   theme(legend.position = c(1,0),
         legend.justification = c(1,0)) +
-  annotate(geom="text", x=0.8, y=750, label=mylabel)
+  annotate(geom="text", x=0.8, y=6, label=mylabel)
 mammals.cro
 
 ggsave(mammals.cro, file="mammals.cro.SpRichness.adj.2.png")

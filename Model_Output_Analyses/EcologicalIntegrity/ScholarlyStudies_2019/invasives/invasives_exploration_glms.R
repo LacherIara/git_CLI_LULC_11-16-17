@@ -1,5 +1,5 @@
 
-setwd("I:/EI_data/plots2016")
+setwd("I:/EI_data/plots2016/7-26-19")
 
 invasive.data <- read.csv("U:/CLI/Field Surveys/Invasive/CLI_Invasives_Environmental_7-19-19.csv")
 
@@ -39,40 +39,40 @@ mylabel=paste0("250m: p=", metrics[1], ", AIC =", metrics[2], "\n",
 invasives.dev = ggplot() +
   geom_point(data=invasive.data, aes(y=Abundance, x=dev_pct250, color="250m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=Abundance, x=dev_pct250, color="250m")) +
   geom_point(data=invasive.data, aes(y=Abundance, x=dev_pct500, color="500m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=Abundance, x=dev_pct500, color="500m")) +
   geom_point(data=invasive.data, aes(y=Abundance, x=dev_pct1k, color="1000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=Abundance, x=dev_pct1k, color="1000m")) +
   geom_point(data=invasive.data, aes(y=Abundance, x=dev_pct5k, color="5000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=Abundance, x=dev_pct5k, color="5000m")) +
   xlab("Percent Development") +
   ggtitle("Invasives: Abundance, Dev") +
   xlim(0,1.0) +
-  ylim(0, 70) +
-  scale_color_manual(name="Radius", labels=c("250m", "500m", "1000m", "5000m"), values=c("red", "orange", "darkgreen", "blue")) +
+  ylim(0, 65) +
+  scale_color_manual(name="Radius", values=c("250m"="red", "500m"="orange", "1000m"="darkgreen", "5000m"="blue"), breaks=c("250m", "500m", "1000m", "5000m")) +
   theme(legend.position = c(1,0),
         legend.justification = c(1,0)) +
-  annotate(geom="text", x=0.8, y=60, label=mylabel)
+  annotate(geom="text", x=0.8, y=55, label=mylabel)
 invasives.dev
 
 ggsave(invasives.dev, file="invasives.dev.Abundance.png")
@@ -111,40 +111,40 @@ mylabel=paste0("250m: p=", metrics[1], ", AIC =", metrics[2], "\n",
 invasives.for = ggplot() +
   geom_point(data=invasive.data, aes(y=Abundance, x=for_pct250, color="250m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=Abundance, x=for_pct250, color="250m")) +
   geom_point(data=invasive.data, aes(y=Abundance, x=for_pct500, color="500m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=Abundance, x=for_pct500, color="500m")) +
   geom_point(data=invasive.data, aes(y=Abundance, x=for_pct1k, color="1000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=Abundance, x=for_pct1k, color="1000m")) +
   geom_point(data=invasive.data, aes(y=Abundance, x=for_pct5k, color="5000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=Abundance, x=for_pct5k, color="5000m")) +
   xlab("Percent Forest") +
   ggtitle("Invasives: Abundance, for") +
   xlim(0,1.0) +
-  ylim(0, 70) +
-  scale_color_manual(name="Radius", labels=c("250m", "500m", "1000m", "5000m"), values=c("red", "orange", "darkgreen", "blue")) +
+  ylim(0, 65) +
+  scale_color_manual(name="Radius", values=c("250m"="red", "500m"="orange", "1000m"="darkgreen", "5000m"="blue"), breaks=c("250m", "500m", "1000m", "5000m")) +
   theme(legend.position = c(1,0),
         legend.justification = c(1,0)) +
-  annotate(geom="text", x=0.8, y=60, label=mylabel)
+  annotate(geom="text", x=0.8, y=55, label=mylabel)
 invasives.for
 
 ggsave(invasives.for, file="invasives.for.Abundance.png")
@@ -183,40 +183,40 @@ mylabel=paste0("250m: p=", metrics[1], ", AIC =", metrics[2], "\n",
 invasives.gra = ggplot() +
   geom_point(data=invasive.data, aes(y=Abundance, x=gra_pct250, color="250m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=Abundance, x=gra_pct250, color="250m")) +
   geom_point(data=invasive.data, aes(y=Abundance, x=gra_pct500, color="500m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=Abundance, x=gra_pct500, color="500m")) +
   geom_point(data=invasive.data, aes(y=Abundance, x=gra_pct1k, color="1000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=Abundance, x=gra_pct1k, color="1000m")) +
   geom_point(data=invasive.data, aes(y=Abundance, x=gra_pct5k, color="5000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=Abundance, x=gra_pct5k, color="5000m")) +
   xlab("Percent Grass") +
   ggtitle("Invasives: Abundance, gra") +
   xlim(0,1.0) +
-  ylim(0, 70) +
-  scale_color_manual(name="Radius", labels=c("250m", "500m", "1000m", "5000m"), values=c("red", "orange", "darkgreen", "blue")) +
+  ylim(0, 65) +
+  scale_color_manual(name="Radius", values=c("250m"="red", "500m"="orange", "1000m"="darkgreen", "5000m"="blue"), breaks=c("250m", "500m", "1000m", "5000m")) +
   theme(legend.position = c(1,0),
         legend.justification = c(1,0)) +
-  annotate(geom="text", x=0.8, y=60, label=mylabel)
+  annotate(geom="text", x=0.8, y=55, label=mylabel)
 invasives.gra
 
 ggsave(invasives.gra, file="invasives.gra.Abundance.png")
@@ -255,40 +255,40 @@ mylabel=paste0("250m: p=", metrics[1], ", AIC =", metrics[2], "\n",
 invasives.cro = ggplot() +
   geom_point(data=invasive.data, aes(y=Abundance, x=cro_pct250, color="250m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=Abundance, x=cro_pct250, color="250m")) +
   geom_point(data=invasive.data, aes(y=Abundance, x=cro_pct500, color="500m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=Abundance, x=cro_pct500, color="500m")) +
   geom_point(data=invasive.data, aes(y=Abundance, x=cro_pct1k, color="1000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=Abundance, x=cro_pct1k, color="1000m")) +
   geom_point(data=invasive.data, aes(y=Abundance, x=cro_pct5k, color="5000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=Abundance, x=cro_pct5k, color="5000m")) +
   xlab("Percent Crop") +
   ggtitle("Invasives: Abundance, cro") +
   xlim(0,1.0) +
-  ylim(0, 70) +
-  scale_color_manual(name="Radius", labels=c("250m", "500m", "1000m", "5000m"), values=c("red", "orange", "darkgreen", "blue")) +
+  ylim(0, 65) +
+  scale_color_manual(name="Radius", values=c("250m"="red", "500m"="orange", "1000m"="darkgreen", "5000m"="blue"), breaks=c("250m", "500m", "1000m", "5000m")) +
   theme(legend.position = c(1,0),
         legend.justification = c(1,0)) +
-  annotate(geom="text", x=0.8, y=60, label=mylabel)
+  annotate(geom="text", x=0.8, y=55, label=mylabel)
 invasives.cro
 
 ggsave(invasives.cro, file="invasives.cro.Abundance.png")
@@ -327,37 +327,37 @@ mylabel=paste0("250m: p=", metrics[1], ", AIC =", metrics[2], "\n",
 invasives.dev = ggplot() +
   geom_point(data=invasive.data, aes(y=SpRichness, x=dev_pct250, color="250m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=SpRichness, x=dev_pct250, color="250m")) +
   geom_point(data=invasive.data, aes(y=SpRichness, x=dev_pct500, color="500m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=SpRichness, x=dev_pct500, color="500m")) +
   geom_point(data=invasive.data, aes(y=SpRichness, x=dev_pct1k, color="1000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=SpRichness, x=dev_pct1k, color="1000m")) +
   geom_point(data=invasive.data, aes(y=SpRichness, x=dev_pct5k, color="5000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=SpRichness, x=dev_pct5k, color="5000m")) +
   xlab("Percent Development") +
   ggtitle("Invasives: SpRichness, Dev") +
   xlim(0,1.0) +
   ylim(0, 15) +
-  scale_color_manual(name="Radius", labels=c("250m", "500m", "1000m", "5000m"), values=c("red", "orange", "darkgreen", "blue")) +
+  scale_color_manual(name="Radius", values=c("250m"="red", "500m"="orange", "1000m"="darkgreen", "5000m"="blue"), breaks=c("250m", "500m", "1000m", "5000m")) +
   theme(legend.position = c(1,0),
         legend.justification = c(1,0)) +
   annotate(geom="text", x=0.8, y=12, label=mylabel)
@@ -399,37 +399,37 @@ mylabel=paste0("250m: p=", metrics[1], ", AIC =", metrics[2], "\n",
 invasives.for = ggplot() +
   geom_point(data=invasive.data, aes(y=SpRichness, x=for_pct250, color="250m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=SpRichness, x=for_pct250, color="250m")) +
   geom_point(data=invasive.data, aes(y=SpRichness, x=for_pct500, color="500m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=SpRichness, x=for_pct500, color="500m")) +
   geom_point(data=invasive.data, aes(y=SpRichness, x=for_pct1k, color="1000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=SpRichness, x=for_pct1k, color="1000m")) +
   geom_point(data=invasive.data, aes(y=SpRichness, x=for_pct5k, color="5000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=SpRichness, x=for_pct5k, color="5000m")) +
   xlab("Percent Forest") +
   ggtitle("Invasives: SpRichness, for") +
   xlim(0,1.0) +
   ylim(0, 15) +
-  scale_color_manual(name="Radius", labels=c("250m", "500m", "1000m", "5000m"), values=c("red", "orange", "darkgreen", "blue")) +
+  scale_color_manual(name="Radius", values=c("250m"="red", "500m"="orange", "1000m"="darkgreen", "5000m"="blue"), breaks=c("250m", "500m", "1000m", "5000m")) +
   theme(legend.position = c(1,0),
         legend.justification = c(1,0)) +
   annotate(geom="text", x=0.8, y=12, label=mylabel)
@@ -471,37 +471,37 @@ mylabel=paste0("250m: p=", metrics[1], ", AIC =", metrics[2], "\n",
 invasives.gra = ggplot() +
   geom_point(data=invasive.data, aes(y=SpRichness, x=gra_pct250, color="250m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=SpRichness, x=gra_pct250, color="250m")) +
   geom_point(data=invasive.data, aes(y=SpRichness, x=gra_pct500, color="500m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=SpRichness, x=gra_pct500, color="500m")) +
   geom_point(data=invasive.data, aes(y=SpRichness, x=gra_pct1k, color="1000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=SpRichness, x=gra_pct1k, color="1000m")) +
   geom_point(data=invasive.data, aes(y=SpRichness, x=gra_pct5k, color="5000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=SpRichness, x=gra_pct5k, color="5000m")) +
   xlab("Percent Grass") +
   ggtitle("Invasives: SpRichness, gra") +
   xlim(0,1.0) +
   ylim(0, 15) +
-  scale_color_manual(name="Radius", labels=c("250m", "500m", "1000m", "5000m"), values=c("red", "orange", "darkgreen", "blue")) +
+  scale_color_manual(name="Radius", values=c("250m"="red", "500m"="orange", "1000m"="darkgreen", "5000m"="blue"), breaks=c("250m", "500m", "1000m", "5000m")) +
   theme(legend.position = c(1,0),
         legend.justification = c(1,0)) +
   annotate(geom="text", x=0.8, y=12, label=mylabel)
@@ -543,42 +543,42 @@ mylabel=paste0("250m: p=", metrics[1], ", AIC =", metrics[2], "\n",
 invasives.cro = ggplot() +
   geom_point(data=invasive.data, aes(y=SpRichness, x=cro_pct250, color="250m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=SpRichness, x=cro_pct250, color="250m")) +
   geom_point(data=invasive.data, aes(y=SpRichness, x=cro_pct500, color="500m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=SpRichness, x=cro_pct500, color="500m")) +
   geom_point(data=invasive.data, aes(y=SpRichness, x=cro_pct1k, color="1000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=SpRichness, x=cro_pct1k, color="1000m")) +
   geom_point(data=invasive.data, aes(y=SpRichness, x=cro_pct5k, color="5000m")) +
   geom_smooth(method="glm",
-              se = F,
+              se = T,
               method.args = list(family = "poisson"),
-              fullrange = TRUE,
+              fullrange = FALSE,
               data=invasive.data,
               aes(y=SpRichness, x=cro_pct5k, color="5000m")) +
   xlab("Percent Crop") +
   ggtitle("Invasives: SpRichness, cro") +
   xlim(0,1.0) +
   ylim(0, 15) +
-  scale_color_manual(name="Radius", labels=c("250m", "500m", "1000m", "5000m"), values=c("red", "orange", "darkgreen", "blue")) +
+  scale_color_manual(name="Radius", values=c("250m"="red", "500m"="orange", "1000m"="darkgreen", "5000m"="blue"), breaks=c("250m", "500m", "1000m", "5000m")) +
   theme(legend.position = c(1,0),
         legend.justification = c(1,0)) +
   annotate(geom="text", x=0.8, y=12, label=mylabel)
 invasives.cro
 
-ggsave(invasives.cro, file=paste0("invasives.cro.SpRichness.png")
+ggsave(invasives.cro, file=paste0("invasives.cro.SpRichness.png"))
 
 
