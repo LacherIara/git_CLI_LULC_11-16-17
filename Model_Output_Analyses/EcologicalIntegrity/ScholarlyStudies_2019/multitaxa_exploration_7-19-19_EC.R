@@ -695,14 +695,30 @@ cor.mammals <- rcorr(as.matrix(dat.cor.mammals))
 corrplot(cor.mammals$r, type="upper", p.mat=cor.mammals$P, sig.level=0.1, tl.col="black", insig="label_sig", pch.cex=2)
 
 
+#######################################################################################
+# checking on zero-inflation
 
+hist(birds.data$Abundance) # distribution looks approximately normal? few zeros
+hist(bees.data$Abundance) # either poisson or negative binomial? lots of zeros
+hist(mammals.data$Abundance) # either poisson or negative binomial? lots of zeros
+hist(invasives.data$Abundance) # either poisson or negative binomial? lots of zeros
 
+sum(birds.data$Abundance==0)
+sum(birds.data$SpRichness==0)
+  #bird Abundance and SpRichness never = 0
+sum(bees.data$Abundance==0)
+sum(bees.data$SpRichness==0)
+  #bee abundance and sprichness never = 0
+sum(mammals.data$Abundance==0)
+sum(mammals.data$SpRichness==0)
+  ## weird because adjusted and rounded. Non-adjusted abundance and sprichness values never = 0
+sum(invasives.data$Abundance==0)
+sum(invasives.data$SpRichness==0)
 
+## but the zero inflation we're interested in is the explanatory variable, % lu?
 
-
-
-
-
+# https://aosmith.rbind.io/2019/03/06/lots-of-zeros/
+# look more into negative binomial distributions
 
 
 

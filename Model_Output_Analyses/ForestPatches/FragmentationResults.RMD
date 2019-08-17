@@ -1,0 +1,340 @@
+---
+title: "Forest Fragmentation, 2011-2061 (v2016)"
+output:
+  html_document: default
+  pdf_document: default
+---
+```{r include=FALSE}
+library(ggplot2)
+library(stringr)
+library(corrplot)
+library(Hmisc)
+library(knitr)
+library(gridExtra)
+library(grid)
+
+# study area data prep
+dat.SA.2011 <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/OutputProducts/Fragstats/FragmentationAnalysis/results_SA_2011.csv")
+  dat.SA.2011$LID <- "2011"
+dat.SA.Q1 <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/OutputProducts/Fragstats/FragmentationAnalysis/results_SA_2061_Q1.csv")
+  dat.SA.Q1$LID <- "Q1"
+dat.SA.Q2 <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/OutputProducts/Fragstats/FragmentationAnalysis/results_SA_2061_Q2.csv")
+  dat.SA.Q2$LID <- "Q2"
+dat.SA.Q3 <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/OutputProducts/Fragstats/FragmentationAnalysis/results_SA_2061_Q3.csv")
+  dat.SA.Q3$LID <- "Q3"
+dat.SA.Q4 <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/OutputProducts/Fragstats/FragmentationAnalysis/results_SA_2061_Q4.csv")
+  dat.SA.Q4$LID <- "Q4"
+dat.SA.RT <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/OutputProducts/Fragstats/FragmentationAnalysis/results_SA_2061_RT.csv")
+  dat.SA.RT$LID <- "RT"
+
+dat.SA <- rbind(dat.SA.2011, dat.SA.Q1, dat.SA.Q2, dat.SA.Q3, dat.SA.Q4, dat.SA.RT)
+
+dat.SA.change <- dat.SA[2:6,]
+for (i in 1:5) {
+  dat.SA.change[i,3:28] <- dat.SA[i+1,3:28] - dat.SA[1,3:28]
+}
+
+dat.SA.pct.change <- dat.SA[2:6,]
+for (i in 1:5) {
+  dat.SA.pct.change[i,3:28] <- ((dat.SA[i+1,3:28] - dat.SA[1,3:28])/dat.SA[1,3:28])*100
+}
+
+# county data prep
+dat.cnty.2011 <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/OutputProducts/Fragstats/FragmentationAnalysis/results_cnty_2011.csv")
+dat.cnty.Q1 <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/OutputProducts/Fragstats/FragmentationAnalysis/results_cnty_2061_Q1.csv")
+dat.cnty.Q2 <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/OutputProducts/Fragstats/FragmentationAnalysis/results_cnty_2061_Q2.csv")
+dat.cnty.Q3 <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/OutputProducts/Fragstats/FragmentationAnalysis/results_cnty_2061_Q3.csv")
+dat.cnty.Q4 <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/OutputProducts/Fragstats/FragmentationAnalysis/results_cnty_2061_Q4.csv")
+dat.cnty.RT <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SA_V2016/OutputProducts/Fragstats/FragmentationAnalysis/results_cnty_2061_RT.csv")
+
+dat.cnty.2011$Scenario <- "2011"
+dat.cnty.Q1$Scenario <- "Q1"
+dat.cnty.Q2$Scenario <- "Q2"
+dat.cnty.Q3$Scenario <- "Q3"
+dat.cnty.Q4$Scenario <- "Q4"
+dat.cnty.RT$Scenario <- "RT"
+
+dat.cnty.all <- rbind(dat.cnty.2011, dat.cnty.Q1, dat.cnty.Q2, dat.cnty.Q3, dat.cnty.Q4, dat.cnty.RT)
+
+counties <- read.csv("U:/CLI/Dinamica_Runs/StudyArea_V201/SAcntyOnly.csv")
+
+for (i in 1:length(counties$VALUE)) {
+  if (nchar(counties$VALUE[i])==1) {
+    counties$VALUE[i] <- paste0(0, counties$VALUE[i])
+  }
+}
+
+dat.cnty.all$LID <- str_sub(dat.cnty.all$LID, -3, -2)
+dat.cnty.SA <- merge(dat.cnty.all, counties, by.x="LID", by.y="VALUE")
+
+dat.cnty.SA.pct <- dat.cnty.SA[dat.cnty.SA$Scenario != "2011",]
+
+dat.cnty.SA$PAFRAC <- as.numeric(as.character(dat.cnty.SA$PAFRAC))
+dat.cnty.SA$ENN_MN <- as.numeric(as.character(dat.cnty.SA$ENN_MN))
+dat.cnty.SA$ENN_RA <- as.numeric(as.character(dat.cnty.SA$ENN_RA))
+dat.cnty.SA$ENN_SD <- as.numeric(as.character(dat.cnty.SA$ENN_SD))
+dat.cnty.SA.pct$PAFRAC <- as.numeric(as.character(dat.cnty.SA.pct$PAFRAC))
+dat.cnty.SA.pct$ENN_MN <- as.numeric(as.character(dat.cnty.SA.pct$ENN_MN))
+dat.cnty.SA.pct$ENN_RA <- as.numeric(as.character(dat.cnty.SA.pct$ENN_RA))
+dat.cnty.SA.pct$ENN_SD <- as.numeric(as.character(dat.cnty.SA.pct$ENN_SD))
+
+for (i in 1:length(dat.cnty.SA.pct$LID)) {
+  county <- dat.cnty.SA.pct$LID[i]
+  scenario <- dat.cnty.SA.pct$Scenario[i]
+  
+  d.2011 <- dat.cnty.SA[dat.cnty.SA$LID==county & dat.cnty.SA$Scenario=="2011", 3:28]
+  d.2061 <- dat.cnty.SA[dat.cnty.SA$LID==county & dat.cnty.SA$Scenario==scenario, 3:28]
+  
+  dat.cnty.SA.pct[i,3:28] <- ((d.2061 - d.2011)/d.2011)*100
+}
+
+dat.cnty.SA.pct$NAME <- str_sub(dat.cnty.SA.pct$NAME, 1, -8)
+```
+
+# **Metrics**
+Fragstats metrics analyzed:
+
+**Area and Edge**
+
+* CA: Total Class Area
+* PLAND: Percentage of Landscape
+* ED: Edge Density
+* AREA_MN: Mean Patch Size
+* GYRATE_AM: Radius of Gyration, Area-Weighted Mean
+
+**Shape**
+
+* PAFRAC: Perimeter-Area Fractal Dimension
+
+**Core Area**
+
+* TCA: Total Core Area
+* NDCA: Number of Disjunct Core Areas
+* DCAD: Disjunct Core Area Density
+* CORE_MN: Mean Core Area per Patch
+
+**Contrast**
+
+* ECON_MN: Edge Contrast Index Distribution
+
+**Aggregation**
+
+* NP: Number of Patches
+* PD: Patch Density
+* DIVISION: Landscape Division Index
+* ENN_MN: Mean Euclidean Nearest Neighbor Distance
+
+**All analyses below include protected lands.
+
+**Correlation matrix of metrics (p=0.05)**
+Data by county over study area
+
+```{r echo=FALSE}
+cor <- rcorr(as.matrix(dat.cnty.SA[,c(3:8,11,15:19,22,25,28)]))
+
+corrplot(cor$r, type="upper", p.mat=cor$P, sig.level=0.05, tl.col="black", insig="label_sig", pch.cex=2)
+```
+
+# **Study Area**
+
+### Class Area (CA)
+Total forested area
+
+```{r echo=FALSE}
+CA.pct <- ggplot(data=dat.SA.pct.change) +
+  geom_bar(aes(x=LID, y=CA, fill=LID), stat="identity") +
+  labs(x="Scenario", y="Percent Change, 2011-2061", title="Total Area (CA)", fill="")
+CA.pct
+
+kable(dat.SA[,c(1,3)], col.names=c("Scenario", "CA"), caption="Unit: square meters")
+```
+
+### Number of Patches (NP)
+Number of forest patches
+
+```{r echo=FALSE}
+NP.pct <- ggplot(data=dat.SA.pct.change) +
+  geom_bar(aes(x=LID, y=NP, fill=LID), stat="identity") +
+  labs(x="Scenario", y="Percent Change, 2011-2061", title="Number of Patches (NP)", fill="")
+NP.pct
+ggsave("PctChange_NP.jpeg", width=4, height=4, units="in")
+
+kable(dat.SA[,c(1,5)], col.names=c("Scenario", "NP"))
+```
+
+### Patch Density (PD)
+Number of forest patches per 100 ha
+
+```{r echo=FALSE}
+PD.pct <- ggplot(data=dat.SA.pct.change) +
+  geom_bar(aes(x=LID, y=PD, fill=LID), stat="identity") +
+  labs(x="Scenario", y="Percent Change, 2011-2061", title="Patch Density (PD)", fill="")
+PD.pct
+ggsave("PctChange_PD.jpeg", width=4, height=4, units="in")
+
+kable(dat.SA[,c(1,6)], col.names=c("Scenario", "PD"))
+```
+
+### Mean Patch Size (AREA_MN)
+Mean forest patch size
+
+```{r echo=FALSE}
+areaMN.pct <- ggplot(data=dat.SA.pct.change) +
+  geom_bar(aes(x=LID, y=AREA_MN, fill=LID), stat="identity") +
+  labs(x="Scenario", y="Percent Change, 2011-2061", title="Mean Patch Size (AREA_MN)", fill="")
+areaMN.pct
+ggsave("PctChange_AREA_MN.jpeg", width=4, height=4, units="in")
+
+kable(dat.SA[,c(1,8,9,10)], col.names=c("Scenario", "Mean", "Range", "Standard Deviation"), caption="Unit: hectares")
+```
+
+### Radius of Gyration, Area-Weighted Mean (GYRATE_AM)
+Radius of gyration provides a measure of landscape continuity (aka correlation length) that represents the average traversability of the landscape for an organism that is confined to remain within a single patch; specifically, it gives the average distance one can move from a random starting point and traveling in a random direction without leaving the patch.
+
+```{r echo=FALSE}
+gyrateAM.pct <- ggplot(data=dat.SA.pct.change) +
+  geom_bar(aes(x=LID, y=GYRATE_AM, fill=LID), stat="identity") +
+  labs(x="Scenario", y="Percent Change, 2011-2061", title="Radius of Gyration, Area-Weighted Mean (GYRATE_AM)", fill="")
+gyrateAM.pct
+ggsave("PctChange_GYRATE_AM.jpeg", width=4, height=4, units="in")
+
+kable(dat.SA[,c(1,11:14)], col.names=c("Scenario", "Area-Weighted Mean", "Range", "Standard Deviation", "Coefficient of Variation"), caption="Unit: meters")
+```
+
+### Perimeter-Area Fractal Dimension (PAFRAC)
+PAFRAC is an index of shape complexity.
+1 <= PAFRAC <= 2
+A fractal dimension greater than 1 for a 2-dimensional landscape mosaic indicates a departure from a Euclidean geometry (i.e., an increase in patch shape complexity). PAFRAC approaches 1 for shapes with very simple perimeters such as squares, and approaches 2 for shapes with highly convoluted, plane-filling perimeters.
+In contrast to the fractal dimension of a single patch, which provides an index of shape complexity for that patch, the perimeter-area fractal dimension of a patch mosaic provides an index of patch shape complexity across a wide range of spatial scales (i.e., patch sizes).
+
+```{r echo=FALSE}
+pafrac.pct <- ggplot(data=dat.SA.pct.change) +
+  geom_bar(aes(x=LID, y=PAFRAC, fill=LID), stat="identity") +
+  labs(x="Scenario", y="Percent Change, 2011-2061", title="Perimeter-Area Fractal Dimension (PAFRAC)", fill="")
+pafrac.pct
+ggsave("PctChange_PAFRAC.jpeg", width=4, height=4, units="in")
+
+kable(dat.SA[,c(1,15)], col.names=c("Scenario", "PAFRAC"), caption="Unit: none")
+```
+
+### Total Core Area (TCA)
+Total core forest area
+
+```{r echo=FALSE}
+tca.pct <- ggplot(data=dat.SA.pct.change) +
+  geom_bar(aes(x=LID, y=TCA, fill=LID), stat="identity") +
+  labs(x="Scenario", y="Percent Change, 2011-2061", title="Total Core Area (TCA)", fill="")
+tca.pct
+ggsave("PctChange_PAFRAC.jpeg", width=4, height=4, units="in")
+
+kable(dat.SA[,c(1,16)], col.names=c("Scenario", "TCA"), caption="Unit: hectares")
+```
+
+### Number of Disjunct Core Areas (NDCA)
+Number of disjunct core forest areas
+
+```{r echo=FALSE}
+ndca.pct <- ggplot(data=dat.SA.pct.change) +
+  geom_bar(aes(x=LID, y=NDCA, fill=LID), stat="identity") +
+  labs(x="Scenario", y="Percent Change, 2011-2061", title="Number of Disjunct Core Areas (NDCA)", fill="")
+ndca.pct
+ggsave("PctChange_NDCA.jpeg", width=4, height=4, units="in")
+
+kable(dat.SA[,c(1,17)], col.names=c("Scenario", "NDCA"), caption="Unit: number of areas")
+```
+
+### Disjunct Core Area Density (DCAD)
+Number of disjunct core forest areas per 100 ha
+
+```{r echo=FALSE}
+dcad.pct <- ggplot(data=dat.SA.pct.change) +
+  geom_bar(aes(x=LID, y=DCAD, fill=LID), stat="identity") +
+  labs(x="Scenario", y="Percent Change, 2011-2061", title="Disjunct Core Area Density (DCAD)", fill="")
+dcad.pct
+ggsave("PctChange_DCAD.jpeg", width=4, height=4, units="in")
+
+kable(dat.SA[,c(1,18)], col.names=c("Scenario", "DCAD"), caption="Unit: number per 100 hectares")
+```
+
+### Core Area Distribution (CORE_MN)
+Mean size of a forest core area
+
+```{r echo=FALSE}
+coreMN.pct <- ggplot(data=dat.SA.pct.change) +
+  geom_bar(aes(x=LID, y=CORE_MN, fill=LID), stat="identity") +
+  labs(x="Scenario", y="Percent Change, 2011-2061", title="Core Area Distribution (CORE_MN)", fill="")
+coreMN.pct
+ggsave("PctChange_CORE_MN.jpeg", width=4, height=4, units="in")
+
+kable(dat.SA[,c(1,19:21)], col.names=c("Scenario", "Mean", "Range", "Standard Deviation"), caption="Unit: hectares")
+```
+
+### Euclidean Nearest Neighbor Distance Distribution
+Mean euclidean nearest neighbor distance from one forest patch edge to another (meters)
+
+```{r echo=FALSE}
+ennMN.pct <- ggplot(data=dat.SA.pct.change) +
+  geom_bar(aes(x=LID, y=ENN_MN, fill=LID), stat="identity") +
+  labs(x="Scenario", y="Percent Change, 2011-2061", title="Euclidean Nearest Neighbor Distance Distribution (ENN_MN)", fill="")
+ennMN.pct
+ggsave("PctChange_ENN_MN.jpeg", width=4, height=4, units="in")
+
+kable(dat.SA[,c(1,22:24)], col.names=c("Scenario", "Mean", "Range", "Standard Deviation"), caption="Unit: meters")
+```
+
+### Edge Contrast Index Distribution (ECON_MN)
+Mean edge contrast for forest patches
+
+```{r echo=FALSE}
+econMN.pct <- ggplot(data=dat.SA.pct.change) +
+  geom_bar(aes(x=LID, y=ECON_MN, fill=LID), stat="identity") +
+  labs(x="Scenario", y="Percent Change, 2011-2061", title="Edge Contrast Index Distribution (ECON_MN)", fill="")
+econMN.pct
+ggsave("PctChange_ECON_MN.jpeg", width=4, height=4, units="in")
+
+kable(dat.SA[,c(1,25:27)], col.names=c("Scenario", "Mean", "Range", "Standard Deviation"), caption="Unit: percent")
+```
+
+### Landscape Division Index (DIVISION)
+DIVISION is the probability that two randomly chosen pixels in the landscape are not situated in the same patch of the corresponding patch type.
+0 <= DIVISION < 1
+DIVISION = 0 when the landscape consists of single patch. DIVISION approaches 1 when the focal patch type consists of single, small patch one cell in area. As the proportion of the landscape comprised of the focal patch type decreases and as those patches decrease in size, DIVISION approaches 1.
+
+```{r echo=FALSE}
+division.pct <- ggplot(data=dat.SA.pct.change) +
+  geom_bar(aes(x=LID, y=DIVISION, fill=LID), stat="identity") +
+  labs(x="Scenario", y="Percent Change, 2011-2061", title="Landscape Division Index (DIVISION)", fill="")
+division.pct
+ggsave("PctChange_DIVISION.jpeg", width=4, height=4, units="in")
+
+kable(dat.SA[,c(1,28)], col.names=c("Scenario", "DIVISION"), caption="Unit: proportion")
+```
+
+# **By County**
+
+### Class Area (CA)
+
+All counties in study area
+
+```{r echo=FALSE}
+CA.cnty.pct <- ggplot(data=dat.cnty.SA.pct) +
+  geom_bar(aes(x=NAME, y=CA, fill=Scenario), stat="identity", position="dodge") +
+  labs(x="County", y="Percent Change, 2011-2061", title="Total Area (CA)", fill="") +
+  theme(axis.text.x = element_text(angle=45))
+CA.cnty.pct
+```
+
+Two counties with largest and smallest change
+
+```{r echo=FALSE}
+CA.cnty.pct.2 <- ggplot(data=dat.cnty.SA.pct[dat.cnty.SA.pct$NAME=="Culpeper" | dat.cnty.SA.pct$NAME=="Loudoun",]) +
+  geom_bar(aes(x=NAME, y=CA, fill=Scenario), stat="identity", position="dodge") +
+  labs(x="County", y="Percent Change, 2011-2061", title="Total Area (CA)", fill="")
+CA.cnty.pct.2
+
+kable(dat.cnty.SA.pct[,c(31,29,3:28)])
+```
+
+
+
+

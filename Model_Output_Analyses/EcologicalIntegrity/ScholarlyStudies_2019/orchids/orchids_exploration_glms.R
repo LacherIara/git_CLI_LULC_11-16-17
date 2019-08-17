@@ -2,9 +2,12 @@
 setwd("U:/CLI/Field Surveys/Orchid/Pilot2019/DataExploration")
 
 library(ggplot2)
+install.packages("ggplot2")
 library(MuMIn)
 library(corrplot)
+install.packages("corrplot")
 library(Hmisc)
+install.packages("Hmisc")
 library(PerformanceAnalytics)
 library(reshape2)
 library(RColorBrewer)

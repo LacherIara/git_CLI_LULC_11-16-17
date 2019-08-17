@@ -2,6 +2,7 @@
 setwd("U:/CLI/Field Surveys/Orchid")
 
 library(reshape2)
+library(reshape)
 
 ########################################################################################################
 # Prep orchid data
@@ -16,9 +17,6 @@ orchid.dat <- orchid.dat[orchid.dat$SiteVisit != 3,]
 
 # only where NewFind == 1 or 0, not 2
 orchid.dat <- orchid.dat[orchid.dat$NewFind != 2,]
-
-# remove Kinloch_7 because it was only visited once (try running models again after)
-orchid.dat <- orchid.dat[orchid.dat$PlotID != "Kinloch_7",]
   
 # get rid of unnecessary columns
 orchid.dat2 <- orchid.dat[,c(1,9,13)]
@@ -89,7 +87,7 @@ forest.dat.final$DomSpp3 <- as.factor(forest.dat.final$DomSpp3)
 
 dat <- merge(orchid.cast, forest.dat.final, by.x="Site", by.y="PlotID")
 
-write.csv(dat, file = "CLI_Orchids_8-2-19_EC.csv")
+write.csv(dat, file = "CLI_Orchids_8-16-19_EC.csv")
 
 
 
