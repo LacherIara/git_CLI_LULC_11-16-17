@@ -1,0 +1,734 @@
+<?xml version="1.0" standalone="yes" ?>
+<script>
+    <property key="dff.date" value="2017-Oct-26 12:49:47" />
+    <property key="dff.version" value="3.0.17.20160922" />
+    <property key="metadata.author" value="Dinamica Team" />
+    <property key="metadata.organization" value="CSR/UFMG" />
+    <property key="metadata.showproperties" value="no" />
+    <property key="metadata.title" value="v106 StudyArea. nlcd change from 2000 to 2010." />
+    <property key="submodel.import" value='SelectSubTable { { &quot;inputTable&quot; : Table, &quot;step&quot; : RealValue } { } { &quot;resultingTable&quot; : Table } }; SelectSubTable { { &quot;inputTable&quot; : Table, &quot;step&quot; : RealValue } { } { &quot;resultingTable&quot; : Table } }; SelectSubTable { { &quot;inputTable&quot; : Table, &quot;step&quot; : RealValue } { } { &quot;resultingTable&quot; : Table } }; SelectSubTable { { &quot;inputTable&quot; : Table, &quot;step&quot; : RealValue } { } { &quot;resultingTable&quot; : Table } }; SelectSubTable { { &quot;inputTable&quot; : Table, &quot;step&quot; : RealValue } { } { &quot;resultingTable&quot; : Table } }; SelectSubTable { { &quot;inputTable&quot; : Table, &quot;step&quot; : RealValue } { } { &quot;resultingTable&quot; : Table } }; SelectSubTable { { &quot;inputTable&quot; : Table, &quot;step&quot; : RealValue } { } { &quot;resultingTable&quot; : Table } }; SelectSubTable { { &quot;inputTable&quot; : Table, &quot;step&quot; : RealValue } { } { &quot;resultingTable&quot; : Table } }; AllocateTransitions { { &quot;lanscape&quot; : CategoricalMap, &quot;probabilities&quot; : Map, &quot;transitionMatrix&quot; : TransitionMatrix, &quot;percentOfTransitionsByExpansion&quot; : PercentMatrix, &quot;patchExpansionParameters&quot; : TransitionFunctionParameterMatrix, &quot;patchGenerationParameters&quot; : TransitionFunctionParameterMatrix } { &quot;printTransitionInfo&quot; : BooleanValue } { &quot;resultingLanscape&quot; : CategoricalMap } }' />
+    <functor name="LoadCategoricalMap">
+        <property key="dff.functor.alias" value="Initial Landscape" />
+        <property key="dff.functor.comment" value="Initial landscape map." />
+        <inputport name="filename">&quot;../../../../PreparedRasters/StudyAreaBndy/nlcd11_anC.img&quot;</inputport>
+        <inputport name="nullValue">.default</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">0</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v1" />
+    </functor>
+    <functor name="LoadMap">
+        <property key="dff.functor.alias" value="Static Variables" />
+        <property key="dff.functor.comment" value="Static variable maps." />
+        <inputport name="filename">&quot;../../Variable_Cubes/sa108_VarCube_Fyp.img.tif&quot;</inputport>
+        <inputport name="nullValue">.default</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">0</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v2" />
+    </functor>
+    <functor name="LoadCategoricalMap">
+        <property key="dff.functor.alias" value="Regions" />
+        <inputport name="filename">&quot;../../../../PreparedRasters/StudyAreaBndy/region_an.img&quot;</inputport>
+        <inputport name="nullValue">.default</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">1</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v3" />
+    </functor>
+    <functor name="LoadTable">
+        <property key="dff.functor.alias" value="Percent Of Transition By Expansion" />
+        <property key="viewer.table" value="yes" />
+        <inputport name="filename">&quot;../Parameters/Patch_Tables/sa_Percent_Table_FGC-DFGC.csv&quot;</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">.none</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="table" id="v4" />
+    </functor>
+    <functor name="LoadTable">
+        <property key="dff.functor.alias" value="Expansion Parameters" />
+        <property key="viewer.table" value="yes" />
+        <inputport name="filename">&quot;../Parameters/Patch_Tables/sa_Exp_Table_FGC-DFGC_iso.csv&quot;</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">.none</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="table" id="v5" />
+    </functor>
+    <functor name="LoadTable">
+        <property key="dff.functor.alias" value="Transition Rates" />
+        <property key="viewer.table" value="yes" />
+        <inputport name="filename">&quot;../Parameters/Transition_Rates/sa_Trans_Rates_FGC-DFGC_0111_LUMBER_Q4.csv&quot;</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">0</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="table" id="v6" />
+    </functor>
+    <functor name="LoadTable">
+        <property key="dff.functor.alias" value="Patch Parameters" />
+        <property key="viewer.table" value="yes" />
+        <inputport name="filename">&quot;../Parameters/Patch_Tables/sa_New_Table_FGC-DFGC_iso.csv&quot;</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">.none</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="table" id="v7" />
+    </functor>
+    <functor name="LoadMap">
+        <property key="dff.functor.alias" value="loadMap3773" />
+        <inputport name="filename">&quot;../../../../PreparedRasters/StudyAreaBndy/Modifier_ras/Central_mod_an.img&quot;</inputport>
+        <inputport name="nullValue">.none</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">.none</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v8" />
+    </functor>
+    <functor name="LoadMap">
+        <property key="dff.functor.alias" value="loadMap3773" />
+        <inputport name="filename">&quot;../../../../PreparedRasters/StudyAreaBndy/Modifier_ras/flat_mod100.img&quot;</inputport>
+        <inputport name="nullValue">.none</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">.none</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v9" />
+    </functor>
+    <containerfunctor name="RegionManager">
+        <property key="dff.functor.alias" value="regionManager2756" />
+        <inputport name="regions" peerid="v3" />
+        <inputport name="borderCells">0</inputport>
+        <internaloutputport name="regionManager" id="v10" />
+        <containerfunctor name="Repeat">
+            <property key="dff.container.collapsed" value="0" />
+            <property key="dff.functor.alias" value="repeat3189" />
+            <property key="dff.functor.comment" value="Simulation model." />
+            <inputport name="iterations">5</inputport>
+            <internaloutputport name="step" id="v11" />
+            <functor name="MuxCategoricalMap">
+                <property key="dff.functor.alias" value="Landscape" />
+                <inputport name="initial" peerid="v1" />
+                <inputport name="feedback" peerid="v61" />
+                <outputport name="map" id="v12" />
+            </functor>
+            <functor name="CalcDistanceMap">
+                <property key="dff.functor.alias" value="Distances" />
+                <inputport name="categoricalMap" peerid="v12" />
+                <inputport name="categories">[ 2, 3 ]</inputport>
+                <inputport name="cellType">.int32</inputport>
+                <inputport name="nullValue">.default</inputport>
+                <inputport name="truncateDistance">.yes</inputport>
+                <outputport name="distance" id="v13" />
+            </functor>
+            <functor name="SaveMap">
+                <property key="dff.functor.alias" value="saveMap3216" />
+                <inputport name="map" peerid="v61" />
+                <inputport name="filename">&quot;../FutureLandscapes/Q4/v2013_Q4_Landscape.tif&quot;</inputport>
+                <inputport name="suffixDigits">2</inputport>
+                <inputport name="step" peerid="v11" />
+                <inputport name="useCompression">.yes</inputport>
+                <inputport name="workdir">.none</inputport>
+            </functor>
+            <functor name="Step">
+                <property key="dff.functor.alias" value="step1149" />
+                <inputport name="step" peerid="v11" />
+                <outputport name="step" id="v14" />
+            </functor>
+            <functor name="SelectSubTable">
+                <property key="dff.functor.alias" value="Select Year" />
+                <inputport name="inputTable" peerid="v7" />
+                <inputport name="step" peerid="v14" />
+                <outputport name="resultingTable" id="v15" />
+            </functor>
+            <functor name="SelectSubTable">
+                <property key="dff.functor.alias" value="Select Year" />
+                <inputport name="inputTable" peerid="v6" />
+                <inputport name="step" peerid="v14" />
+                <outputport name="resultingTable" id="v16" />
+            </functor>
+            <functor name="SelectSubTable">
+                <property key="dff.functor.alias" value="Select Year" />
+                <inputport name="inputTable" peerid="v4" />
+                <inputport name="step" peerid="v14" />
+                <outputport name="resultingTable" id="v17" />
+            </functor>
+            <functor name="SelectSubTable">
+                <property key="dff.functor.alias" value="Select Year" />
+                <inputport name="inputTable" peerid="v5" />
+                <inputport name="step" peerid="v14" />
+                <outputport name="resultingTable" id="v18" />
+            </functor>
+            <functor name="Step">
+                <property key="dff.functor.alias" value="step1149" />
+                <inputport name="step" peerid="v11" />
+                <outputport name="step" id="v19" />
+            </functor>
+            <functor name="SaveMap">
+                <property key="dff.functor.alias" value="saveMap2896" />
+                <inputport name="map" peerid="v62" />
+                <inputport name="filename">&quot;../Prob_Maps/Q4/v2013_Q4_ProbMerge.tif&quot;</inputport>
+                <inputport name="suffixDigits">2</inputport>
+                <inputport name="step" peerid="v11" />
+                <inputport name="useCompression">.yes</inputport>
+                <inputport name="workdir">.none</inputport>
+            </functor>
+            <containerfunctor name="ForEachCategory">
+                <property key="dff.functor.alias" value="forEachCategory3197" />
+                <inputport name="categorization" peerid="v3" />
+                <internaloutputport name="step" id="v20" />
+                <functor name="Step">
+                    <property key="dff.functor.alias" value="step1160" />
+                    <inputport name="step" peerid="v20" />
+                    <outputport name="step" id="v21" />
+                </functor>
+                <functor name="LoadWeights">
+                    <property key="dff.functor.alias" value="Weights Of Evidence Coefficients" />
+                    <property key="dff.functor.comment" value="Load Weights of Evidence coefficients." />
+                    <inputport name="filename">&quot;../Parameters/WOE_recalc/LPA/pgrv201_WOE.csv&quot;</inputport>
+                    <inputport name="suffixDigits">2</inputport>
+                    <inputport name="step" peerid="v20" />
+                    <inputport name="workdir">.none</inputport>
+                    <outputport name="weights" id="v22" />
+                </functor>
+                <functor name="SelectSubTable">
+                    <property key="dff.functor.alias" value="Select Region" />
+                    <inputport name="inputTable" peerid="v17" />
+                    <inputport name="step" peerid="v21" />
+                    <outputport name="resultingTable" id="v23" />
+                </functor>
+                <functor name="SelectSubTable">
+                    <property key="dff.functor.alias" value="Select Region" />
+                    <inputport name="inputTable" peerid="v18" />
+                    <inputport name="step" peerid="v21" />
+                    <outputport name="resultingTable" id="v24" />
+                </functor>
+                <functor name="SelectSubTable">
+                    <property key="dff.functor.alias" value="Select Region" />
+                    <inputport name="inputTable" peerid="v16" />
+                    <inputport name="step" peerid="v21" />
+                    <outputport name="resultingTable" id="v25" />
+                </functor>
+                <functor name="SelectSubTable">
+                    <property key="dff.functor.alias" value="Select Region" />
+                    <inputport name="inputTable" peerid="v15" />
+                    <inputport name="step" peerid="v21" />
+                    <outputport name="resultingTable" id="v26" />
+                </functor>
+                <functor name="AllocateTransitions">
+                    <property key="dff.functor.alias" value="Updated Landscape (Region)" />
+                    <inputport name="lanscape" peerid="v29" />
+                    <inputport name="probabilities" peerid="v52" />
+                    <inputport name="transitionMatrix" peerid="v25" />
+                    <inputport name="percentOfTransitionsByExpansion" peerid="v23" />
+                    <inputport name="patchExpansionParameters" peerid="v24" />
+                    <inputport name="patchGenerationParameters" peerid="v26" />
+                    <inputport name="printTransitionInfo">.yes</inputport>
+                    <outputport name="resultingLanscape" id="v27" />
+                </functor>
+                <functor name="RegionalCategoricalMap">
+                    <property key="dff.functor.alias" value="regionalCategoricalMap3211" />
+                    <property key="dff.functor.comment" value="Assign a map to the region using the given identifier." />
+                    <inputport name="globalMapName">&quot;county&quot;</inputport>
+                    <inputport name="regionalMap" peerid="v27" />
+                    <inputport name="regionId" peerid="v20" />
+                    <inputport name="regionManager" peerid="v10" />
+                </functor>
+                <functor name="IntegerValue">
+                    <property key="dff.functor.alias" value="int290" />
+                    <property key="dff.functor.comment" value="This operator is used here to force a dependence between two groups." />
+                    <inputport name="constant">0</inputport>
+                    <outputport name="object" id="v28" />
+                </functor>
+                <functor name="RegionalizeCategoricalMap">
+                    <property key="dff.functor.alias" value="Landscape (Region)" />
+                    <inputport name="globalMap" peerid="v12" />
+                    <inputport name="regionId" peerid="v20" />
+                    <inputport name="keepNonRegionCells">.no</inputport>
+                    <inputport name="regionManager" peerid="v10" />
+                    <outputport name="regionalMap" id="v29" />
+                </functor>
+                <functor name="RegionalizeMap">
+                    <property key="dff.functor.alias" value="Static Variables (Region)" />
+                    <inputport name="globalMap" peerid="v2" />
+                    <inputport name="regionId" peerid="v20" />
+                    <inputport name="keepNonRegionCells">.no</inputport>
+                    <inputport name="regionManager" peerid="v10" />
+                    <outputport name="regionalMap" id="v30" />
+                </functor>
+                <functor name="RegionalizeMap">
+                    <property key="dff.functor.alias" value="Distances (Region)" />
+                    <inputport name="globalMap" peerid="v13" />
+                    <inputport name="regionId" peerid="v20" />
+                    <inputport name="keepNonRegionCells">.no</inputport>
+                    <inputport name="regionManager" peerid="v10" />
+                    <outputport name="regionalMap" id="v31" />
+                </functor>
+                <functor name="ExtractMapLayer">
+                    <property key="dff.functor.alias" value="extractMapLayer2830" />
+                    <inputport name="map" peerid="v50" />
+                    <inputport name="layerIndexOrName">1</inputport>
+                    <outputport name="layer" id="v32" />
+                </functor>
+                <functor name="ExtractMapLayer">
+                    <property key="dff.functor.alias" value="extractMapLayer2830" />
+                    <inputport name="map" peerid="v50" />
+                    <inputport name="layerIndexOrName">2</inputport>
+                    <outputport name="layer" id="v33" />
+                </functor>
+                <functor name="ExtractMapLayer">
+                    <property key="dff.functor.alias" value="extractMapLayer2830" />
+                    <inputport name="map" peerid="v50" />
+                    <inputport name="layerIndexOrName">3</inputport>
+                    <outputport name="layer" id="v34" />
+                </functor>
+                <functor name="ExtractMapLayer">
+                    <property key="dff.functor.alias" value="extractMapLayer2830" />
+                    <inputport name="map" peerid="v50" />
+                    <inputport name="layerIndexOrName">4</inputport>
+                    <outputport name="layer" id="v35" />
+                </functor>
+                <functor name="ExtractMapLayer">
+                    <property key="dff.functor.alias" value="extractMapLayer2830" />
+                    <inputport name="map" peerid="v50" />
+                    <inputport name="layerIndexOrName">5</inputport>
+                    <outputport name="layer" id="v36" />
+                </functor>
+                <functor name="ExtractMapLayer">
+                    <property key="dff.functor.alias" value="extractMapLayer2830" />
+                    <inputport name="map" peerid="v50" />
+                    <inputport name="layerIndexOrName">6</inputport>
+                    <outputport name="layer" id="v37" />
+                </functor>
+                <functor name="ExtractMapLayer">
+                    <property key="dff.functor.alias" value="extractMapLayer2830" />
+                    <inputport name="map" peerid="v50" />
+                    <inputport name="layerIndexOrName">7</inputport>
+                    <outputport name="layer" id="v38" />
+                </functor>
+                <functor name="ExtractMapLayer">
+                    <property key="dff.functor.alias" value="extractMapLayer2830" />
+                    <inputport name="map" peerid="v50" />
+                    <inputport name="layerIndexOrName">8</inputport>
+                    <outputport name="layer" id="v39" />
+                </functor>
+                <functor name="ExtractMapLayer">
+                    <property key="dff.functor.alias" value="extractMapLayer2830" />
+                    <inputport name="map" peerid="v50" />
+                    <inputport name="layerIndexOrName">9</inputport>
+                    <outputport name="layer" id="v40" />
+                </functor>
+                <functor name="RegionalizeMap">
+                    <property key="dff.functor.alias" value="regionalizeMap2872" />
+                    <inputport name="globalMap" peerid="v8" />
+                    <inputport name="regionId" peerid="v20" />
+                    <inputport name="keepNonRegionCells">.no</inputport>
+                    <inputport name="regionManager" peerid="v10" />
+                    <outputport name="regionalMap" id="v41" />
+                </functor>
+                <functor name="RegionalizeMap">
+                    <property key="dff.functor.alias" value="regionalizeMap2872" />
+                    <inputport name="globalMap" peerid="v8" />
+                    <inputport name="regionId" peerid="v20" />
+                    <inputport name="keepNonRegionCells">.no</inputport>
+                    <inputport name="regionManager" peerid="v10" />
+                    <outputport name="regionalMap" id="v42" />
+                </functor>
+                <functor name="RegionalizeMap">
+                    <property key="dff.functor.alias" value="regionalizeMap2872" />
+                    <inputport name="globalMap" peerid="v8" />
+                    <inputport name="regionId" peerid="v20" />
+                    <inputport name="keepNonRegionCells">.no</inputport>
+                    <inputport name="regionManager" peerid="v10" />
+                    <outputport name="regionalMap" id="v43" />
+                </functor>
+                <functor name="RegionalizeMap">
+                    <property key="dff.functor.alias" value="regionalizeMap3597" />
+                    <inputport name="globalMap" peerid="v9" />
+                    <inputport name="regionId" peerid="v20" />
+                    <inputport name="keepNonRegionCells">.no</inputport>
+                    <inputport name="regionManager" peerid="v10" />
+                    <outputport name="regionalMap" id="v44" />
+                </functor>
+                <functor name="RegionalizeMap">
+                    <property key="dff.functor.alias" value="regionalizeMap3597" />
+                    <inputport name="globalMap" peerid="v9" />
+                    <inputport name="regionId" peerid="v20" />
+                    <inputport name="keepNonRegionCells">.no</inputport>
+                    <inputport name="regionManager" peerid="v10" />
+                    <outputport name="regionalMap" id="v45" />
+                </functor>
+                <functor name="RegionalizeMap">
+                    <property key="dff.functor.alias" value="regionalizeMap3597" />
+                    <inputport name="globalMap" peerid="v9" />
+                    <inputport name="regionId" peerid="v20" />
+                    <inputport name="keepNonRegionCells">.no</inputport>
+                    <inputport name="regionManager" peerid="v10" />
+                    <outputport name="regionalMap" id="v46" />
+                </functor>
+                <functor name="RegionalizeMap">
+                    <property key="dff.functor.alias" value="regionalizeMap3597" />
+                    <inputport name="globalMap" peerid="v9" />
+                    <inputport name="regionId" peerid="v20" />
+                    <inputport name="keepNonRegionCells">.no</inputport>
+                    <inputport name="regionManager" peerid="v10" />
+                    <outputport name="regionalMap" id="v47" />
+                </functor>
+                <functor name="RegionalizeMap">
+                    <property key="dff.functor.alias" value="regionalizeMap3597" />
+                    <inputport name="globalMap" peerid="v9" />
+                    <inputport name="regionId" peerid="v20" />
+                    <inputport name="keepNonRegionCells">.no</inputport>
+                    <inputport name="regionManager" peerid="v10" />
+                    <outputport name="regionalMap" id="v48" />
+                </functor>
+                <functor name="RegionalizeMap">
+                    <property key="dff.functor.alias" value="regionalizeMap3597" />
+                    <inputport name="globalMap" peerid="v9" />
+                    <inputport name="regionId" peerid="v20" />
+                    <inputport name="keepNonRegionCells">.no</inputport>
+                    <inputport name="regionManager" peerid="v10" />
+                    <outputport name="regionalMap" id="v49" />
+                </functor>
+                <functor name="RegionalMap">
+                    <property key="dff.functor.alias" value="regionalMap2894" />
+                    <inputport name="globalMapName">&quot;cnty_prob&quot;</inputport>
+                    <inputport name="regionalMap" peerid="v52" />
+                    <inputport name="regionId" peerid="v20" />
+                    <inputport name="regionManager" peerid="v10" />
+                </functor>
+                <containerfunctor name="CalcWOfEProbabilityMap">
+                    <property key="dff.container.collapsed" value="no" />
+                    <property key="dff.functor.alias" value="Probabilities (Region)" />
+                    <property key="dff.functor.extendedcomment" value="Calculate probability map." />
+                    <property key="viewer.probabilities" value="yes" />
+                    <inputport name="landscape" peerid="v29" />
+                    <inputport name="weights" peerid="v22" />
+                    <inputport name="transitions">[ 5-&gt;3, 5-&gt;6, 5-&gt;7, 6-&gt;3, 6-&gt;5, 6-&gt;7, 7-&gt;3, 7-&gt;5, 7-&gt;6 ]</inputport>
+                    <inputport name="cellType">.uint16</inputport>
+                    <inputport name="nullValue">.default</inputport>
+                    <outputport name="probabilities" id="v50" />
+                    <functor name="NameMap">
+                        <property key="dff.functor.alias" value="nameMap3204" />
+                        <inputport name="map" peerid="v30" />
+                        <inputport name="mapName">&quot;nlcdC_11&quot;</inputport>
+                    </functor>
+                    <functor name="NameMap">
+                        <property key="dff.functor.alias" value="nameMap3205" />
+                        <inputport name="map" peerid="v31" />
+                        <inputport name="mapName">&quot;distance&quot;</inputport>
+                    </functor>
+                </containerfunctor>
+                <containerfunctor name="CalculateMap">
+                    <property key="dff.container.collapsed" value="no" />
+                    <property key="dff.functor.alias" value="calculateMap2826" />
+                    <inputport name="expression">[&#x0A;    if isNull(i1) then&#x0A;        1&#x0A;    else &#x0A;        i1 * i2&#x0A;]</inputport>
+                    <inputport name="cellType">.int32</inputport>
+                    <inputport name="nullValue">.default</inputport>
+                    <inputport name="resultIsSparse">.no</inputport>
+                    <inputport name="resultFormat">.none</inputport>
+                    <outputport name="result" id="v51" />
+                    <functor name="NumberMap">
+                        <property key="dff.functor.alias" value="numberMap2827" />
+                        <inputport name="map" peerid="v32" />
+                        <inputport name="mapNumber">1</inputport>
+                    </functor>
+                    <functor name="NumberMap">
+                        <property key="dff.functor.alias" value="numberMap3442" />
+                        <inputport name="map" peerid="v42" />
+                        <inputport name="mapNumber">2</inputport>
+                    </functor>
+                    <functor name="NumberValue">
+                        <property key="dff.functor.alias" value="numberValue3443" />
+                        <inputport name="value" peerid="v19" />
+                        <inputport name="valueNumber">1</inputport>
+                    </functor>
+                </containerfunctor>
+                <containerfunctor name="CreateCubeMap">
+                    <property key="dff.container.collapsed" value="no" />
+                    <property key="dff.functor.alias" value="createCubeMap2828" />
+                    <inputport name="cellType">.int32</inputport>
+                    <inputport name="nullValue">.default</inputport>
+                    <outputport name="map" id="v52" />
+                    <functor name="NumberAndNameMap">
+                        <property key="dff.functor.alias" value="numberAndNameMap2829" />
+                        <inputport name="map" peerid="v51" />
+                        <inputport name="mapName">&quot;probability_5_to_3&quot;</inputport>
+                        <inputport name="mapNumber">1</inputport>
+                    </functor>
+                    <functor name="NumberAndNameMap">
+                        <property key="dff.functor.alias" value="numberAndNameMap3665" />
+                        <inputport name="map" peerid="v59" />
+                        <inputport name="mapName">&quot;probability_5_to_6&quot;</inputport>
+                        <inputport name="mapNumber">2</inputport>
+                    </functor>
+                    <functor name="NumberAndNameMap">
+                        <property key="dff.functor.alias" value="numberAndNameMap3666" />
+                        <inputport name="map" peerid="v55" />
+                        <inputport name="mapName">&quot;probability_5_to_7&quot;</inputport>
+                        <inputport name="mapNumber">3</inputport>
+                    </functor>
+                    <functor name="NumberAndNameMap">
+                        <property key="dff.functor.alias" value="numberAndNameMap3667" />
+                        <inputport name="map" peerid="v53" />
+                        <inputport name="mapName">&quot;probability_6_to_3&quot;</inputport>
+                        <inputport name="mapNumber">4</inputport>
+                    </functor>
+                    <functor name="NumberAndNameMap">
+                        <property key="dff.functor.alias" value="numberAndNameMap3668" />
+                        <inputport name="map" peerid="v58" />
+                        <inputport name="mapName">&quot;probability_6_to_5&quot;</inputport>
+                        <inputport name="mapNumber">5</inputport>
+                    </functor>
+                    <functor name="NumberAndNameMap">
+                        <property key="dff.functor.alias" value="numberAndNameMap3669" />
+                        <inputport name="map" peerid="v60" />
+                        <inputport name="mapName">&quot;probability_6_to_7&quot;</inputport>
+                        <inputport name="mapNumber">6</inputport>
+                    </functor>
+                    <functor name="NumberAndNameMap">
+                        <property key="dff.functor.alias" value="numberAndNameMap3670" />
+                        <inputport name="map" peerid="v54" />
+                        <inputport name="mapName">&quot;probability_7_to_3&quot;</inputport>
+                        <inputport name="mapNumber">7</inputport>
+                    </functor>
+                    <functor name="NumberAndNameMap">
+                        <property key="dff.functor.alias" value="numberAndNameMap3671" />
+                        <inputport name="map" peerid="v56" />
+                        <inputport name="mapName">&quot;probability_7_to_5&quot;</inputport>
+                        <inputport name="mapNumber">8</inputport>
+                    </functor>
+                    <functor name="NumberAndNameMap">
+                        <property key="dff.functor.alias" value="numberAndNameMap3672" />
+                        <inputport name="map" peerid="v57" />
+                        <inputport name="mapName">&quot;probability_7_to_6&quot;</inputport>
+                        <inputport name="mapNumber">9</inputport>
+                    </functor>
+                </containerfunctor>
+                <containerfunctor name="CalculateMap">
+                    <property key="dff.container.collapsed" value="no" />
+                    <property key="dff.functor.alias" value="calculateMap2826" />
+                    <inputport name="expression">[&#x0A;    if isNull(i1) then&#x0A;        1&#x0A;    else &#x0A;        i1 * i2&#x0A;]</inputport>
+                    <inputport name="cellType">.int32</inputport>
+                    <inputport name="nullValue">.default</inputport>
+                    <inputport name="resultIsSparse">.no</inputport>
+                    <inputport name="resultFormat">.none</inputport>
+                    <outputport name="result" id="v53" />
+                    <functor name="NumberMap">
+                        <property key="dff.functor.alias" value="numberMap2827" />
+                        <inputport name="map" peerid="v35" />
+                        <inputport name="mapNumber">1</inputport>
+                    </functor>
+                    <functor name="NumberMap">
+                        <property key="dff.functor.alias" value="numberMap3442" />
+                        <inputport name="map" peerid="v41" />
+                        <inputport name="mapNumber">2</inputport>
+                    </functor>
+                    <functor name="NumberValue">
+                        <property key="dff.functor.alias" value="numberValue3443" />
+                        <inputport name="value" peerid="v19" />
+                        <inputport name="valueNumber">1</inputport>
+                    </functor>
+                </containerfunctor>
+                <containerfunctor name="CalculateMap">
+                    <property key="dff.container.collapsed" value="no" />
+                    <property key="dff.functor.alias" value="calculateMap2826" />
+                    <inputport name="expression">[&#x0A;    if isNull(i1) then&#x0A;        1&#x0A;    else &#x0A;        i1 * i2&#x0A;]</inputport>
+                    <inputport name="cellType">.int32</inputport>
+                    <inputport name="nullValue">.default</inputport>
+                    <inputport name="resultIsSparse">.no</inputport>
+                    <inputport name="resultFormat">.none</inputport>
+                    <outputport name="result" id="v54" />
+                    <functor name="NumberMap">
+                        <property key="dff.functor.alias" value="numberMap2827" />
+                        <inputport name="map" peerid="v38" />
+                        <inputport name="mapNumber">1</inputport>
+                    </functor>
+                    <functor name="NumberMap">
+                        <property key="dff.functor.alias" value="numberMap3442" />
+                        <inputport name="map" peerid="v43" />
+                        <inputport name="mapNumber">2</inputport>
+                    </functor>
+                    <functor name="NumberValue">
+                        <property key="dff.functor.alias" value="numberValue3443" />
+                        <inputport name="value" peerid="v19" />
+                        <inputport name="valueNumber">1</inputport>
+                    </functor>
+                </containerfunctor>
+                <containerfunctor name="CalculateMap">
+                    <property key="dff.container.collapsed" value="no" />
+                    <property key="dff.functor.alias" value="calculateMap2826" />
+                    <inputport name="expression">[&#x0A;    if isNull(i1) then&#x0A;        1&#x0A;    else &#x0A;        i1 * i2&#x0A;]</inputport>
+                    <inputport name="cellType">.int32</inputport>
+                    <inputport name="nullValue">.default</inputport>
+                    <inputport name="resultIsSparse">.no</inputport>
+                    <inputport name="resultFormat">.none</inputport>
+                    <outputport name="result" id="v55" />
+                    <functor name="NumberMap">
+                        <property key="dff.functor.alias" value="numberMap2827" />
+                        <inputport name="map" peerid="v44" />
+                        <inputport name="mapNumber">2</inputport>
+                    </functor>
+                    <functor name="NumberMap">
+                        <property key="dff.functor.alias" value="numberMap3442" />
+                        <inputport name="map" peerid="v34" />
+                        <inputport name="mapNumber">1</inputport>
+                    </functor>
+                    <functor name="NumberValue">
+                        <property key="dff.functor.alias" value="numberValue3443" />
+                        <inputport name="value" peerid="v19" />
+                        <inputport name="valueNumber">1</inputport>
+                    </functor>
+                </containerfunctor>
+                <containerfunctor name="CalculateMap">
+                    <property key="dff.container.collapsed" value="no" />
+                    <property key="dff.functor.alias" value="calculateMap2826" />
+                    <inputport name="expression">[&#x0A;    if isNull(i1) then&#x0A;        1&#x0A;    else &#x0A;        i1 * i2&#x0A;]</inputport>
+                    <inputport name="cellType">.int32</inputport>
+                    <inputport name="nullValue">.default</inputport>
+                    <inputport name="resultIsSparse">.no</inputport>
+                    <inputport name="resultFormat">.none</inputport>
+                    <outputport name="result" id="v56" />
+                    <functor name="NumberMap">
+                        <property key="dff.functor.alias" value="numberMap2827" />
+                        <inputport name="map" peerid="v48" />
+                        <inputport name="mapNumber">2</inputport>
+                    </functor>
+                    <functor name="NumberMap">
+                        <property key="dff.functor.alias" value="numberMap3442" />
+                        <inputport name="map" peerid="v39" />
+                        <inputport name="mapNumber">1</inputport>
+                    </functor>
+                    <functor name="NumberValue">
+                        <property key="dff.functor.alias" value="numberValue3443" />
+                        <inputport name="value" peerid="v19" />
+                        <inputport name="valueNumber">1</inputport>
+                    </functor>
+                </containerfunctor>
+                <containerfunctor name="CalculateMap">
+                    <property key="dff.container.collapsed" value="no" />
+                    <property key="dff.functor.alias" value="calculateMap2826" />
+                    <inputport name="expression">[&#x0A;    if isNull(i1) then&#x0A;        1&#x0A;    else &#x0A;        i1 * i2&#x0A;]</inputport>
+                    <inputport name="cellType">.int32</inputport>
+                    <inputport name="nullValue">.default</inputport>
+                    <inputport name="resultIsSparse">.no</inputport>
+                    <inputport name="resultFormat">.none</inputport>
+                    <outputport name="result" id="v57" />
+                    <functor name="NumberMap">
+                        <property key="dff.functor.alias" value="numberMap2827" />
+                        <inputport name="map" peerid="v49" />
+                        <inputport name="mapNumber">2</inputport>
+                    </functor>
+                    <functor name="NumberMap">
+                        <property key="dff.functor.alias" value="numberMap3442" />
+                        <inputport name="map" peerid="v40" />
+                        <inputport name="mapNumber">1</inputport>
+                    </functor>
+                    <functor name="NumberValue">
+                        <property key="dff.functor.alias" value="numberValue3443" />
+                        <inputport name="value" peerid="v19" />
+                        <inputport name="valueNumber">1</inputport>
+                    </functor>
+                </containerfunctor>
+                <containerfunctor name="CalculateMap">
+                    <property key="dff.container.collapsed" value="no" />
+                    <property key="dff.functor.alias" value="calculateMap2826" />
+                    <inputport name="expression">[&#x0A;    if isNull(i1) then&#x0A;        1&#x0A;    else &#x0A;        i1 * i2&#x0A;]</inputport>
+                    <inputport name="cellType">.int32</inputport>
+                    <inputport name="nullValue">.default</inputport>
+                    <inputport name="resultIsSparse">.no</inputport>
+                    <inputport name="resultFormat">.none</inputport>
+                    <outputport name="result" id="v58" />
+                    <functor name="NumberMap">
+                        <property key="dff.functor.alias" value="numberMap2827" />
+                        <inputport name="map" peerid="v45" />
+                        <inputport name="mapNumber">2</inputport>
+                    </functor>
+                    <functor name="NumberMap">
+                        <property key="dff.functor.alias" value="numberMap3442" />
+                        <inputport name="map" peerid="v36" />
+                        <inputport name="mapNumber">1</inputport>
+                    </functor>
+                    <functor name="NumberValue">
+                        <property key="dff.functor.alias" value="numberValue3443" />
+                        <inputport name="value" peerid="v19" />
+                        <inputport name="valueNumber">1</inputport>
+                    </functor>
+                </containerfunctor>
+                <containerfunctor name="CalculateMap">
+                    <property key="dff.container.collapsed" value="no" />
+                    <property key="dff.functor.alias" value="calculateMap2826" />
+                    <inputport name="expression">[&#x0A;    if isNull(i1) then&#x0A;        1&#x0A;    else &#x0A;        i1 * i2&#x0A;]</inputport>
+                    <inputport name="cellType">.int32</inputport>
+                    <inputport name="nullValue">.default</inputport>
+                    <inputport name="resultIsSparse">.no</inputport>
+                    <inputport name="resultFormat">.none</inputport>
+                    <outputport name="result" id="v59" />
+                    <functor name="NumberMap">
+                        <property key="dff.functor.alias" value="numberMap2827" />
+                        <inputport name="map" peerid="v46" />
+                        <inputport name="mapNumber">2</inputport>
+                    </functor>
+                    <functor name="NumberMap">
+                        <property key="dff.functor.alias" value="numberMap3442" />
+                        <inputport name="map" peerid="v33" />
+                        <inputport name="mapNumber">1</inputport>
+                    </functor>
+                    <functor name="NumberValue">
+                        <property key="dff.functor.alias" value="numberValue3443" />
+                        <inputport name="value" peerid="v19" />
+                        <inputport name="valueNumber">1</inputport>
+                    </functor>
+                </containerfunctor>
+                <containerfunctor name="CalculateMap">
+                    <property key="dff.container.collapsed" value="no" />
+                    <property key="dff.functor.alias" value="calculateMap2826" />
+                    <inputport name="expression">[&#x0A;    if isNull(i1) then&#x0A;        1&#x0A;    else &#x0A;        i1 * i2&#x0A;]</inputport>
+                    <inputport name="cellType">.int32</inputport>
+                    <inputport name="nullValue">.default</inputport>
+                    <inputport name="resultIsSparse">.no</inputport>
+                    <inputport name="resultFormat">.none</inputport>
+                    <outputport name="result" id="v60" />
+                    <functor name="NumberMap">
+                        <property key="dff.functor.alias" value="numberMap2827" />
+                        <inputport name="map" peerid="v47" />
+                        <inputport name="mapNumber">2</inputport>
+                    </functor>
+                    <functor name="NumberMap">
+                        <property key="dff.functor.alias" value="numberMap3442" />
+                        <inputport name="map" peerid="v37" />
+                        <inputport name="mapNumber">1</inputport>
+                    </functor>
+                    <functor name="NumberValue">
+                        <property key="dff.functor.alias" value="numberValue3443" />
+                        <inputport name="value" peerid="v19" />
+                        <inputport name="valueNumber">1</inputport>
+                    </functor>
+                </containerfunctor>
+            </containerfunctor>
+            <containerfunctor name="Group">
+                <property key="dff.functor.alias" value="group3213" />
+                <functor name="IntegerValue">
+                    <property key="dff.functor.alias" value="int3215" />
+                    <property key="dff.functor.comment" value="This operator is used here to force a dependence between two groups." />
+                    <inputport name="constant" peerid="v28" />
+                </functor>
+                <functor name="MergeRegionalCategoricalMaps">
+                    <property key="dff.functor.alias" value="Updated Landscape" />
+                    <property key="dff.functor.comment" value="Merge all maps assigned to the regions using the given identifier." />
+                    <inputport name="globalMapName">&quot;county&quot;</inputport>
+                    <inputport name="mergeNonRegionCells">.no</inputport>
+                    <inputport name="regionManager" peerid="v10" />
+                    <outputport name="globalMap" id="v61" />
+                </functor>
+                <functor name="MergeRegionalMaps">
+                    <property key="dff.functor.alias" value="mergeRegionalMaps2895" />
+                    <inputport name="globalMapName">&quot;cnty_prob&quot;</inputport>
+                    <inputport name="mergeNonRegionCells">.no</inputport>
+                    <inputport name="regionManager" peerid="v10" />
+                    <outputport name="globalMap" id="v62" />
+                </functor>
+            </containerfunctor>
+        </containerfunctor>
+    </containerfunctor>
+</script>

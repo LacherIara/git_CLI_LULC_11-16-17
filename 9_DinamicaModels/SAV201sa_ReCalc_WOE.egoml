@@ -1,0 +1,140 @@
+<?xml version="1.0" standalone="yes" ?>
+<script>
+    <property key="dff.date" value="2017-Aug-17 14:41:33" />
+    <property key="dff.version" value="3.0.17.20160922" />
+    <property key="metadata.author" value="Dinamica Team" />
+    <property key="metadata.description" value="This model calculates weights of evidence for subregions" />
+    <property key="metadata.organization" value="CSR/UFMG" />
+    <property key="metadata.showproperties" value="yes" />
+    <property key="metadata.title" value="Recalculate Weights of Evidence - sig bins only" />
+    <functor name="CalcDistanceMap">
+        <property key="dff.functor.alias" value="Distances" />
+        <inputport name="categoricalMap" peerid="v3" />
+        <inputport name="categories">[ 2, 3 ]</inputport>
+        <inputport name="cellType">.int32</inputport>
+        <inputport name="nullValue">.default</inputport>
+        <inputport name="truncateDistance">.no</inputport>
+        <outputport name="distance" id="v1" />
+    </functor>
+    <functor name="LoadCategoricalMap">
+        <property key="dff.functor.alias" value="Final Landscape" />
+        <property key="dff.functor.comment" value="Final landscape map." />
+        <inputport name="filename">&quot;../../../../PreparedRasters/StudyAreaBndy/nlcd11_anC.img&quot;</inputport>
+        <inputport name="nullValue">.none</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">0</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v2" />
+    </functor>
+    <functor name="LoadCategoricalMap">
+        <property key="dff.functor.alias" value="Initial Landscape" />
+        <property key="dff.functor.comment" value="Initial landscape map." />
+        <inputport name="filename">&quot;../../../../PreparedRasters/StudyAreaBndy/nlcd01_anC.img&quot;</inputport>
+        <inputport name="nullValue">.none</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">0</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v3" />
+    </functor>
+    <functor name="LoadMap">
+        <property key="dff.functor.alias" value="Static Variables" />
+        <property key="dff.functor.comment" value="Static variable map." />
+        <inputport name="filename">&quot;../../Variable_Cubes/sa108_VarCube_Fyp.img.tif&quot;</inputport>
+        <inputport name="nullValue">.none</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">0</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v4" />
+    </functor>
+    <functor name="LoadCategoricalMap">
+        <property key="dff.functor.alias" value="Regions" />
+        <property key="dff.functor.comment" value="Municipalities" />
+        <inputport name="filename">&quot;../../../../PreparedRasters/StudyAreaBndy/region_an.img&quot;</inputport>
+        <inputport name="nullValue">.none</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">0</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v5" />
+    </functor>
+    <containerfunctor name="ForEachRegion">
+        <property key="dff.functor.alias" value="forEachRegion2683" />
+        <inputport name="regions" peerid="v5" />
+        <inputport name="borderCells">0</inputport>
+        <internaloutputport name="regionManager" id="v6" />
+        <internaloutputport name="step" id="v7" />
+        <functor name="SaveWeights">
+            <property key="dff.functor.alias" value="saveWeights576" />
+            <property key="dff.functor.comment" value="Weights of Evidence ranges." />
+            <inputport name="weights" peerid="v13" />
+            <inputport name="filename">&quot;../Parameters/WOE_recalc/rv201_WOE.csv&quot;</inputport>
+            <inputport name="suffixDigits">2</inputport>
+            <inputport name="step" peerid="v7" />
+            <inputport name="workdir">.none</inputport>
+        </functor>
+        <functor name="RegionalizeCategoricalMap">
+            <property key="dff.functor.alias" value="Final Landscape (Region)" />
+            <inputport name="globalMap" peerid="v2" />
+            <inputport name="regionId" peerid="v7" />
+            <inputport name="keepNonRegionCells">.no</inputport>
+            <inputport name="regionManager" peerid="v6" />
+            <outputport name="regionalMap" id="v8" />
+        </functor>
+        <functor name="RegionalizeMap">
+            <property key="dff.functor.alias" value="Static Variables (Region)" />
+            <inputport name="globalMap" peerid="v4" />
+            <inputport name="regionId" peerid="v7" />
+            <inputport name="keepNonRegionCells">.no</inputport>
+            <inputport name="regionManager" peerid="v6" />
+            <outputport name="regionalMap" id="v9" />
+        </functor>
+        <functor name="RegionalizeCategoricalMap">
+            <property key="dff.functor.alias" value="Initial Landscape (Region)" />
+            <inputport name="globalMap" peerid="v3" />
+            <inputport name="regionId" peerid="v7" />
+            <inputport name="keepNonRegionCells">.no</inputport>
+            <inputport name="regionManager" peerid="v6" />
+            <outputport name="regionalMap" id="v10" />
+        </functor>
+        <functor name="RegionalizeMap">
+            <property key="dff.functor.alias" value="Distances (Region)" />
+            <inputport name="globalMap" peerid="v1" />
+            <inputport name="regionId" peerid="v7" />
+            <inputport name="keepNonRegionCells">.no</inputport>
+            <inputport name="regionManager" peerid="v6" />
+            <outputport name="regionalMap" id="v11" />
+        </functor>
+        <functor name="LoadWeights">
+            <property key="dff.functor.alias" value="loadWeights1125" />
+            <inputport name="filename">&quot;../Parameters/WOE_adj/sv201_WOE_yp.csv&quot;</inputport>
+            <inputport name="suffixDigits">2</inputport>
+            <inputport name="step" peerid="v7" />
+            <inputport name="workdir">.none</inputport>
+            <outputport name="weights" id="v12" />
+        </functor>
+        <containerfunctor name="DetermineWeightsOfEvidenceCoefficients">
+            <property key="dff.container.collapsed" value="no" />
+            <property key="dff.functor.alias" value="Weight of Evidence Coefficients" />
+            <property key="dff.functor.comment" value="Calculate Weights of Evidence coefficients." />
+            <property key="viewer.report" value="yes" />
+            <inputport name="initialLandscape" peerid="v10" />
+            <inputport name="finalLandscape" peerid="v8" />
+            <inputport name="ranges" peerid="v12" />
+            <inputport name="fixAbnormalWeights">.yes</inputport>
+            <outputport name="weights" id="v13" />
+            <functor name="NameMap">
+                <property key="dff.functor.alias" value="nameMap586" />
+                <inputport name="map" peerid="v9" />
+                <inputport name="mapName">&quot;nlcdC_11&quot;</inputport>
+            </functor>
+            <functor name="NameMap">
+                <property key="dff.functor.alias" value="nameMap587" />
+                <inputport name="map" peerid="v11" />
+                <inputport name="mapName">&quot;distance&quot;</inputport>
+            </functor>
+        </containerfunctor>
+    </containerfunctor>
+</script>

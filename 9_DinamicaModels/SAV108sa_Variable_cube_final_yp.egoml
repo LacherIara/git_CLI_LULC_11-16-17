@@ -1,0 +1,201 @@
+<?xml version="1.0" standalone="yes" ?>
+<script>
+    <property key="dff.date" value="2017-Jul-14 15:22:58" />
+    <property key="dff.version" value="3.0.17.20160922" />
+    <property key="metadata.author" value="Iara Lacher" />
+    <property key="metadata.description" value="NLCD RCc&#x0A;Protected areas removed (by year)&#x0A;Mainly used to build WOE tables" />
+    <property key="metadata.showproperties" value="no" />
+    <property key="metadata.title" value="Study Area v105" />
+    <functor name="LoadCategoricalMap">
+        <property key="dff.functor.alias" value="loadCategoricalMap2630" />
+        <inputport name="filename">&quot;../../../../PreparedRasters/StudyAreaBndy/nlcd11_anC.img&quot;</inputport>
+        <inputport name="nullValue">.default</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">.none</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v1" />
+    </functor>
+    <functor name="SaveMap">
+        <property key="dff.functor.alias" value="saveMap2640" />
+        <inputport name="map" peerid="v12" />
+        <inputport name="filename">&quot;../../Variable_Cubes/sa108_VarCube_Fyp.img.tif&quot;</inputport>
+        <inputport name="suffixDigits">2</inputport>
+        <inputport name="step">.none</inputport>
+        <inputport name="useCompression">.yes</inputport>
+        <inputport name="workdir">.none</inputport>
+    </functor>
+    <functor name="LoadMap">
+        <property key="dff.functor.alias" value="loadMap2600" />
+        <inputport name="filename">&quot;../../../../PreparedRasters/StudyAreaBndy/slope_an.img&quot;</inputport>
+        <inputport name="nullValue">.none</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">.none</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v2" />
+    </functor>
+    <functor name="LoadMap">
+        <property key="dff.functor.alias" value="loadMap1107" />
+        <inputport name="filename">&quot;../../../../PreparedRasters/StudyAreaBndy/travelt_11_an.img&quot;</inputport>
+        <inputport name="nullValue">.none</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">.none</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v3" />
+    </functor>
+    <functor name="LoadMap">
+        <property key="dff.functor.alias" value="loadMap1109" />
+        <inputport name="filename">&quot;../../../../PreparedRasters/StudyAreaBndy/med_inc_11_an.img&quot;</inputport>
+        <inputport name="nullValue">.none</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">.none</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v4" />
+    </functor>
+    <functor name="LoadCategoricalMap">
+        <property key="dff.functor.alias" value="loadCategoricalMap1131" />
+        <inputport name="filename">&quot;../../../../PreparedRasters/StudyAreaBndy/pi_an.img&quot;</inputport>
+        <inputport name="nullValue">.none</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">.none</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v5" />
+    </functor>
+    <functor name="LoadMap">
+        <property key="dff.functor.alias" value="loadMap1113" />
+        <inputport name="filename">&quot;../../../../PreparedRasters/StudyAreaBndy/pop_den_11_an.img&quot;</inputport>
+        <inputport name="nullValue">.none</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">.none</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v6" />
+    </functor>
+    <functor name="LoadMap">
+        <property key="dff.functor.alias" value="loadMap1115" />
+        <inputport name="filename">&quot;../../../../PreparedRasters/StudyAreaBndy/pl_2011_dist_x.img&quot;</inputport>
+        <inputport name="nullValue">.none</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">.none</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v7" />
+    </functor>
+    <functor name="LoadMap">
+        <property key="dff.functor.alias" value="loadMap1125" />
+        <inputport name="filename">&quot;../../../../PreparedRasters/StudyAreaBndy/pov_pct_11_an.img&quot;</inputport>
+        <inputport name="nullValue">.none</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">.none</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v8" />
+    </functor>
+    <functor name="LoadCategoricalMap">
+        <property key="dff.functor.alias" value="loadCategoricalMap1149" />
+        <inputport name="filename">&quot;../../../../PreparedRasters/StudyAreaBndy/zoneG6_an.img&quot;</inputport>
+        <inputport name="nullValue">.none</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">.none</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v9" />
+    </functor>
+    <functor name="LoadCategoricalMap">
+        <property key="dff.functor.alias" value="loadCategoricalMap1133" />
+        <inputport name="filename">&quot;../../../../PreparedRasters/StudyAreaBndy/Geol_an.img&quot;</inputport>
+        <inputport name="nullValue">.none</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">.none</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v10" />
+    </functor>
+    <functor name="LoadMap">
+        <property key="dff.functor.alias" value="loadMap1115" />
+        <inputport name="filename">&quot;../../../../PreparedRasters/StudyAreaBndy/pl_2011_gap_x.img&quot;</inputport>
+        <inputport name="nullValue">.none</inputport>
+        <inputport name="loadAsSparse">.no</inputport>
+        <inputport name="suffixDigits">0</inputport>
+        <inputport name="step">.none</inputport>
+        <inputport name="workdir">.none</inputport>
+        <outputport name="map" id="v11" />
+    </functor>
+    <containerfunctor name="CreateCubeMap">
+        <property key="dff.container.collapsed" value="no" />
+        <property key="dff.functor.alias" value="createCubeMap2628" />
+        <inputport name="cellType">.int32</inputport>
+        <inputport name="nullValue">.default</inputport>
+        <outputport name="map" id="v12" />
+        <functor name="NumberAndNameMap">
+            <property key="dff.functor.alias" value="numberAndNameMap2629" />
+            <inputport name="map" peerid="v1" />
+            <inputport name="mapName">&quot;nlcd_C_11&quot;</inputport>
+            <inputport name="mapNumber">0</inputport>
+        </functor>
+        <functor name="NumberAndNameMap">
+            <property key="dff.functor.alias" value="numberAndNameMap2629" />
+            <inputport name="map" peerid="v10" />
+            <inputport name="mapName">&quot;geology&quot;</inputport>
+            <inputport name="mapNumber">1</inputport>
+        </functor>
+        <functor name="NumberAndNameMap">
+            <property key="dff.functor.alias" value="numberAndNameMap2629" />
+            <inputport name="map" peerid="v2" />
+            <inputport name="mapName">&quot;slope&quot;</inputport>
+            <inputport name="mapNumber">7</inputport>
+        </functor>
+        <functor name="NumberAndNameMap">
+            <property key="dff.functor.alias" value="numberAndNameMap1113" />
+            <inputport name="map" peerid="v3" />
+            <inputport name="mapName">&quot;travelt_11&quot;</inputport>
+            <inputport name="mapNumber">9</inputport>
+        </functor>
+        <functor name="NumberAndNameMap">
+            <property key="dff.functor.alias" value="numberAndNameMap1123" />
+            <inputport name="map" peerid="v5" />
+            <inputport name="mapName">&quot;soils&quot;</inputport>
+            <inputport name="mapNumber">8</inputport>
+        </functor>
+        <functor name="NumberAndNameMap">
+            <property key="dff.functor.alias" value="numberAndNameMap1134" />
+            <inputport name="map" peerid="v4" />
+            <inputport name="mapName">&quot;medinc_11&quot;</inputport>
+            <inputport name="mapNumber">2</inputport>
+        </functor>
+        <functor name="NumberAndNameMap">
+            <property key="dff.functor.alias" value="numberAndNameMap1117" />
+            <inputport name="map" peerid="v6" />
+            <inputport name="mapName">&quot;popden_11&quot;</inputport>
+            <inputport name="mapNumber">3</inputport>
+        </functor>
+        <functor name="NumberAndNameMap">
+            <property key="dff.functor.alias" value="numberAndNameMap1117" />
+            <inputport name="map" peerid="v7" />
+            <inputport name="mapName">&quot;prot_dist_11&quot;</inputport>
+            <inputport name="mapNumber">6</inputport>
+        </functor>
+        <functor name="NumberAndNameMap">
+            <property key="dff.functor.alias" value="numberAndNameMap1143" />
+            <inputport name="map" peerid="v8" />
+            <inputport name="mapName">&quot;pov_11&quot;</inputport>
+            <inputport name="mapNumber">4</inputport>
+        </functor>
+        <functor name="NumberAndNameMap">
+            <property key="dff.functor.alias" value="numberAndNameMap1151" />
+            <inputport name="map" peerid="v9" />
+            <inputport name="mapName">&quot;zoning&quot;</inputport>
+            <inputport name="mapNumber">10</inputport>
+        </functor>
+        <functor name="NumberAndNameMap">
+            <property key="dff.functor.alias" value="numberAndNameMap1117" />
+            <inputport name="map" peerid="v11" />
+            <inputport name="mapName">&quot;prot_gap_11&quot;</inputport>
+            <inputport name="mapNumber">5</inputport>
+        </functor>
+    </containerfunctor>
+</script>
